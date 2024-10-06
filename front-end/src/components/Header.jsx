@@ -14,6 +14,9 @@ const Header = () => {
   const handleAvatarClick = () => {
     setIsDropdownOpen(!isDropdownOpen); 
   };
+  const handleProfile = () => {
+    router.push('/profile');
+  };
   const handleLogout = () => {
     setLoggedIn(false);
     setIsDropdownOpen(false);
@@ -64,10 +67,10 @@ const Header = () => {
               <div
                 ref={dropdownRef}
                 className="absolute right-0 mt-2 w-44 bg-[#0D1136] shadow-lg rounded-lg p-4 text-white z-10"
-                style={{ top: '4%' }}
+                style={{ top: '6%' }}
               >
                 <ul className="mt-2 space-y-2">
-                  <li className="cursor-pointer"><a href='profile'>Thông tin cá nhân</a></li>
+                  <li className="cursor-pointer" onClick={handleProfile}>Thông tin cá nhân</li>
                   <li
                     className="cursor-pointer text-red-500"
                     onClick={handleLogout}
@@ -86,7 +89,7 @@ const Header = () => {
             >
               Đăng nhập
             </button>
-            {console.log(loggedIn)}
+            {/* {console.log(loggedIn)} */}
           </>
         )}
       </div>

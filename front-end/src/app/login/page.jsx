@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleLogin } from "@react-oauth/google";
 const LoginPage = () => {
-  const { setLoggedIn } = useAuth();
+  const { loggedIn,setLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
