@@ -1,26 +1,24 @@
 'use client'
-import { useState,useEffect,useRef  } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '~/context/AuthContext'
+
 const Header = () => {
-  const {loggedIn, setLoggedIn} = useAuth();
-  const router = useRouter();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const avatarRef = useRef(null);
+  const { loggedIn, setLoggedIn } = useAuth()
+  const router = useRouter()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
+  const avatarRef = useRef(null)
   const handleLoginClick = () => {
-    router.push('/login');
-  };
+    router.push('/login')
+  }
   const handleAvatarClick = () => {
     setIsDropdownOpen(!isDropdownOpen); 
   };
-  const handleProfile = () => {
-    router.push('/profile');
-  };
   const handleLogout = () => {
-    setLoggedIn(false);
-    setIsDropdownOpen(false);
-  };
+    setLoggedIn(false)
+    setIsDropdownOpen(false)
+  }
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Kiểm tra nếu click bên ngoài dropdown và ảnh đại diện thì đóng dropdown
@@ -30,24 +28,30 @@ const Header = () => {
         avatarRef.current &&
         !avatarRef.current.contains(event.target)
       ) {
-        setIsDropdownOpen(false);
+        setIsDropdownOpen(false)
       }
-    };
+    }
 
     if (isDropdownOpen) {
-      document.addEventListener('click', handleClickOutside);
+      document.addEventListener('click', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isDropdownOpen])
+
   return (
     <header className="bg-gray-800 flex justify-between items-center py-4 px-6">
       {/* Logo */}
       <div className="flex items-center space-x-4">
         <div className="bg-blue-500 text-white p-2 rounded-full">
-          <a className="font-bold text-xl" href='/'>EduMaster</a>
+          <button
+            className="font-bold text-xl"
+            onClick={() => router.push('/')}
+          >
+            EduMaster
+          </button>
         </div>
       </div>
 
@@ -55,12 +59,11 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         {loggedIn ? (
           <>
-            <img
+            <image
               ref={avatarRef}
               src="https://via.placeholder.com/30"
               alt="User"
               className="w-8 h-8 rounded-full cursor-pointer z-20 relative"
-            
               onClick={handleAvatarClick}
             />
             {isDropdownOpen && (
@@ -70,7 +73,7 @@ const Header = () => {
                 style={{ top: '6%' }}
               >
                 <ul className="mt-2 space-y-2">
-                  <li className="cursor-pointer" onClick={handleProfile}>Thông tin cá nhân</li>
+                  <li className="cursor-pointer"><a href='profile'>Thông tin cá nhân</a></li>
                   <li
                     className="cursor-pointer text-red-500"
                     onClick={handleLogout}
@@ -84,7 +87,7 @@ const Header = () => {
         ) : (
           <>
             <button
-              onClick={handleLoginClick} 
+              onClick={handleLoginClick}
               className="bg-blue-600 text-white px-4 py-2 rounded-full"
             >
               Đăng nhập
@@ -94,7 +97,7 @@ const Header = () => {
         )}
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

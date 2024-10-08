@@ -1,136 +1,161 @@
-'use client';
-import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaSpinner } from "react-icons/fa";
-import firebase from "../../firebase/setup";
-import { useRouter } from 'next/navigation';
+'use client'
+import React, { useState } from 'react'
+import { FcGoogle } from 'react-icons/fc'
+import { FaSpinner } from 'react-icons/fa'
+// import firebase from '../../firebase/setup'
+import { useRouter } from 'next/navigation'
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    grade: "",
-    school: ""
-  });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [otp, setOtp] = useState("");
-  const router = useRouter();
+    name: '',
+    email: '',
+    phone: '',
+    grade: '',
+    school: '',
+  })
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  // const [otp, setOtp] = useState('')
+  const router = useRouter()
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    validateField(name, value);
-  };
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+    validateField(name, value)
+  }
 
   const validateField = (name, value) => {
-    let newErrors = { ...errors };
+    let newErrors = { ...errors }
     switch (name) {
-      case "name":
+      case 'name':
         if (!value.trim()) {
-          newErrors.name = "Tên sai";
+          newErrors.name = 'Tên sai'
         } else {
-          delete newErrors.name;
+          delete newErrors.name
         }
-        break;
-      case "email":
+        break
+      case 'email':
         if (!/\S+@\S+\.\S+/.test(value)) {
-          newErrors.email = "Email sai cấu trúc";
+          newErrors.email = 'Email sai cấu trúc'
         } else {
-          delete newErrors.email;
+          delete newErrors.email
         }
-        break;
-      case "phone":
+        break
+      case 'phone':
         if (!/^\+?[0-9]\d{1,9}$/.test(value)) {
-          newErrors.phone = "Số điện thoại không đúng";
+          newErrors.phone = 'Số điện thoại không đúng'
         } else {
-          delete newErrors.phone;
+          delete newErrors.phone
         }
-        break;
-      case "grade":
+        break
+      case 'grade':
         if (!value) {
-          newErrors.grade = "Bắt buộc chọn";
+          newErrors.grade = 'Bắt buộc chọn'
         } else {
-          delete newErrors.grade;
+          delete newErrors.grade
         }
-        break;
-      case "school":
+        break
+      case 'school':
         if (!value.trim()) {
-          newErrors.school = "Bắt buộc nhập tên trường";
+          newErrors.school = 'Bắt buộc nhập tên trường'
         } else {
-          delete newErrors.school;
+          delete newErrors.school
         }
-        break;
+        break
       default:
-        break;
+        break
     }
-    setErrors(newErrors);
-  };
+    setErrors(newErrors)
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    Object.keys(formData).forEach((key) => validateField(key, formData[key]));
+    e.preventDefault()
+    Object.keys(formData).forEach((key) => validateField(key, formData[key]))
     if (Object.keys(errors).length === 0) {
-      console.log("Form submitted:", formData);
-      router.push('/login');
+      console.log('Form submitted:', formData)
+      router.push('/login')
+    } else {
+      console.log('Lỗi + ', formData)
     }
-    else{
-      console.log("Lỗi + ",formData);
-    }
-  };
+  }
 
   const handleGoogleSignup = () => {
-    setLoading(true);
+    setLoading(true)
     setTimeout(() => {
-      setLoading(false);
-      console.log("Google sign up clicked");
-    }, 2000);
-  };
+      setLoading(false)
+      console.log('Google sign up clicked')
+    }, 2000)
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form
+            className="space-y-6"
+            onSubmit={handleSubmit}
+          >
             <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Tạo tài khoản</h2>
 
-            {["name", "email", "phone", "grade", "school"].map((field) => (
+            {['name', 'email', 'phone', 'grade', 'school'].map((field) => (
               <div key={field}>
-                <label htmlFor={field} className="block text-sm font-medium text-gray-700">
-                  {field === "name" ? "Tên" : field === "email" ? "Email" : field === "phone" ? "Số điện thoại" : field === "grade" ? "Lớp" : "Trường học"}
+                <label
+                  htmlFor={field}
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {field === 'name'
+                    ? 'Tên'
+                    : field === 'email'
+                    ? 'Email'
+                    : field === 'phone'
+                    ? 'Số điện thoại'
+                    : field === 'grade'
+                    ? 'Lớp'
+                    : 'Trường học'}
                 </label>
                 <div className="mt-1">
-                  {field === "grade" ? (
+                  {field === 'grade' ? (
                     <select
                       id={field}
                       name={field}
                       required
-                      className={`block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                      className={`block w-full px-3 py-2 border ${
+                        errors[field] ? 'border-red-300' : 'border-gray-300'
+                      } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                       value={formData[field]}
                       onChange={handleChange}
-                      aria-invalid={errors[field] ? "true" : "false"}
+                      aria-invalid={errors[field] ? 'true' : 'false'}
                       aria-describedby={errors[field] ? `${field}-error` : undefined}
                     >
                       <option value="">Chọn lớp</option>
                       {[1, 2, 3, 4, 5].map((grade) => (
-                        <option key={grade} value={grade}>Lớp {grade}</option>
+                        <option
+                          key={grade}
+                          value={grade}
+                        >
+                          Lớp {grade}
+                        </option>
                       ))}
                     </select>
                   ) : (
                     <input
                       id={field}
                       name={field}
-                      type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
+                      type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
                       required
-                      className={`appearance-none block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                      className={`appearance-none block w-full px-3 py-2 border ${
+                        errors[field] ? 'border-red-300' : 'border-gray-300'
+                      } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                       value={formData[field]}
                       onChange={handleChange}
-                      aria-invalid={errors[field] ? "true" : "false"}
+                      aria-invalid={errors[field] ? 'true' : 'false'}
                       aria-describedby={errors[field] ? `${field}-error` : undefined}
                     />
                   )}
                 </div>
                 {errors[field] && (
-                  <p className="mt-2 text-sm text-red-600" id={`${field}-error`}>
+                  <p
+                    className="mt-2 text-sm text-red-600"
+                    id={`${field}-error`}
+                  >
                     {errors[field]}
                   </p>
                 )}
@@ -172,13 +197,18 @@ const RegistrationPage = () => {
             </div>
             <div className="flex items-center justify-center mt-4">
               <span className="mr-2">Bạn đã có tài khoản?</span>
-              <a href="login" className="text-cyan-400">Đăng nhập</a>
+              <button
+                className="text-cyan-400"
+                onClick={() => router.push('/login')}
+              >
+                Đăng nhập
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RegistrationPage;
+export default RegistrationPage

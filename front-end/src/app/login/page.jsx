@@ -1,10 +1,11 @@
 'use client'
-import React, { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { AiOutlineMail, AiOutlineLock } from "react-icons/ai";
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
-import { GoogleLogin } from "@react-oauth/google";
+import React, { useState } from 'react'
+import { FcGoogle } from 'react-icons/fc'
+import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '~/context/AuthContext'
+import { GoogleLogin } from '@react-oauth/google'
+
 const LoginPage = () => {
   const { loggedIn,setLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
@@ -13,24 +14,23 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const handleLogin = (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    if (email === "hihi@gmail.com" && password === "1") {
-      setLoggedIn(true);
-      router.push('/');
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    if (email === 'hihi@gmail.com' && password === '1') {
+      setLoggedIn(true)
+      router.push('/')
     } else {
-       setError("Tài khoản, mật khẩu không đúng!");
+      setError('Tài khoản, mật khẩu không đúng!')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleGoogleLogin = async (credentialRespone) => {
-    setLoggedIn(true);
+    setLoggedIn(true)
     // alert(" Đăng nhập thành công ");
-    router.push('/');
-  };
-  
+    router.push('/')
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
@@ -38,15 +38,24 @@ const LoginPage = () => {
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Đăng nhập</h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form
+          className="mt-8 space-y-6"
+          onSubmit={handleLogin}
+        >
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label
+                htmlFor="email-address"
+                className="sr-only"
+              >
                 Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <AiOutlineMail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <AiOutlineMail
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
                 </div>
                 <input
                   id="email-address"
@@ -62,12 +71,18 @@ const LoginPage = () => {
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label
+                htmlFor="password"
+                className="sr-only"
+              >
                 Mật khẩu
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <AiOutlineLock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                  <AiOutlineLock
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
                 </div>
                 <input
                   id="password"
@@ -85,7 +100,10 @@ const LoginPage = () => {
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm mt-2" role="alert">
+            <div
+              className="text-red-500 text-sm mt-2"
+              role="alert"
+            >
               {error}
             </div>
           )}
@@ -98,13 +116,29 @@ const LoginPage = () => {
             >
               {loading ? (
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 </span>
               ) : (
-                "Đăng nhập"
+                'Đăng nhập'
               )}
             </button>
           </div>
@@ -131,14 +165,19 @@ const LoginPage = () => {
           </div>
           <div className="flex items-center justify-center mt-4">
             <span className="mr-2">Bạn chưa có tài khoản?</span>
-            <a href="register" className="text-cyan-400">
+            <button
+              className="text-cyan-400"
+              onClick={() => {
+                router.push('/register')
+              }}
+            >
               Đăng ký
-            </a>
+            </button>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage
