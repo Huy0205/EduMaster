@@ -1,6 +1,6 @@
-import 'reflect-metadata'
-import { DataSource } from 'typeorm'
-import { User } from '../app/models/User'
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+import { User } from '../app/models/user';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,16 +14,16 @@ const AppDataSource = new DataSource({
   entities: [User],
   migrations: [],
   subscribers: [],
-})
+});
 
 const connect = async () => {
   try {
-    await AppDataSource.initialize()
-    console.log('Database connected')
+    await AppDataSource.initialize();
+    console.log('Database connected');
   } catch (error) {
-    console.log('Error connecting to database', error)
-    process.exit(1)
+    console.log('Error connecting to database', error);
+    process.exit(1);
   }
-}
+};
 
-export { AppDataSource, connect }
+export { AppDataSource, connect };

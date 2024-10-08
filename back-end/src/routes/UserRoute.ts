@@ -1,13 +1,13 @@
-import { Router } from 'express'
-import { UserController } from '~/app/controllers'
-const userRouter = Router()
+import { Router } from 'express';
+import { UserController } from '~/app/controllers';
+const userRouter = Router();
 
 userRouter.get('/', (req, res) => {
-  res.send('User Route')
-})
+  res.send('User Route');
+});
 
-userRouter.post('/login', UserController.login)
+userRouter.post('/login', UserController.login);
 
-userRouter.post('/register', UserController.register)
+userRouter.post('/register', UserController.register);
 
-export default userRouter
+export default userRouter;
