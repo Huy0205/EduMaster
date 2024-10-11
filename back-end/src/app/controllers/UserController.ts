@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from '~/app/services';
+import { User } from '~/app/models';
 
 export default class UserController {
   static async login(req: Request, res: Response, next: NextFunction) {
@@ -9,15 +10,9 @@ export default class UserController {
       if (!email || !password) {
         res.status(400).json({ message: 'Email and password are required' });
       }
-      const user = await UserService.login(email, password);
-      if (!user) {
-        res.status(400).json({ message: 'Invalid email or password' });
-      } else {
-        res.status(200).json({
-          message: 'Login success',
-          data: user,
-        });
-      }
+      const response = await UserService.login(email, password);
+      const { code, message, data } = response;
+      res.status(code).json({ message, data });
     } catch (error) {
       next(error);
     }
@@ -32,7 +27,7 @@ export default class UserController {
           .status(400)
           .json({ message: 'Email, password, fullName, phoneNumber, grade are required' });
       } else {
-        const user = await UserService.register(
+        const response = await UserService.register(
           email,
           password,
           fullName,
@@ -40,14 +35,8 @@ export default class UserController {
           avatar, // chưa có ảnh mặc định
           grade,
         );
-        if (!user) {
-          res.status(400).json({ message: 'Register failed' });
-        } else {
-          res.status(201).json({
-            message: 'Register success',
-            data: user,
-          });
-        }
+        const { code, message, data } = response;
+        res.status(code).json({ message, data });
       }
     } catch (error) {
       next(error);
@@ -66,11 +55,16 @@ export default class UserController {
       sortBy = typeof sortBy === 'string' ? sortBy : 'fullName'; // Gán 'fullName' nếu sortBy không hợp lệ
       order = order === 'ASC' || order === 'DESC' ? order : 'ASC'; // Gán 'ASC' nếu order không hợp lệ
 
+      console.log('role', role);
+      console.log(isNaN(Number(role)));
+
       // Kiểm tra role
       if (!role || isNaN(Number(role))) {
-        res.status(400).json({ message: 'Valid role is required' });
+        res.status(400).json({ message: 'Role is required and must be a number' });
+      } else if (Number(role) < 0 || Number(role) > 1) {
+        res.status(400).json({ message: 'Role must be 0 or 1' });
       } else {
-        const users = await UserService.getUsersByRole(
+        const response = await UserService.getUsersByRole(
           Number(role),
           pageNum,
           limitNum,
@@ -79,9 +73,53 @@ export default class UserController {
         );
         res.status(200).json({
           message: 'Get users by role success',
-          data: users,
+          data: response,
         });
       }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getUserById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    try {
+      const response = await UserService.getUserById(id);
+      const { code, message, data } = response;
+      res.status(code).json({ message, data });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updateUserById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    const { email, fullName, phoneNumber, avatar, grade } = req.body;
+
+    try {
+      const data: Partial<User> = {
+        email,
+        fullName,
+        phoneNumber,
+        avatar,
+        grade,
+      };
+      const response = await UserService.updateUserById(id, data);
+      const { code, message } = response;
+      res.status(code).json({ message });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteUserById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
+    try {
+      const response = await UserService.deleteUserById(id);
+      const { code, message } = response;
+      res.status(code).json({ message });
     } catch (error) {
       next(error);
     }

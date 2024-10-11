@@ -17,13 +17,23 @@ export default class UserService {
         },
       });
       if (!user) {
-        throw new Error('Email is not exist');
+        return {
+          code: 404,
+          message: 'Email is not exist',
+        };
       }
       const isPasswordMatch = await bcryptUtil.comparePassword(password, user.password);
       if (!isPasswordMatch) {
-        throw new Error('Password is incorrect');
+        return {
+          code: 400,
+          message: 'Password is incorrect',
+        };
       }
-      return user;
+      return {
+        code: 200,
+        message: 'Login success',
+        data: user,
+      };
     } catch (error) {
       console.log('Error logging in', error);
       throw error;
@@ -50,7 +60,10 @@ export default class UserService {
         },
       });
       if (isEmailExist) {
-        throw new Error('Email is already exist');
+        return {
+          code: 400,
+          message: 'Email is already exist',
+        };
       }
 
       // check phone number is already exist
@@ -60,7 +73,10 @@ export default class UserService {
         },
       });
       if (isPhoneNumberExist) {
-        throw new Error('Phone number is already exist');
+        return {
+          code: 400,
+          message: 'Phone number is already exist',
+        };
       }
 
       const hashPassword = await bcryptUtil.hashPassword(password);
@@ -73,7 +89,11 @@ export default class UserService {
         grade,
         role,
       });
-      return user;
+      return {
+        code: 201,
+        message: 'Register success',
+        data: user,
+      };
     } catch (error) {
       console.log('Error registering', error);
       throw error;
@@ -102,10 +122,6 @@ export default class UserService {
         skip: (page - 1) * limit,
       });
 
-      if (!users) {
-        throw new Error('Get users failed');
-      }
-
       const totalPages = Math.ceil(total / limit);
       return {
         totalPages,
@@ -114,6 +130,87 @@ export default class UserService {
       };
     } catch (error) {
       console.log('Error getting users by role', error);
+      throw error;
+    }
+  }
+
+  /*
+   * Get user by id
+   */
+  static async getUserById(id: string) {
+    try {
+      const user = await UserRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!user) {
+        return {
+          code: 404,
+          message: 'User is not exist',
+        };
+      }
+      return {
+        code: 200,
+        message: 'Get user by id success',
+        data: user,
+      };
+    } catch (error) {
+      console.log('Error getting user by id', error);
+      throw error;
+    }
+  }
+
+  /*
+   * Update user by id
+   */
+  static async updateUserById(id: string, data: Partial<User>) {
+    try {
+      const user = await UserRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!user) {
+        return {
+          code: 404,
+          message: 'User is not exist',
+        };
+      }
+      await UserRepository.update(id, data);
+      return {
+        code: 200,
+        message: 'Update user success',
+      };
+    } catch (error) {
+      console.log('Error updating user', error);
+      throw error;
+    }
+  }
+
+  /*
+   * Delete user by id
+   */
+  static async deleteUserById(id: string) {
+    try {
+      const user = await UserRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!user) {
+        return {
+          code: 404,
+          message: 'User is not exist',
+        };
+      }
+      await UserRepository.delete(id);
+      return {
+        code: 200,
+        message: 'Delete user success',
+      };
+    } catch (error) {
+      console.log('Error deleting user', error);
       throw error;
     }
   }

@@ -19,7 +19,7 @@ app.use(errorHandler);
 
 db.connect();
 
-app.use(routes);
+app.use('/api/v1', routes);
 
 app.listen(port, () => {
   console.log('Server is running on port', port);
