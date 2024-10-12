@@ -12,6 +12,9 @@ const Header = () => {
   const handleLoginClick = () => {
     router.push('/login')
   }
+  const handleProfileClick=()=>{
+    router.push('/profile')
+  }
   const handleAvatarClick = () => {
     setIsDropdownOpen(!isDropdownOpen); 
   };
@@ -59,9 +62,9 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         {loggedIn ? (
           <>
-            <image
+            <img
               ref={avatarRef}
-              src="https://via.placeholder.com/30"
+              src="https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095"
               alt="User"
               className="w-8 h-8 rounded-full cursor-pointer z-20 relative"
               onClick={handleAvatarClick}
@@ -73,7 +76,7 @@ const Header = () => {
                 style={{ top: '6%' }}
               >
                 <ul className="mt-2 space-y-2">
-                  <li className="cursor-pointer"><a href='profile'>Thông tin cá nhân</a></li>
+                  <li className="cursor-pointer"><a onClick={handleProfileClick}>Thông tin cá nhân</a></li>
                   <li
                     className="cursor-pointer text-red-500"
                     onClick={handleLogout}

@@ -2,22 +2,25 @@
 import React, { useState } from 'react'
 import { FcGoogle } from 'react-icons/fc'
 import { FaSpinner } from 'react-icons/fa'
-// import firebase from '../../firebase/setup'
 import { useRouter } from 'next/navigation'
+import { postApiNoneToken } from '~/api/page'
+
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    phone: '',
+    password: '',
+    fullName: '',
+    phoneNumber: '',
     grade: '',
-    school: '',
+    avatar: 'hehehe',
   })
+
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  // const [otp, setOtp] = useState('')
   const router = useRouter()
+
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target // Sửa từ fullName thành name
     setFormData({ ...formData, [name]: value })
     validateField(name, value)
   }
@@ -25,11 +28,11 @@ const RegistrationPage = () => {
   const validateField = (name, value) => {
     let newErrors = { ...errors }
     switch (name) {
-      case 'name':
+      case 'fullName': // Sửa từ 'name' thành 'fullName' để đúng với formData
         if (!value.trim()) {
-          newErrors.name = 'Tên sai'
+          newErrors.fullName = 'Tên sai'
         } else {
-          delete newErrors.name
+          delete newErrors.fullName
         }
         break
       case 'email':
@@ -39,11 +42,11 @@ const RegistrationPage = () => {
           delete newErrors.email
         }
         break
-      case 'phone':
+      case 'phoneNumber': // Sửa từ 'phone' thành 'phoneNumber'
         if (!/^\+?[0-9]\d{1,9}$/.test(value)) {
-          newErrors.phone = 'Số điện thoại không đúng'
+          newErrors.phoneNumber = 'Số điện thoại không đúng'
         } else {
-          delete newErrors.phone
+          delete newErrors.phoneNumber
         }
         break
       case 'grade':
@@ -53,11 +56,11 @@ const RegistrationPage = () => {
           delete newErrors.grade
         }
         break
-      case 'school':
+      case 'password':
         if (!value.trim()) {
-          newErrors.school = 'Bắt buộc nhập tên trường'
+          newErrors.password = 'Vui lòng nhập mật khẩu'
         } else {
-          delete newErrors.school
+          delete newErrors.password
         }
         break
       default:
@@ -66,12 +69,18 @@ const RegistrationPage = () => {
     setErrors(newErrors)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     Object.keys(formData).forEach((key) => validateField(key, formData[key]))
     if (Object.keys(errors).length === 0) {
-      console.log('Form submitted:', formData)
-      router.push('/login')
+      try {
+        const res = await postApiNoneToken("user/register", formData)
+        if (res.data) {
+          router.push('/login')
+        }
+      } catch (error) {
+        console.log(error)
+      }
     } else {
       console.log('Lỗi + ', formData)
     }
@@ -89,27 +98,24 @@ const RegistrationPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form
-            className="space-y-6"
-            onSubmit={handleSubmit}
-          >
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Tạo tài khoản</h2>
 
-            {['name', 'email', 'phone', 'grade', 'school'].map((field) => (
+            {['fullName', 'email', 'phoneNumber', 'grade', 'password'].map((field) => (
               <div key={field}>
                 <label
                   htmlFor={field}
                   className="block text-sm font-medium text-gray-700"
                 >
-                  {field === 'name'
+                  {field === 'fullName'
                     ? 'Tên'
                     : field === 'email'
                     ? 'Email'
-                    : field === 'phone'
+                    : field === 'phoneNumber'
                     ? 'Số điện thoại'
                     : field === 'grade'
                     ? 'Lớp'
-                    : 'Trường học'}
+                    : 'Mật khẩu'}
                 </label>
                 <div className="mt-1">
                   {field === 'grade' ? (
@@ -117,9 +123,7 @@ const RegistrationPage = () => {
                       id={field}
                       name={field}
                       required
-                      className={`block w-full px-3 py-2 border ${
-                        errors[field] ? 'border-red-300' : 'border-gray-300'
-                      } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                      className={`block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                       value={formData[field]}
                       onChange={handleChange}
                       aria-invalid={errors[field] ? 'true' : 'false'}
@@ -127,10 +131,7 @@ const RegistrationPage = () => {
                     >
                       <option value="">Chọn lớp</option>
                       {[1, 2, 3, 4, 5].map((grade) => (
-                        <option
-                          key={grade}
-                          value={grade}
-                        >
+                        <option key={grade} value={grade}>
                           Lớp {grade}
                         </option>
                       ))}
@@ -139,11 +140,9 @@ const RegistrationPage = () => {
                     <input
                       id={field}
                       name={field}
-                      type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                      type={field === 'email' ? 'email' : field === 'phoneNumber' ? 'tel' : field === 'password' ? 'password' : 'text'}
                       required
-                      className={`appearance-none block w-full px-3 py-2 border ${
-                        errors[field] ? 'border-red-300' : 'border-gray-300'
-                      } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+                      className={`appearance-none block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                       value={formData[field]}
                       onChange={handleChange}
                       aria-invalid={errors[field] ? 'true' : 'false'}
@@ -152,10 +151,7 @@ const RegistrationPage = () => {
                   )}
                 </div>
                 {errors[field] && (
-                  <p
-                    className="mt-2 text-sm text-red-600"
-                    id={`${field}-error`}
-                  >
+                  <p className="mt-2 text-sm text-red-600" id={`${field}-error`}>
                     {errors[field]}
                   </p>
                 )}
@@ -197,10 +193,7 @@ const RegistrationPage = () => {
             </div>
             <div className="flex items-center justify-center mt-4">
               <span className="mr-2">Bạn đã có tài khoản?</span>
-              <button
-                className="text-cyan-400"
-                onClick={() => router.push('/login')}
-              >
+              <button className="text-cyan-400" onClick={() => router.push('/login')}>
                 Đăng nhập
               </button>
             </div>

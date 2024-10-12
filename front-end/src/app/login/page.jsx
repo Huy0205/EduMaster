@@ -5,7 +5,7 @@ import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '~/context/AuthContext'
 import { GoogleLogin } from '@react-oauth/google'
-
+import { postApiNoneToken } from '~/api/page'
 const LoginPage = () => {
   const { loggedIn,setLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
@@ -13,15 +13,25 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
-    if (email === 'hihi@gmail.com' && password === '1') {
-      setLoggedIn(true)
-      router.push('/')
-    } else {
-      setError('Tài khoản, mật khẩu không đúng!')
+    let data={
+      email: email,
+      password: password,
+    };
+    console.log(data);
+    try{
+      setLoading(true)
+      const res = await postApiNoneToken("/user/login",data)
+      if(res.data){
+        setLoggedIn(true)
+        router.push('/')
+      }else {
+        setError('Tài khoản, mật khẩu không đúng!')
+      }
+    }catch(error){
+      console.log(error);
     }
     setLoading(false)
   }
