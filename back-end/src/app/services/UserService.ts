@@ -49,7 +49,7 @@ export default class UserService {
     fullName: string,
     phoneNumber: string,
     avatar: string,
-    grade: number,
+    currentGrade: number,
     role: Role = Role.STUDENT,
   ) {
     try {
@@ -86,7 +86,7 @@ export default class UserService {
         fullName,
         phoneNumber,
         avatar,
-        grade,
+        currentGrade,
         role,
       });
       return {

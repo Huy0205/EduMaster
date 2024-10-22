@@ -95,7 +95,7 @@ export default class UserController {
 
   static async updateUserById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const { email, fullName, phoneNumber, avatar, grade } = req.body;
+    const { email, fullName, phoneNumber, avatar, currentGrade } = req.body;
 
     try {
       const data: Partial<User> = {
@@ -103,7 +103,7 @@ export default class UserController {
         fullName,
         phoneNumber,
         avatar,
-        grade,
+        currentGrade,
       };
       const response = await UserService.updateUserById(id, data);
       const { code, message } = response;
