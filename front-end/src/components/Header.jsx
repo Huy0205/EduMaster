@@ -12,9 +12,12 @@ const Header = () => {
   const handleLoginClick = () => {
     router.push('/login')
   }
-  const handleAvatarClick = () => {
-    setIsDropdownOpen(!isDropdownOpen)
+  const handleProfileClick=()=>{
+    router.push('/profile')
   }
+  const handleAvatarClick = () => {
+    setIsDropdownOpen(!isDropdownOpen); 
+  };
   const handleLogout = () => {
     setLoggedIn(false)
     setIsDropdownOpen(false)
@@ -59,9 +62,9 @@ const Header = () => {
       <div className="flex items-center space-x-4">
         {loggedIn ? (
           <>
-            <image
+            <img
               ref={avatarRef}
-              src="https://via.placeholder.com/30"
+              src="https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095"
               alt="User"
               className="w-8 h-8 rounded-full cursor-pointer z-20 relative"
               onClick={handleAvatarClick}
@@ -70,12 +73,10 @@ const Header = () => {
               <div
                 ref={dropdownRef}
                 className="absolute right-0 mt-2 w-44 bg-[#0D1136] shadow-lg rounded-lg p-4 text-white z-10"
-                style={{ top: '4%' }}
+                style={{ top: '6%' }}
               >
                 <ul className="mt-2 space-y-2">
-                  <li className="cursor-pointer">
-                    <button onClick={() => router.push('/profile')}>Thông tin cá nhân</button>
-                  </li>
+                  <li className="cursor-pointer"><a onClick={handleProfileClick}>Thông tin cá nhân</a></li>
                   <li
                     className="cursor-pointer text-red-500"
                     onClick={handleLogout}
@@ -94,7 +95,7 @@ const Header = () => {
             >
               Đăng nhập
             </button>
-            {console.log(loggedIn)}
+            {/* {console.log(loggedIn)} */}
           </>
         )}
       </div>

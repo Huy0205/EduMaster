@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 import { FaUser, FaEnvelope, FaPhone, FaGraduationCap, FaSchool } from "react-icons/fa";
 import Header from '../../components/Header';
 const ProfilePage = () => {
-  const [avatar, setAvatar] = useState("https://via.placeholder.com/30");
+  const [avatar, setAvatar] = useState("https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
