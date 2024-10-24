@@ -25,7 +25,11 @@ const LoginPage = () => {
       setLoading(true)
       const res = await postApiNoneToken("/user/login",data)
       if(res.data){
+        const userId= res.data.userId
+        localStorage.setItem('userId',userId)
+        console.log(userId)
         setLoggedIn(true)
+        localStorage.setItem('loggedIn', 'true')
         router.push('/')
       }else {
         setError('Tài khoản, mật khẩu không đúng!')

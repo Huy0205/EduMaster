@@ -1,37 +1,46 @@
-'use client'
-import React from 'react'
-import { useRouter } from 'next/navigation'
-const Navbar = () => {
-  const router = useRouter()
-  const handleVaoHocClick = () => {
-    router.push('/baihoc')
-  }
-  const handleOnTapClick = () => {
-    router.push('/ontap')
-  }
-  return (
-    <nav className="bg-gray-700 border-t-2 border-gray-200">
-      <div className="container mx-auto px-4">
-        <ul className="flex justify-center space-x-8 py-4">
-            <li>
-              <div className="px-4 py-2 text-white hover:bg-green-300 font-bold hover:text-white rounded cursor-pointer transition-colors">
-                <button onClick={handleVaoHocClick}>Vào học</button>
-              </div>
-            </li>
-            <li>
-              <div className="px-4 py-2 text-white hover:bg-green-300 font-bold hover:text-white rounded cursor-pointer transition-colors">
-                <button onClick={handleOnTapClick}>Ôn Tập</button>
-              </div>
-            </li>  
-            <li>
-              <div className="px-4 py-2 text-white hover:bg-green-300 font-bold hover:text-white rounded cursor-pointer transition-colors">
-                <button onClick={handleVaoHocClick}>Kiểm Tra</button>
-              </div>
-            </li>          
-        </ul>
-      </div>
-    </nav>
-  )
-}
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { AppBar, Toolbar, Button } from '@mui/material';
 
-export default Navbar
+const Navbar = () => {
+  const router = useRouter();
+
+  const handleVaoHocClick = () => {
+    router.push('/baihoc');
+  };
+
+  const handleOnTapClick = () => {
+    router.push('/ontap');
+  };
+
+  return (
+    <AppBar position="static" sx={{ bgcolor: 'white', borderTop: '2px solid gray.200' }}>
+      <Toolbar sx={{ justifyContent: 'center' }}>
+        <Button 
+          onClick={handleVaoHocClick} 
+          variant="contained" 
+          sx={{ bgcolor: 'green.500', color: 'white', mx: 1, '&:hover': { bgcolor: 'green.400' } }} 
+        >
+          Vào học
+        </Button>
+        <Button 
+          onClick={handleOnTapClick} 
+          variant="contained" 
+          sx={{ bgcolor: 'green.500', color: 'white', mx: 1, '&:hover': { bgcolor: 'green.400' } }} 
+        >
+          Ôn Tập
+        </Button>
+        <Button 
+          onClick={handleVaoHocClick} 
+          variant="contained" 
+          sx={{ bgcolor: 'green.500', color: 'white', mx: 1, '&:hover': { bgcolor: 'green.400' } }} 
+        >
+          Kiểm Tra
+        </Button>
+      </Toolbar>
+    </AppBar>
+  );
+};
+
+export default Navbar;

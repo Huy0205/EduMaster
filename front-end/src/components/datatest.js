@@ -37,7 +37,7 @@ const data=[
                       },
                       {
                         "question": "Câu 4",
-                        "content":"Hình con vật nào ở bên trên",
+                        "content":"Hình con vật nào ở bên phải",
                         "contentImg":"https://github.com/user-attachments/assets/0027b929-0289-4d98-bdfd-a9f8a6b03062",
                         "options": ["A: Con Gà", "B: Con Khỉ"],
                         "correctAnswer": "A: Con Gà"

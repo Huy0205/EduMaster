@@ -1,7 +1,9 @@
 'use client'
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { FaUser, FaEnvelope, FaPhone, FaGraduationCap, FaSchool } from "react-icons/fa";
 import Header from '../../components/Header';
+import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert } from '@mui/material';
+import { postApiNoneToken } from '~/api/page'
 const ProfilePage = () => {
   const [avatar, setAvatar] = useState("https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095");
   const [name, setName] = useState("");
@@ -13,10 +15,36 @@ const ProfilePage = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const fileInputRef = useRef(null);
+  const userId = localStorage.getItem('userId');
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        if (!userId) {
+          setFeedbackMessage("Không tìm thấy thông tin người dùng.");
+          setLoading(false);
+          return;
+        }
 
+        const response = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
+        const userData = response.data;
+
+        setName(userData.name || "");
+        setEmail(userData.email || "");
+        setPhone(userData.phone || "");
+        setGrade(userData.grade || "");
+        setSchool(userData.school || "");
+        setAvatar(userData.avatar || avatar);
+
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        setFeedbackMessage("Không thể tải dữ liệu người dùng");
+      }
+    };
+
+    fetchUserInfo();
+  }, [userId, avatar]);
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
-      console.log("File input clicked");
       fileInputRef.current.click();
     }
   };
@@ -59,144 +87,111 @@ const ProfilePage = () => {
   };
 
   return (
-      <div className="bg-gray-50 min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 ">
-        <Header />
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl transition-all duration-300 hover:shadow-lg ">
-        <div className="md:flex">
-          <div className="md:flex-shrink-0">
-            <div className="relative h-48 w-full md:w-48">
-              <img
-                className="h-48 w-full object-cover md:w-48 cursor-pointer transition-opacity duration-300 hover:opacity-80"
-                src={avatar}
-                alt="User avatar"
-                onClick={handleAvatarClick}
-              />
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleAvatarChange}
-                className="hidden"
-                accept="image/*"
-              />
-              <div className="text-center mt-2">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold  rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110"
-                  type="button"
-                  onClick={handleAvatarClick}  
-                >
-                  Đổi ảnh đại diện
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="p-8 w-full">
-            <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold mb-4">Thông tin người dùng</div>
-            <form>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
-                  <FaUser className="inline mr-2" /> Tên
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  readOnly={!isEditing}
-                  aria-label="Name"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-                  <FaEnvelope className="inline mr-2" /> Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  readOnly={!isEditing}
-                  aria-label="Email"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="phone" className="block text-gray-700 text-sm font-bold mb-2">
-                  <FaPhone className="inline mr-2" /> Số điện thoại
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
-                  value={phone}
-                  onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
-                  readOnly={!isEditing}
-                  aria-label="Phone"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="grade" className="block text-gray-700 text-sm font-bold mb-2">
-                  <FaGraduationCap className="inline mr-2" /> Lớp
-                </label>
-                <select
-                  id="grade"
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
-                  value={grade}
-                  onChange={(e) => setGrade(e.target.value)}
-                  disabled={!isEditing}
-                  aria-label="Grade"
-                >
-                  <option value="">Chọn Lớp</option>
-                  {[...Array(5)].map((_, i) => (
-                    <option key={i} value={i + 1}>
-                      Lớp {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="school" className="block text-gray-700 text-sm font-bold mb-2">
-                  <FaSchool className="inline mr-2" /> Trường
-                </label>
-                <input
-                  type="text"
-                  id="school"
-                  className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
-                  value={school}
-                  onChange={(e) => setSchool(e.target.value)}
-                  readOnly={!isEditing}
-                  aria-label="School"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                {isEditing ? (
-                  <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110"
-                    type="button"
-                    onClick={handleSave}
-                  >
-                    Lưu
-                  </button>
-                ) : (
-                  <button
-                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110"
-                    type="button"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    Chỉnh sửa
-                  </button>
-                )}
-              </div>
-            </form>
-            {feedbackMessage && (
-              <div className="mt-4 p-2 bg-blue-100 text-red-700 rounded">
-                {feedbackMessage}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box sx={{ bgcolor: 'background.paper', minHeight: '100vh' }}>
+      <Header />
+      <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3,marginTop:10 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+          <IconButton onClick={handleAvatarClick}>
+            <Avatar
+              alt="User avatar"
+              src={avatar}
+              sx={{ width: 100, height: 100, cursor: 'pointer' }}
+            />
+          </IconButton>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleAvatarChange}
+            style={{ display: 'none' }}
+            accept="image/*"
+          />
+        </Box>
+        <Typography variant="h6" align="center" gutterBottom>
+          Thông tin người dùng
+        </Typography>
+        <Box component="form" noValidate>
+          <TextField
+            label="Tên"
+            fullWidth
+            margin="normal"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            InputProps={{
+              startAdornment: <FaUser className="mr-2" />,
+              readOnly: !isEditing,
+            }}
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            InputProps={{
+              startAdornment: <FaEnvelope className="mr-2" />,
+              readOnly: !isEditing,
+            }}
+          />
+          <TextField
+            label="Số điện thoại"
+            fullWidth
+            margin="normal"
+            value={phone}
+            onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+            InputProps={{
+              startAdornment: <FaPhone className="mr-2" />,
+              readOnly: !isEditing,
+            }}
+          />
+          <TextField
+            label="Lớp"
+            fullWidth
+            margin="normal"
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+            select
+            InputProps={{
+              startAdornment: <FaGraduationCap className="mr-2" />,
+              disabled: !isEditing,
+            }}
+          >
+            <MenuItem value="">Chọn Lớp</MenuItem>
+            {[...Array(5)].map((_, i) => (
+              <MenuItem key={i} value={i + 1}>
+                Lớp {i + 1}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Trường"
+            fullWidth
+            margin="normal"
+            value={school}
+            onChange={(e) => setSchool(e.target.value)}
+            InputProps={{
+              startAdornment: <FaSchool className="mr-2" />,
+              readOnly: !isEditing,
+            }}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          {isEditing ? (
+            <Button variant="contained" color="primary" onClick={handleSave}>
+              Lưu
+            </Button>
+          ) : (
+            <Button variant="contained" color="secondary" onClick={() => setIsEditing(true)}>
+              Chỉnh sửa
+            </Button>
+          )}
+        </Box>
+        {feedbackMessage && (
+          <Alert severity="info" sx={{ mt: 3 }}>
+            {feedbackMessage}
+          </Alert>
+        )}
+      </Box>
+    </Box>
   );
 };
 
