@@ -1,31 +1,37 @@
-import Link from 'next/link';
-import { FaUser, FaBook, FaTasks, FaClipboard } from 'react-icons/fa';
+'use client'
+import React, { useState } from 'react';
+import { Box, Drawer, List, ListItem, ListItemText, ListItemIcon, Collapse } from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SchoolIcon from '@mui/icons-material/School';
+import BookIcon from '@mui/icons-material/Book';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import { useRouter } from 'next/navigation'
 
-function Dashboard() {
-  const items = [
-    { label: 'Người Dùng', icon: <FaUser className="text-blue-600" />, color: 'text-blue-600',href:'admin/user' },
-    { label: 'Quản lý bài học lý thuyết', icon: <FaBook className="text-yellow-500" />, color: 'text-yellow-500',href:'admin/baihoc' },
-    { label: 'Quản lý ôn tập', icon: <FaTasks className="text-green-500" />, color: 'text-green-500',href:'admin/ontap' },
-    { label: 'Quản lý bài kiểm tra', icon: <FaClipboard className="text-red-500" />, color: 'text-red-500',href:'admin/kiemtra' },
-  ];
+const AdminLayout  = ({ children }) => {
+  const [open, setOpen] = useState({ account: false, lesson: false, review: false, test: false });
+  const router = useRouter()
+
+  const handleClick = (section) => {
+    setOpen({ ...open, [section]: !open[section] });
+  };
+
+  const handleNavigate = (path) => {
+    router.push(path);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-50">
-      <h1 className="text-3xl font-semibold mt-10">Admin Dashboard</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-10 max-w-4xl">
-        {items.map((item, index) => (
-          <Link
-            key={index}
-            href={item.href}
-            className="flex flex-col items-center justify-center bg-white border rounded-lg shadow-md p-6 w-64 h-36 transition transform hover:scale-105"
-          >
-            <div className="text-4xl mb-4">{item.icon}</div>
-            <span className={`text-xl font-medium ${item.color}`}>{item.label}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
+    <Box sx={{ display: 'flex' }}>
+      {/* Content Area */}
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
+      >
+        {/* Your content will go here */}
+        <h1>Welcome to Dashboard</h1>
+      </Box>
+    </Box>
   );
-}
+};
 
-export default Dashboard;
+export default AdminLayout;

@@ -33,7 +33,7 @@ const Chapter = ({ title, lessons, onSelectLesson }) => {
   );
 };
 
-const Practice = ({ lesson, resetPractice  }) => {
+const Practice = ({ lesson,setFocusSection,setIsPracticing}) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState(null);
   const [result, setResult] = useState(null);
@@ -61,6 +61,8 @@ const Practice = ({ lesson, resetPractice  }) => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       alert('Đã kết thúc các câu hỏi!');
+      setFocusSection(null);
+      setIsPracticing(false);
     }
   };
 
@@ -108,6 +110,7 @@ const Practice = ({ lesson, resetPractice  }) => {
   
   );
 };
+
 const OnTap = () => {
   const [selectedSubject, setSelectedSubject] = useState('Toán');
   const [selectedClass, setSelectedClass] = useState('Lớp 1');
@@ -257,7 +260,7 @@ const OnTap = () => {
                 </button>
               </>
             )}
-            {focusSection ==='practice' && <Practice lesson={selectedLesson} />}         
+            {focusSection ==='practice' && <Practice lesson={selectedLesson} setFocusSection={setFocusSection} setIsPracticing={setIsPracticing} />}         
           </div>
         </main>
       </div>

@@ -4,26 +4,33 @@ import React, { useState } from 'react';
 import Navbar from '~/components/Navbar';
 import data from '~/components/datatest';
 
-const Chapter = ({ title, lessons, onSelectLesson }) => {
+const Chapter = ({ title, lessons, onSelectLesson, selectedLesson }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleOpen = () => {
     setIsOpen(!isOpen);
+  };
+  const handleLessonClick = (lesson) => {
+    onSelectLesson(lesson);    
   };
 
   return (
     <div>
       <button 
         onClick={toggleOpen}
-        className="bg-gray-200 p-2 rounded w-full text-left"
+        className={`bg-white border-2 border-gray-200 p-3 w-full text-left rounded-lg flex items-center justify-between
+          ${isOpen ? "bg-blue-100 border-blue-500" : "hover:bg-gray-100"}`}
       >
-        {title}
+        <span>{title}</span>
+        <span className={`ml-4 ${isOpen ? "rotate-90" : ""}`}>▼</span>
       </button>
       {isOpen && (
-        <ul className="pl-4">
+        <ul className="pl-6 mt-2">
           {lessons.map((lesson, index) => (
             <li key={index} className="py-1">
-              <button onClick={() => onSelectLesson(lesson)}>
+              <button onClick={() => handleLessonClick(lesson)}
+                className={`flex items-center p-2 rounded-lg w-full text-left border-2 border-gray-200
+                  ${selectedLesson === lesson ? "bg-green-100 border-green-500" : "bg-white hover:bg-blue-50"}`}>
+                 
                 {lesson.lesson}
               </button>
             </li>
@@ -36,6 +43,7 @@ const Chapter = ({ title, lessons, onSelectLesson }) => {
 
 const CourseLayout = () => {
   const [selectedVideo, setSelectedVideo] = useState();
+  const [selectedLesson, setSelectedLesson] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('Toán');
   const [selectedClass, setSelectedClass] = useState('Lớp 1');
   const getChapters = () => {
@@ -50,6 +58,7 @@ const CourseLayout = () => {
   const chapters = getChapters();
 
   const handleSelectLesson = (lesson) => {
+    setSelectedLesson(lesson);
     setSelectedVideo(lesson.videoUrl);
   };
 
@@ -89,9 +98,9 @@ const CourseLayout = () => {
       {/* Main Content */}
       <div className="flex">
         {/* Left Sidebar for Course Content */}
-        <aside className="w-1/4 bg-white p-4 border-r">
+        <aside className="w-1/4 bg-white p-4 border-r shadow-md">
           {chapters.map((chapter, index) => (
-            <Chapter key={index} title={chapter.chapter} lessons={chapter.lessons} onSelectLesson={handleSelectLesson} />
+            <Chapter key={index} title={chapter.chapter} lessons={chapter.lessons} onSelectLesson={handleSelectLesson}  selectedLesson={selectedLesson} />
           ))}
         </aside>
 

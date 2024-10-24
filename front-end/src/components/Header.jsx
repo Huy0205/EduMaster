@@ -2,104 +2,105 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '~/context/AuthContext'
+import AppBar from '@mui/material/AppBar'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import { Box } from '@mui/material'
 
 const Header = () => {
   const { loggedIn, setLoggedIn } = useAuth()
   const router = useRouter()
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const dropdownRef = useRef(null)
-  const avatarRef = useRef(null)
+  const [anchorEl, setAnchorEl] = useState(null)
+  const isDropdownOpen = Boolean(anchorEl)
+  
   const handleLoginClick = () => {
     router.push('/login')
   }
-  const handleProfileClick=()=>{
+
+  const handleProfileClick = () => {
     router.push('/profile')
+    setAnchorEl(null)
   }
-  const handleAvatarClick = () => {
-    setIsDropdownOpen(!isDropdownOpen); 
-  };
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
   const handleLogout = () => {
     setLoggedIn(false)
-    setIsDropdownOpen(false)
+    localStorage.removeItem('loggedIn')
+    setAnchorEl(null)
+    router.push('/')
   }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Kiểm tra nếu click bên ngoài dropdown và ảnh đại diện thì đóng dropdown
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        avatarRef.current &&
-        !avatarRef.current.contains(event.target)
-      ) {
-        setIsDropdownOpen(false)
-      }
+    const storedLoggedIn = localStorage.getItem('loggedIn')
+    if (storedLoggedIn === 'true') {
+      setLoggedIn(true)
+    } else {
+      setLoggedIn(false)
     }
-
-    if (isDropdownOpen) {
-      document.addEventListener('click', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [isDropdownOpen])
+  }, [setLoggedIn])
 
   return (
-    <header className="bg-gray-800 flex justify-between items-center py-4 px-6">
-      {/* Logo */}
-      <div className="flex items-center space-x-4">
-        <div className="bg-blue-500 text-white p-2 rounded-full">
-          <button
-            className="font-bold text-xl"
-            onClick={() => router.push('/')}
-          >
-            EduMaster
-          </button>
-        </div>
-      </div>
+    <AppBar position="static" sx={{ bgcolor: 'gray.800' }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        {/* Logo */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={() => router.push('/')}
+        >
+          EduMaster
+        </Typography>
 
-      {/* Right Side: Conditional Rendering */}
-      <div className="flex items-center space-x-4">
-        {loggedIn ? (
-          <>
-            <img
-              ref={avatarRef}
-              src="https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095"
-              alt="User"
-              className="w-8 h-8 rounded-full cursor-pointer z-20 relative"
-              onClick={handleAvatarClick}
-            />
-            {isDropdownOpen && (
-              <div
-                ref={dropdownRef}
-                className="absolute right-0 mt-2 w-44 bg-[#0D1136] shadow-lg rounded-lg p-4 text-white z-10"
-                style={{ top: '6%' }}
+        {/* Right Side: Conditional Rendering */}
+        <Box>
+          {loggedIn ? (
+            <>
+              <IconButton onClick={handleAvatarClick} color="inherit">
+                <Avatar src="https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095" />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={isDropdownOpen}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
               >
-                <ul className="mt-2 space-y-2">
-                  <li className="cursor-pointer"><a onClick={handleProfileClick}>Thông tin cá nhân</a></li>
-                  <li
-                    className="cursor-pointer text-red-500"
-                    onClick={handleLogout}
-                  >
-                    Đăng xuất
-                  </li>
-                </ul>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <button
+                <MenuItem onClick={handleProfileClick}>Thông tin cá nhân</MenuItem>
+                <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>Đăng xuất</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
               onClick={handleLoginClick}
-              className="bg-blue-600 text-white px-4 py-2 rounded-full"
+              variant="contained"
+              color="primary"
+              sx={{ bgcolor: 'blue.600' }}
             >
               Đăng nhập
-            </button>
-            {/* {console.log(loggedIn)} */}
-          </>
-        )}
-      </div>
-    </header>
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   )
 }
 
