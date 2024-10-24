@@ -1,6 +1,20 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { Course, Enrollment, User, Review, ReviewProgress } from '~/app/models';
+import {
+  Course,
+  Enrollment,
+  User,
+  Review,
+  ReviewProgress,
+  Topic,
+  Quiz,
+  QuizProgress,
+  Question,
+  Answer,
+  Lecture,
+  LectureType,
+  QuizQuestion,
+} from '~/app/models';
 
 const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT } = process.env;
 
@@ -13,7 +27,21 @@ const AppDataSource = new DataSource({
   database: DB_NAME,
   synchronize: true,
   logging: false,
-  entities: [User, Course, Enrollment, Review, ReviewProgress],
+  entities: [
+    User,
+    Course,
+    Enrollment,
+    Review,
+    ReviewProgress,
+    Topic,
+    Quiz,
+    QuizProgress,
+    Question,
+    Answer,
+    Lecture,
+    LectureType,
+    QuizQuestion,
+  ],
   migrations: [],
   subscribers: [],
 });

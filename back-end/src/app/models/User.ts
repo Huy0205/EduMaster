@@ -9,6 +9,7 @@ import {
 import { Role } from '../enums';
 import { Enrollment } from './enrollment';
 import { ReviewProgress } from './reviewProgress';
+import { QuizProgress } from './quizProgress';
 
 @Entity()
 export class User {
@@ -33,7 +34,7 @@ export class User {
   @Column()
   currentGrade: number;
 
-  @Column()
+  @Column({ default: 0 })
   totalPoint: number;
 
   @Column({
@@ -49,6 +50,9 @@ export class User {
 
   @OneToMany(() => ReviewProgress, (reviewProgress) => reviewProgress.user)
   reviewProgresses: ReviewProgress[];
+
+  @OneToMany(() => QuizProgress, (quizProgress) => quizProgress.user)
+  quizProgress: QuizProgress[];
 
   @CreateDateColumn()
   createdAt: Date;
