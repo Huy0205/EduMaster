@@ -5,7 +5,7 @@ import { bcryptUtil } from '~/utils';
 
 const UserRepository = db.AppDataSource.getRepository(User);
 
-export default class UserService {
+export class UserService {
   /*
    * Login by email and password
    */

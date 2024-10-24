@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { UserService } from '~/app/services';
 import { User } from '~/app/models';
 
-export default class UserController {
+export class UserController {
   static async login(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
 
@@ -32,7 +32,8 @@ export default class UserController {
           password,
           fullName,
           phoneNumber,
-          avatar, // chưa có ảnh mặc định
+          avatar ||
+            'https://github.com/user-attachments/assets/dec83469-0ca0-423a-a6ea-a543977e6ab1',
           grade,
         );
         const { code, message, data } = response;

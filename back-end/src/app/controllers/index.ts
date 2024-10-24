@@ -1,2 +1,3 @@
-export { default as UserController } from './userController';
-export { default as CourseController } from './courseController';
+export * from './userController';
+export * from './courseController';
+export * from './topicController';

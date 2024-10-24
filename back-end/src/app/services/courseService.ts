@@ -3,7 +3,7 @@ import { Course } from '~/app/models';
 
 const CourseRepository = db.AppDataSource.getRepository(Course);
 
-export default class CourseService {
+export class CourseService {
   static async getAllCourses() {
     try {
       const courses = await CourseRepository.find();
@@ -14,6 +14,20 @@ export default class CourseService {
       };
     } catch (error) {
       console.log('Error getting all courses', error);
+      throw error;
+    }
+  }
+
+  static async getCoursesByGrade(grade: number) {
+    try {
+      const courses = await CourseRepository.find({ where: { grade } });
+      return {
+        code: 200,
+        message: 'Get courses by grade success',
+        data: courses,
+      };
+    } catch (error) {
+      console.log('Error getting courses by grade', error);
       throw error;
     }
   }

@@ -1,2 +1,3 @@
-export { default as UserService } from './userService';
-export { default as CourseService } from './courseService';
+export * from './userService';
+export * from './courseService';
+export * from './topicService';
