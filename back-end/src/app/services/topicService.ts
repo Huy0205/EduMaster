@@ -24,4 +24,22 @@ export class TopicService {
       throw error;
     }
   }
+
+  static async getTopicById(topicId: string) {
+    try {
+      const topic = await TopicRepository.findOne({
+        where: {
+          id: topicId,
+        },
+      });
+      return {
+        code: 200,
+        message: 'Get topic success',
+        data: topic,
+      };
+    } catch (error) {
+      console.log('Error getting topic', error);
+      throw error;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,13 +10,16 @@ import {
 import { ReviewProgress } from './reviewProgress';
 import { Question } from './question';
 import { Lecture } from './lecture';
+import { Topic } from './topic';
 
 @Entity()
 export class Review {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({
+    nullable: false,
+  })
   name: string;
 
   @Column()
@@ -23,6 +27,9 @@ export class Review {
 
   @Column()
   bonusPoint: number;
+
+  @ManyToOne(() => Topic, (topic) => topic.reviews)
+  topic: Topic;
 
   @OneToMany(() => ReviewProgress, (reviewProgress) => reviewProgress.review)
   reviewProgresses: ReviewProgress[];

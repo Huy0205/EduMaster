@@ -19,10 +19,10 @@ export class UserController {
   }
 
   static async register(req: Request, res: Response, next: NextFunction) {
-    const { email, password, fullName, phoneNumber, avatar, grade } = req.body;
+    const { email, password, fullName, phoneNumber, avatar, currentGrade } = req.body;
 
     try {
-      if (!email || !password || !fullName || !phoneNumber || !grade) {
+      if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
         res
           .status(400)
           .json({ message: 'Email, password, fullName, phoneNumber, grade are required' });
@@ -34,7 +34,7 @@ export class UserController {
           phoneNumber,
           avatar ||
             'https://github.com/user-attachments/assets/dec83469-0ca0-423a-a6ea-a543977e6ab1',
-          grade,
+          currentGrade,
         );
         const { code, message, data } = response;
         res.status(code).json({ message, data });

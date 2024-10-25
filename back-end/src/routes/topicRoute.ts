@@ -10,4 +10,7 @@ topicRouter.get('/', (req, res) => {
 // GET: localhost:8080/api/v1/topic/course/1
 topicRouter.get('/course/:courseId', TopicController.getTopicsByCourse);
 
+// GET: localhost:8080/api/v1/topic/1
+topicRouter.get('/:topicId', TopicController.getTopicById);
+
 export default topicRouter;

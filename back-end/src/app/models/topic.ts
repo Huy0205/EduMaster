@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Course } from './course';
 import { Quiz } from './quiz';
+import { Review } from './review';
 
 @Entity()
 export class Topic {
@@ -20,6 +21,9 @@ export class Topic {
 
   @ManyToOne(() => Course, (course) => course.topics)
   course: Course;
+
+  @OneToMany(() => Review, (review) => review.topic)
+  reviews: Review[];
 
   @OneToMany(() => Quiz, (quiz) => quiz.topic)
   quizzes: Quiz[];
