@@ -22,6 +22,16 @@ export class ReviewController {
         }
     }
 
+    static async getAllReviews(req: Request, res: Response, next: NextFunction) {
+        try {
+            const reviews = await ReviewService.getAllReviews();
+            res.status(reviews.code).json(reviews);
+        } catch (error) {
+            console.log('Error getting all reviews', error);
+            next(error);
+        }
+    }
+
     static async addReview(req: Request, res: Response, next: NextFunction) {
         const { name, bonusPoint, topicId } = req.body;
         let { order } = req.body;

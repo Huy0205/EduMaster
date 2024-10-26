@@ -29,6 +29,31 @@ export class ReviewService {
     }
 
     /**
+     * Get all reviews, oder by topic, if topic duplicate, order by order
+     * @returns
+     */
+    static async getAllReviews() {
+        try {
+            const reviews = await reviewRepository.find({
+                order: {
+                    topic: {
+                        order: 'ASC',
+                    },
+                    order: 'ASC',
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get all reviews success',
+                data: reviews,
+            };
+        } catch (error) {
+            console.log('Error getting all reviews', error);
+            throw error;
+        }
+    }
+
+    /**
      * Get review by ID
      * @param reviewId
      * @returns

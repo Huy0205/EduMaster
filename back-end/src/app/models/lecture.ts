@@ -4,24 +4,24 @@ import { Review } from './review';
 
 @Entity()
 export class Lecture {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column()
-  title: string;
+    @Column()
+    title: string;
 
-  @Column()
-  url: string;
+    @Column()
+    url: string;
 
-  @Column({ type: 'text' })
-  description: string;
+    @Column({ type: 'text' })
+    description: string;
 
-  @ManyToOne(() => LectureType, (lectureType) => lectureType.lectures)
-  type: LectureType;
+    @ManyToOne(() => LectureType, (lectureType) => lectureType.lectures)
+    type: LectureType;
 
-  @Column({ default: false })
-  isViewed: boolean;
+    @Column({ default: false })
+    isViewed: boolean;
 
     @ManyToOne(() => Review, (review) => review.lectures)
-  review: Review;
+    review: Review;
 }
