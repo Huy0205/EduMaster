@@ -29,10 +29,12 @@ export class ReviewService {
     }
 
     /**
-     * Get all reviews, oder by topic, if topic duplicate, order by order
+     * Get all reviews
+     * Oder by topic, if topic duplicate, order by order
+     * Paging by 10 items
      * @returns
      */
-    static async getAllReviews() {
+    static async getAllReviews(page: number, limit: number) {
         try {
             const reviews = await reviewRepository.find({
                 order: {
@@ -41,6 +43,8 @@ export class ReviewService {
                     },
                     order: 'ASC',
                 },
+                take: limit,
+                skip: (page - 1) * limit,
             });
             return {
                 code: 200,

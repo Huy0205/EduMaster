@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authentication } from '../middlewares/authentication';
 import userRouter from './userRoute';
 import courseRouter from './courseRoute';
 import topicRouter from './topicRoute';
@@ -8,6 +9,8 @@ import answerRouter from './answerRoute';
 import lectureRouter from './lectureRoute';
 
 const router = Router();
+
+router.all('*', authentication);
 
 router.use('/user', userRouter);
 router.use('/course', courseRouter);

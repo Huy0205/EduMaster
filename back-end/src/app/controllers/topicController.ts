@@ -11,7 +11,8 @@ export class TopicController {
         } else {
             try {
                 const response = await TopicService.getTopicsByCourse(courseId);
-                res.status(response.code).json(response);
+                const { code, message, data } = response;
+                res.status(code).json({ message, data });
             } catch (error) {
                 next(error);
             }
@@ -26,7 +27,8 @@ export class TopicController {
         } else {
             try {
                 const response = await TopicService.getTopicById(topicId);
-                res.status(response.code).json(response);
+                const { code, message, data } = response;
+                res.status(code).json({ message, data });
             } catch (error) {
                 next(error);
             }
@@ -50,7 +52,8 @@ export class TopicController {
                 const courseRes = await CourseService.getCourseById(courseId);
                 const topic: Partial<Topic> = { name, order, course: courseRes.data };
                 const response = await TopicService.addTopic(topic);
-                res.status(response.code).json(response);
+                const { code, message, data } = response;
+                res.status(code).json({ message, data });
             } catch (error) {
                 next(error);
             }
