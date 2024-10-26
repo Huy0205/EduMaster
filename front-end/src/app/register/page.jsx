@@ -12,7 +12,6 @@ const RegistrationPage = () => {
     fullName: '',
     phoneNumber: '',
     grade: '',
-    avatar: 'hehehe',
   })
 
   const [errors, setErrors] = useState({})
@@ -20,7 +19,7 @@ const RegistrationPage = () => {
   const router = useRouter()
 
   const handleChange = (e) => {
-    const { name, value } = e.target // Sửa từ fullName thành name
+    const { name, value } = e.target 
     setFormData({ ...formData, [name]: value })
     validateField(name, value)
   }
@@ -28,7 +27,7 @@ const RegistrationPage = () => {
   const validateField = (name, value) => {
     let newErrors = { ...errors }
     switch (name) {
-      case 'fullName': // Sửa từ 'name' thành 'fullName' để đúng với formData
+      case 'fullName': 
         if (!value.trim()) {
           newErrors.fullName = 'Tên sai'
         } else {
@@ -42,7 +41,7 @@ const RegistrationPage = () => {
           delete newErrors.email
         }
         break
-      case 'phoneNumber': // Sửa từ 'phone' thành 'phoneNumber'
+      case 'phoneNumber': 
         if (!/^\+?[0-9]\d{1,9}$/.test(value)) {
           newErrors.phoneNumber = 'Số điện thoại không đúng'
         } else {

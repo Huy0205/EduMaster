@@ -1,40 +1,42 @@
-'use client'
-import React, { useState, useRef,useEffect } from "react";
-import { FaUser, FaEnvelope, FaPhone, FaGraduationCap, FaSchool } from "react-icons/fa";
+'use client';
+import React, { useState, useRef, useEffect } from "react";
+import { FaUser, FaEnvelope, FaPhone, FaGraduationCap } from "react-icons/fa";
 import Header from '../../components/Header';
 import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert } from '@mui/material';
-import { postApiNoneToken } from '~/api/page'
+import axios from "axios";
+
 const ProfilePage = () => {
-  const [avatar, setAvatar] = useState("https://github.com/user-attachments/assets/5ce077ee-b218-48b9-bb41-bd7f53345095");
+  const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [grade, setGrade] = useState("");
-  const [school, setSchool] = useState("");
+  const [userId, setUserId] = useState(null); // Khởi tạo state cho userId
   const [isEditing, setIsEditing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const fileInputRef = useRef(null);
-  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId'); // Lấy userId từ localStorage
+    setUserId(storedUserId); // Cập nhật state cho userId
+  }, []);
+
   useEffect(() => {
     const fetchUserInfo = async () => {
+      if (!userId) {
+        setFeedbackMessage("Không tìm thấy thông tin người dùng.");
+        return;
+      }
+
       try {
-        if (!userId) {
-          setFeedbackMessage("Không tìm thấy thông tin người dùng.");
-          setLoading(false);
-          return;
-        }
-
         const response = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
-        const userData = response.data;
-
-        setName(userData.name || "");
+        const userData = response.data.data;
+        setName(userData.fullName || "");
         setEmail(userData.email || "");
-        setPhone(userData.phone || "");
-        setGrade(userData.grade || "");
-        setSchool(userData.school || "");
-        setAvatar(userData.avatar || avatar);
-
+        setPhone(userData.phoneNumber || "");
+        setGrade(userData.currentGrade || "");
+        setAvatar(userData.avatar || "");
       } catch (error) {
         console.error("Failed to fetch user data:", error);
         setFeedbackMessage("Không thể tải dữ liệu người dùng");
@@ -42,7 +44,8 @@ const ProfilePage = () => {
     };
 
     fetchUserInfo();
-  }, [userId, avatar]);
+  }, [userId]);
+
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -62,11 +65,6 @@ const ProfilePage = () => {
     }
   };
 
-  const validateEmail = (email) => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(String(email).toLowerCase());
-  };
-
   const formatPhoneNumber = (input) => {
     const cleaned = input.replace(/\D/g, '');
     const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
@@ -76,20 +74,30 @@ const ProfilePage = () => {
     return input;
   };
 
-  const handleSave = () => {
-    if (!validateEmail(email)) {
-      setFeedbackMessage("Email sai định dạng");
-      return;
+  const handleSave = async () => {
+    const updatedUserData = {
+      id: userId, 
+      fullName: name,
+      email: email,
+      phoneNumber: phone,
+      currentGrade: grade,
+      avatar: avatar
+    };
+    try {
+      await axios.put(`http://localhost:8080/api/v1/user/update/${userId}`, updatedUserData);
+      console.log(`Update user with id: ${userId} success`);
+      setIsEditing(false);
+      setFeedbackMessage("Thông tin người dùng đã được cập nhật thành công!");
+    } catch (error) {
+      console.error(`Error updating user with id ${userId}:`, error);
+      setFeedbackMessage("Cập nhật không thành công.");
     }
-    setIsEditing(false);
-    setFeedbackMessage("Thông tin đã được thay đổi!");
-    setTimeout(() => setFeedbackMessage(""), 3000);
   };
 
   return (
     <Box sx={{ bgcolor: 'background.paper', minHeight: '100vh' }}>
       <Header />
-      <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3,marginTop:10 }}>
+      <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3, marginTop: 10 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <IconButton onClick={handleAvatarClick}>
             <Avatar
@@ -162,17 +170,6 @@ const ProfilePage = () => {
               </MenuItem>
             ))}
           </TextField>
-          <TextField
-            label="Trường"
-            fullWidth
-            margin="normal"
-            value={school}
-            onChange={(e) => setSchool(e.target.value)}
-            InputProps={{
-              startAdornment: <FaSchool className="mr-2" />,
-              readOnly: !isEditing,
-            }}
-          />
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
           {isEditing ? (

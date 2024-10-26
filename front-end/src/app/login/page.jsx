@@ -25,7 +25,7 @@ const LoginPage = () => {
       setLoading(true)
       const res = await postApiNoneToken("/user/login",data)
       if(res.data){
-        const userId= res.data.userId
+        const userId= res.data.data.id
         localStorage.setItem('userId',userId)
         console.log(userId)
         setLoggedIn(true)

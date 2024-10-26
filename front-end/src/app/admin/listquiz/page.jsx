@@ -87,24 +87,24 @@ const QuizList = () => {
         <Table aria-label="quiz table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Tên Câu Hỏi</TableCell>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Câu Trả Lời Đúng</TableCell>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Tên Chương</TableCell>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Tên Môn Học</TableCell>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Tên Lớp</TableCell>
-              <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Tên Bài Kiểm Tra</TableCell>
+              <TableCell >Tên Câu Hỏi</TableCell>
+              <TableCell >Câu Trả Lời Đúng</TableCell>
+              <TableCell >Tên Chương</TableCell>
+              <TableCell >Tên Môn Học</TableCell>
+              <TableCell >Tên Lớp</TableCell>
+              <TableCell >Tên Bài Kiểm Tra</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {quizList.map((quiz, index) => (
               <TableRow key={index}>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.question_name}</TableCell>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.correct_answer}</TableCell>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.topic_name}</TableCell>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.course_name}</TableCell>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.grade_name}</TableCell>
-                <TableCell sx={{ border: '1px solid black' }}>{quiz.quiz_name}</TableCell>
+                <TableCell >{quiz.question_name}</TableCell>
+                <TableCell >{quiz.correct_answer}</TableCell>
+                <TableCell >{quiz.topic_name}</TableCell>
+                <TableCell >{quiz.course_name}</TableCell>
+                <TableCell >{quiz.grade_name}</TableCell>
+                <TableCell >{quiz.quiz_name}</TableCell>
                 <TableCell>
                   <IconButton color="primary" onClick={() => handleEdit(quiz)}>
                     <EditIcon />

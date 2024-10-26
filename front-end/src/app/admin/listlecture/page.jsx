@@ -63,24 +63,24 @@ const LectureList = () => {
       <Table aria-label="lecture table">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Title</TableCell>
-            <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>URL</TableCell>
-            <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Description</TableCell>
-            <TableCell sx={{ backgroundColor: 'lightblue', border: '1px solid black' }}>Review Name</TableCell>
+            <TableCell >Tiêu đề</TableCell>
+            <TableCell >Link Video</TableCell>
+            <TableCell >Mô tả</TableCell>
+            <TableCell >Review Name</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {lectureList.map((lecture) => (
             <TableRow key={lecture.id}>
-              <TableCell sx={{ border: '1px solid black' }}>{lecture.title}</TableCell>
-              <TableCell sx={{ border: '1px solid black' }}>
+              <TableCell >{lecture.title}</TableCell>
+              <TableCell >
                 <a href={lecture.url} target="_blank" rel="noopener noreferrer">
                   {lecture.url}
                 </a>
               </TableCell>
-              <TableCell sx={{ border: '1px solid black' }}>{lecture.description}</TableCell>
-              <TableCell sx={{ border: '1px solid black' }}>{lecture.review.name}</TableCell>
+              <TableCell >{lecture.description}</TableCell>
+              <TableCell >{lecture.review.name}</TableCell>
               <TableCell>
                 <IconButton color="primary" onClick={() => handleEdit(lecture.id)}>
                   <EditIcon />
