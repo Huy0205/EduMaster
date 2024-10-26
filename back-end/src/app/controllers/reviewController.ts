@@ -1,20 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { ReviewService, TopicService } from '~/app/services';
 import { Review } from '../models';
+import { responseUtil } from '~/utils';
 
 export class ReviewController {
     static async getReviewsByTopic(req: Request, res: Response, next: NextFunction) {
         const { topicId } = req.params;
 
         if (!topicId) {
-            res.status(400).json({
+            responseUtil.sendResponse(res, {
                 code: 400,
                 message: 'Topic ID is required',
             });
         } else {
             try {
-                const reviews = await ReviewService.getReviewsByTopic(topicId);
-                res.status(reviews.code).json(reviews);
+                const response = await ReviewService.getReviewsByTopic(topicId);
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting reviews by topic', error);
                 next(error);
@@ -23,9 +24,13 @@ export class ReviewController {
     }
 
     static async getAllReviews(req: Request, res: Response, next: NextFunction) {
+        const { page, limit } = req.query;
+
         try {
-            const reviews = await ReviewService.getAllReviews();
-            res.status(reviews.code).json(reviews);
+            const pageNum = Number(page) > 0 ? Number(page) : 1; // Gán 1 nếu page không hợp lệ
+            const limitNum = Number(limit) > 0 ? Number(limit) : 10; // Gán 10 nếu limit không hợp lệ
+            const response = await ReviewService.getAllReviews(pageNum, limitNum);
+            responseUtil.sendResponse(res, response);
         } catch (error) {
             console.log('Error getting all reviews', error);
             next(error);
@@ -37,7 +42,7 @@ export class ReviewController {
         let { order } = req.body;
 
         if (!name || !topicId) {
-            res.status(400).json({
+            responseUtil.sendResponse(res, {
                 code: 400,
                 message: 'Name and topic ID are required',
             });
@@ -58,8 +63,8 @@ export class ReviewController {
                     bonusPoint: bonusPoint || 10,
                     topic: resTopic.data,
                 };
-                const newReview = await ReviewService.addReview(review);
-                res.status(newReview.code).json(newReview);
+                const response = await ReviewService.addReview(review);
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error adding review', error);
                 next(error);

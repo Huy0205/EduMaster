@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { CourseService, TopicService } from '~/app/services';
 import { Topic } from '../models';
+import { responseUtil } from '~/utils';
 
 export class TopicController {
     static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
@@ -11,8 +12,7 @@ export class TopicController {
         } else {
             try {
                 const response = await TopicService.getTopicsByCourse(courseId);
-                const { code, message, data } = response;
-                res.status(code).json({ message, data });
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -23,12 +23,14 @@ export class TopicController {
         const { topicId } = req.params;
 
         if (!topicId) {
-            res.status(400).json({ message: 'Topic ID is required' });
+            responseUtil.sendResponse(res, {
+                code: 400,
+                message: 'Topic ID is required',
+            });
         } else {
             try {
                 const response = await TopicService.getTopicById(topicId);
-                const { code, message, data } = response;
-                res.status(code).json({ message, data });
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -40,7 +42,10 @@ export class TopicController {
         let { order } = req.body;
 
         if (!name || !courseId) {
-            res.status(400).json({ message: 'Name and course ID are required' });
+            responseUtil.sendResponse(res, {
+                code: 400,
+                message: 'Name and course ID are required',
+            });
         } else {
             try {
                 if (order) {
@@ -52,8 +57,7 @@ export class TopicController {
                 const courseRes = await CourseService.getCourseById(courseId);
                 const topic: Partial<Topic> = { name, order, course: courseRes.data };
                 const response = await TopicService.addTopic(topic);
-                const { code, message, data } = response;
-                res.status(code).json({ message, data });
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { LectureService } from '../services';
+import { responseUtil } from '~/utils';
 
 export class LectureController {
     static async getLecturesByReview(req: Request, res: Response, next: NextFunction) {
@@ -12,7 +13,7 @@ export class LectureController {
         } else {
             try {
                 const response = await LectureService.getLecturesByReview(reviewId);
-                res.status(response.code).json(response);
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting lectures by review', error);
                 next(error);

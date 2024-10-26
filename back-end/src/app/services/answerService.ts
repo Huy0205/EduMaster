@@ -6,8 +6,8 @@ const AnswerRepository = db.AppDataSource.getRepository(Answer);
 export class AnswerService {
     /**
      * Get answer by Question
-     * @param questionId 
-     * @returns 
+     * @param questionId
+     * @returns
      */
     static async getAnswersByQuestion(questionId: string) {
         try {

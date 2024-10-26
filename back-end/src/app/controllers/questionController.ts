@@ -1,20 +1,21 @@
 import { NextFunction, Request, Response } from 'express';
 import { QuestionService, ReviewService } from '~/app/services';
 import { Question } from '~/app/models';
+import { responseUtil } from '~/utils';
 
 export class QuestionController {
     static async getQuestionsByReview(req: Request, res: Response, next: NextFunction) {
         const { reviewId } = req.params;
 
         if (!reviewId) {
-            res.status(400).json({
+            responseUtil.sendResponse(res, {
                 code: 400,
                 message: 'Review ID is required',
             });
         } else {
             try {
-                const questions = await QuestionService.getQuestionsByReview(reviewId);
-                res.status(questions.code).json(questions);
+                const response = await QuestionService.getQuestionsByReview(reviewId);
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting questions by review', error);
                 next(error);
@@ -29,7 +30,7 @@ export class QuestionController {
         let { order } = req.body;
 
         if (!content || !type) {
-            res.status(400).json({
+            responseUtil.sendResponse(res, {
                 code: 400,
                 message: 'Content and type are required',
             });
@@ -55,8 +56,8 @@ export class QuestionController {
                     order,
                     review: reviewRes?.data,
                 };
-                const newQuestion = await QuestionService.addQuestion(question);
-                res.status(newQuestion.code).json(newQuestion);
+                const response = await QuestionService.addQuestion(question);
+                responseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error adding question', error);
                 next(error);

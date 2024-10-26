@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from '~/app/services';
 import { User } from '~/app/models';
+import { sendResponse } from '~/utils/responseUtil';
 
 export class UserController {
     static async login(req: Request, res: Response, next: NextFunction) {
@@ -8,11 +9,14 @@ export class UserController {
 
         try {
             if (!email || !password) {
-                res.status(400).json({ message: 'Email and password are required' });
+                sendResponse(res, {
+                    code: 400,
+                    message: 'Email and password are required',
+                });
+            } else {
+                const response = await UserService.login(email, password);
+                sendResponse(res, response);
             }
-            const response = await UserService.login(email, password);
-            const { code, message, data } = response;
-            res.status(code).json({ message, data });
         } catch (error) {
             next(error);
         }
@@ -23,7 +27,8 @@ export class UserController {
 
         try {
             if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
-                res.status(400).json({
+                sendResponse(res, {
+                    code: 400,
                     message: 'Email, password, fullName, phoneNumber, grade are required',
                 });
             } else {
@@ -36,8 +41,7 @@ export class UserController {
                         'https://github.com/user-attachments/assets/dec83469-0ca0-423a-a6ea-a543977e6ab1',
                     currentGrade,
                 );
-                const { code, message, data } = response;
-                res.status(code).json({ message, data });
+                sendResponse(res, response);
             }
         } catch (error) {
             next(error);
@@ -69,10 +73,7 @@ export class UserController {
                     sortBy,
                     order as 'ASC' | 'DESC',
                 );
-                res.status(200).json({
-                    message: 'Get users by role success',
-                    data: response,
-                });
+                sendResponse(res, response);
             }
         } catch (error) {
             next(error);
@@ -84,8 +85,7 @@ export class UserController {
 
         try {
             const response = await UserService.getUserById(id);
-            const { code, message, data } = response;
-            res.status(code).json({ message, data });
+            sendResponse(res, response);
         } catch (error) {
             next(error);
         }
@@ -105,8 +105,7 @@ export class UserController {
                 totalPoint,
             };
             const response = await UserService.updateUserById(id, data);
-            const { code, message } = response;
-            res.status(code).json({ message });
+            sendResponse(res, response);
         } catch (error) {
             next(error);
         }
@@ -117,8 +116,7 @@ export class UserController {
 
         try {
             const response = await UserService.deleteUserById(id);
-            const { code, message } = response;
-            res.status(code).json({ message });
+            sendResponse(res, response);
         } catch (error) {
             next(error);
         }
