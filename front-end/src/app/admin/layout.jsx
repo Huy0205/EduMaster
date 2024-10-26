@@ -56,10 +56,10 @@ const AdminLayout = ({ children }) => {
             <Collapse in={open.account} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/adduser')}>
-                  <ListItemText primary="Thêm" />
+                  <ListItemText primary="Thêm tài khoản" />
                 </ListItem>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/listuser')}>
-                  <ListItemText primary="Danh sách" />
+                  <ListItemText primary="Danh sách tài khoản" />
                 </ListItem>
               </List>
             </Collapse>
@@ -75,10 +75,10 @@ const AdminLayout = ({ children }) => {
             <Collapse in={open.lesson} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/addlecture')}>
-                  <ListItemText primary="Thêm" />
+                  <ListItemText primary="Thêm bài học" />
                 </ListItem>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/listlecture')}>
-                  <ListItemText primary="Danh sách" />
+                  <ListItemText primary="Danh sách bài học" />
                 </ListItem>
               </List>
             </Collapse>
@@ -94,10 +94,10 @@ const AdminLayout = ({ children }) => {
             <Collapse in={open.review} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/addreview')}>
-                  <ListItemText primary="Thêm" />
+                  <ListItemText primary="Thêm bài ôn tập" />
                 </ListItem>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/listReview')}>
-                  <ListItemText primary="Danh sách" />
+                  <ListItemText primary="Danh sách bài ôn tập" />
                 </ListItem>
               </List>
             </Collapse>
@@ -113,10 +113,10 @@ const AdminLayout = ({ children }) => {
             <Collapse in={open.test} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/addquiz')}>
-                  <ListItemText primary="Thêm" />
+                  <ListItemText primary="Thêm bài kiểm tra" />
                 </ListItem>
                 <ListItem button sx={{ pl: 4 }} onClick={() => handleNavigate('/admin/listquiz')}>
-                  <ListItemText primary="Danh sách" />
+                  <ListItemText primary="Danh sách bài kiểm tra" />
                 </ListItem>
               </List>
             </Collapse>

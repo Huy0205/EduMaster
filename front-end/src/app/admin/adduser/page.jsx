@@ -1,18 +1,19 @@
 'use client'
 import React, { useState } from 'react';
-import { Box, Typography, TextField, Button, Paper, Alert } from '@mui/material';
-
+import { Box, Typography, TextField, Button, Paper, Alert, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { postApiNoneToken } from '~/api/page'
 const AddUserPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
-    phone: '',
+    phoneNumber: '',
     password: '',
-    confirmPassword: '',
+    currentGrade: '',
   });
 
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -20,16 +21,49 @@ const AddUserPage = () => {
       [name]: value,
     });
   };
-
-  const handleSubmit = (e) => {
+  const showMessage = (message) => {
+    setSuccessMessage(message);
+    setErrorMessage('');
+    setTimeout(() => {
+      setSuccessMessage('');
+    }, 5000);
+  };
+  const phoneNumberPattern = /^\d{10}$/;
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage('Mật khẩu không khớp');
+    const { fullName, email, phoneNumber, password, currentGrade } = formData;
+    if (!fullName || !email || !phoneNumber || !password || !currentGrade) {
+      setErrorMessage('Chưa nhập đủ dữ liệu');
+      setSuccessMessage('');
       return;
     }
-    // Xử lý logic thêm người dùng
-    console.log('Form Submitted', formData);
-    setSuccessMessage('Thêm tài khoản thành công');
+    else if (!phoneNumberPattern.test(phoneNumber)) {
+      alert('Số điện thoại phải gồm đúng 10 số.');
+      return;
+    }
+    try {
+        const res = await postApiNoneToken("user/register", formData)
+        if (res.data && res.data.code === 400 && res.data.message === 'Email is already exist') {
+          setErrorMessage('Email đã tồn tại ');
+        }else if(res.data && res.data.code === 400 && res.data.message === 'Phone number is already exist'){
+          setErrorMessage('Số điện thoại đã tồn tại');
+        } 
+  
+        else if (res.data) {
+          console.log('Form Submitted', formData);
+          showMessage('Thêm tài khoản thành công');
+          setErrorMessage('');
+          setFormData({
+            fullName: '',
+            email: '',
+            phoneNumber: '',
+            password: '',
+            currentGrade: '',
+          });
+        }
+      } catch (error) {
+        console.log("Lỗi",error);
+      }
   };
 
   return (
@@ -40,14 +74,15 @@ const AddUserPage = () => {
         bgcolor: 'background.default',
         display: 'flex',
         justifyContent: 'center',
+        padding: 3,
       }}
     >
       <Paper elevation={3} sx={{ padding: 4, borderRadius: 2, width: '800px' }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Thêm Tài Khoản
         </Typography>
-        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-        {successMessage && <Alert severity="success">{successMessage}</Alert>}
+        {errorMessage && <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert>}
+        {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 2 }}>
             <TextField
@@ -55,8 +90,8 @@ const AddUserPage = () => {
               label="Tên Người Dùng"
               variant="outlined"
               placeholder="Nhập tên"
-              name="name"
-              value={formData.name}
+              name="fullName"
+              value={formData.fullName}
               onChange={handleChange}
             />
           </Box>
@@ -78,8 +113,8 @@ const AddUserPage = () => {
               label="Số điện thoại"
               variant="outlined"
               placeholder="Nhập số điện thoại"
-              name="phone"
-              value={formData.phone}
+              name="phoneNumber"
+              value={formData.phoneNumber}
               onChange={handleChange}
             />
           </Box>
@@ -96,16 +131,22 @@ const AddUserPage = () => {
             />
           </Box>
           <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label="Nhập lại mật khẩu"
-              variant="outlined"
-              placeholder="Nhập lại mật khẩu"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
+            <FormControl fullWidth variant="outlined">
+              <InputLabel id="grade-label">Lớp</InputLabel>
+              <Select
+                labelId="grade-label"
+                label="Lớp"
+                name="currentGrade"
+                value={formData.currentGrade}
+                onChange={handleChange}
+              >
+                <MenuItem value="1">Lớp 1</MenuItem>
+                <MenuItem value="2">Lớp 2</MenuItem>
+                <MenuItem value="3">Lớp 3</MenuItem>
+                <MenuItem value="4">Lớp 4</MenuItem>
+                <MenuItem value="5">Lớp 5</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
           <Button variant="contained" color="primary" type="submit" fullWidth>
             Thêm

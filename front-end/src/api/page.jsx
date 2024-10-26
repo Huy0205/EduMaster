@@ -5,3 +5,7 @@ var api = axios.create({
 export const postApiNoneToken = (url, data) => {
     return api.post(url, data);
 };
+
+export const getApiNoneToken = (url,data) => {
+    return api.get(url,data);
+};
