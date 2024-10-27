@@ -1,21 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import { ReviewService, TopicService } from '~/app/services';
-import { Review } from '../models';
-import { responseUtil } from '~/utils';
+import { Review } from '~/app/models';
+import { ResponseUtil } from '~/utils';
 
 export class ReviewController {
     static async getReviewsByTopic(req: Request, res: Response, next: NextFunction) {
         const { topicId } = req.params;
 
         if (!topicId) {
-            responseUtil.sendResponse(res, {
-                code: 400,
-                message: 'Topic ID is required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await ReviewService.getReviewsByTopic(topicId);
-                responseUtil.sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting reviews by topic', error);
                 next(error);
@@ -30,7 +27,7 @@ export class ReviewController {
             const pageNum = Number(page) > 0 ? Number(page) : 1; // Gán 1 nếu page không hợp lệ
             const limitNum = Number(limit) > 0 ? Number(limit) : 10; // Gán 10 nếu limit không hợp lệ
             const response = await ReviewService.getAllReviews(pageNum, limitNum);
-            responseUtil.sendResponse(res, response);
+            ResponseUtil.sendResponse(res, response);
         } catch (error) {
             console.log('Error getting all reviews', error);
             next(error);
@@ -42,10 +39,7 @@ export class ReviewController {
         let { order } = req.body;
 
         if (!name || !topicId) {
-            responseUtil.sendResponse(res, {
-                code: 400,
-                message: 'Name and topic ID are required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 if (order) {
@@ -64,7 +58,7 @@ export class ReviewController {
                     topic: resTopic.data,
                 };
                 const response = await ReviewService.addReview(review);
-                responseUtil.sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error adding review', error);
                 next(error);

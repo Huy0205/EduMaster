@@ -3,7 +3,7 @@ import { User } from '~/app/models';
 import { Role } from '~/app/enums';
 import * as cache from 'memory-cache';
 import nodeMailer from 'nodemailer';
-import { bcryptUtil, tokenUtil } from '~/utils';
+import { BcryptUtil, TokenUtil } from '~/utils';
 
 const UserRepository = db.AppDataSource.getRepository(User);
 
@@ -24,14 +24,14 @@ export class UserService {
                     message: 'Email is not exist',
                 };
             }
-            const isPasswordMatch = await bcryptUtil.comparePassword(password, user.password);
+            const isPasswordMatch = await BcryptUtil.comparePassword(password, user.password);
             if (!isPasswordMatch) {
                 return {
                     code: 400,
                     message: 'Password is incorrect',
                 };
             }
-            const token = tokenUtil.generateToken(email);
+            const token = TokenUtil.generateToken(email);
             return {
                 code: 200,
                 message: 'Login success',
@@ -93,7 +93,7 @@ export class UserService {
                 };
             }
 
-            const hashPassword = await bcryptUtil.hashPassword(password);
+            const hashPassword = await BcryptUtil.hashPassword(password);
             const user = await UserRepository.save({
                 email,
                 password: hashPassword,
@@ -133,7 +133,7 @@ export class UserService {
                 };
             }
 
-            const otp = Math.floor(100000 + Math.random() * 900000);
+            const otp: number = Math.floor(100000 + Math.random() * 900000);
             const transporter = nodeMailer.createTransport({
                 service: 'gmail',
                 auth: {

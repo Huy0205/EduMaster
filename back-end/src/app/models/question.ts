@@ -1,11 +1,11 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import { QuestionType } from '~/app/enums';
 import { Review } from './review';
@@ -15,35 +15,38 @@ import { Answer } from './answer';
 
 @Entity()
 export class Question {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ nullable: false })
-  content: string;
+    @Column({ nullable: false })
+    content: string;
 
-  @Column({
-    type: 'enum',
-    enum: QuestionType,
-    default: QuestionType.SINGLE_CHOICE,
-    enumName: 'question_type',
-  })
-  type: QuestionType;
+    @Column()
+    image: string;
 
-  @Column({ nullable: false })
-  order: number;
+    @Column({
+        type: 'enum',
+        enum: QuestionType,
+        default: QuestionType.SINGLE_CHOICE,
+        enumName: 'question_type',
+    })
+    type: QuestionType;
 
-  @ManyToOne(() => Review, (review) => review.questions)
-  review: Review;
+    @Column({ nullable: false })
+    order: number;
 
-  @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.question)
-  quizzes: Quiz[];
+    @ManyToOne(() => Review, (review) => review.questions)
+    review: Review;
 
-  @OneToMany(() => Answer, (answer) => answer.question)
-  answers: Answer[];
+    @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.question)
+    quizzes: Quiz[];
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @OneToMany(() => Answer, (answer) => answer.question)
+    answers: Answer[];
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

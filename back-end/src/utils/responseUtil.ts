@@ -6,13 +6,22 @@ interface ResponseData {
     data?: object;
 }
 
-export const sendResponse = (res: Response, response: ResponseData) => {
-    const { code, message, data } = response;
+export class ResponseUtil {
+    static sendResponse(res: Response, response: ResponseData) {
+        const { code, message, data } = response;
 
-    const jsonResponse: object = { message };
-    if (data !== undefined) {
-        jsonResponse['data'] = data;
+        const jsonResponse: object = { message };
+        if (data !== undefined) {
+            jsonResponse['data'] = data;
+        }
+
+        res.status(code).json(jsonResponse);
     }
 
-    res.status(code).json(jsonResponse);
-};
+    static sendMissingData(res: Response) {
+        this.sendResponse(res, {
+            code: 400,
+            message: 'Missing required fields',
+        });
+    }
+}

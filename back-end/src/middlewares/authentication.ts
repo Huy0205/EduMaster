@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { tokenUtil } from '~/utils';
+import { TokenUtil } from '~/utils';
 
 export const authentication = (req: Request, res: Response, next: NextFunction) => {
     const whiteList = [
@@ -15,7 +15,7 @@ export const authentication = (req: Request, res: Response, next: NextFunction) 
     if (req?.headers?.authorization?.split(' ')?.[1]) {
         try {
             const token = req.headers.authorization.split(' ')[1];
-            const decoded = tokenUtil.verifyToken(token);
+            const decoded = TokenUtil.verifyToken(token);
             req['currentUser'] = decoded;
             return next();
         } catch (error) {

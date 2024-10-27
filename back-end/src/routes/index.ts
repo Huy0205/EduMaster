@@ -7,6 +7,7 @@ import reviewRouter from './reviewRoute';
 import questionRouter from './questionRoute';
 import answerRouter from './answerRoute';
 import lectureRouter from './lectureRoute';
+import quizRouter from './quizRoute';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use('/review', reviewRouter);
 router.use('/question', questionRouter);
 router.use('/answer', answerRouter);
 router.use('/lecture', lectureRouter);
+router.use('/quiz', quizRouter);
 
 export default router;

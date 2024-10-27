@@ -1,21 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import { UserService } from '~/app/services';
 import { User } from '~/app/models';
-import { sendResponse } from '~/utils/responseUtil';
+import { ResponseUtil } from '~/utils';
 
 export class UserController {
     static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            sendResponse(res, {
-                code: 400,
-                message: 'Email and password are required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await UserService.login(email, password);
-                sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -26,10 +23,7 @@ export class UserController {
         const { email, password, fullName, phoneNumber, avatar, currentGrade } = req.body;
 
         if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
-            sendResponse(res, {
-                code: 400,
-                message: 'Email, password, fullName, phoneNumber, grade are required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await UserService.register(
@@ -41,7 +35,7 @@ export class UserController {
                         'https://github.com/user-attachments/assets/dec83469-0ca0-423a-a6ea-a543977e6ab1',
                     currentGrade,
                 );
-                sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -52,14 +46,11 @@ export class UserController {
         const { email } = req.body;
 
         if (!email) {
-            sendResponse(res, {
-                code: 400,
-                message: 'Email is required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await UserService.sendOTPByMail(email);
-                sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -70,14 +61,11 @@ export class UserController {
         const { email, otp } = req.body;
 
         if (!email || !otp) {
-            sendResponse(res, {
-                code: 400,
-                message: 'Email and OTP are required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await UserService.verifyOTP(email, otp);
-                sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -97,10 +85,10 @@ export class UserController {
             order = order === 'ASC' || order === 'DESC' ? order : 'ASC'; // Gán 'ASC' nếu order không hợp lệ
 
             // Kiểm tra role
-            if (!role || isNaN(Number(role))) {
-                res.status(400).json({ message: 'Role is required and must be a number' });
+            if (!role) {
+                ResponseUtil.sendMissingData(res);
             } else if (Number(role) < 0 || Number(role) > 1) {
-                res.status(400).json({ message: 'Role must be 0 or 1' });
+                ResponseUtil.sendResponse(res, { code: 400, message: 'Role must be 0 or 1' });
             } else {
                 const response = await UserService.getUsersByRole(
                     Number(role),
@@ -109,7 +97,7 @@ export class UserController {
                     sortBy,
                     order as 'ASC' | 'DESC',
                 );
-                sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             }
         } catch (error) {
             next(error);
@@ -121,7 +109,7 @@ export class UserController {
 
         try {
             const response = await UserService.getUserById(id);
-            sendResponse(res, response);
+            ResponseUtil.sendResponse(res, response);
         } catch (error) {
             next(error);
         }
@@ -129,32 +117,38 @@ export class UserController {
 
     static async updateUserById(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
-        const { email, fullName, phoneNumber, avatar, currentGrade, totalPoint } = req.body;
+        const { fullName, phoneNumber, avatar, currentGrade, totalPoint } = req.body;
 
-        try {
-            const data: Partial<User> = {
-                email,
-                fullName,
-                phoneNumber,
-                avatar,
-                currentGrade,
-                totalPoint,
-            };
-            const response = await UserService.updateUserById(id, data);
-            sendResponse(res, response);
-        } catch (error) {
-            next(error);
+        if (!id) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const data: Partial<User> = {
+                    fullName,
+                    phoneNumber,
+                    avatar,
+                    currentGrade,
+                    totalPoint,
+                };
+                const response = await UserService.updateUserById(id, data);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
         }
     }
 
     static async deleteUserById(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
-
-        try {
-            const response = await UserService.deleteUserById(id);
-            sendResponse(res, response);
-        } catch (error) {
-            next(error);
+        if (!id) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await UserService.deleteUserById(id);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
         }
     }
 }

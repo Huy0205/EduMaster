@@ -1,3 +1,3 @@
-export * as bcryptUtil from './bcryptUtil';
-export * as responseUtil from './responseUtil';
-export * as tokenUtil from './tokenUtil';
+export * from './bcryptUtil';
+export * from './responseUtil';
+export * from './tokenUtil';

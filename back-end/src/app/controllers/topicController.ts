@@ -1,18 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
 import { CourseService, TopicService } from '~/app/services';
 import { Topic } from '../models';
-import { responseUtil } from '~/utils';
+import { ResponseUtil } from '~/utils';
 
 export class TopicController {
     static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
         const { courseId } = req.params;
 
         if (!courseId) {
-            res.status(400).json({ message: 'Course ID is required' });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await TopicService.getTopicsByCourse(courseId);
-                responseUtil.sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -23,14 +23,11 @@ export class TopicController {
         const { topicId } = req.params;
 
         if (!topicId) {
-            responseUtil.sendResponse(res, {
-                code: 400,
-                message: 'Topic ID is required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const response = await TopicService.getTopicById(topicId);
-                responseUtil.sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
@@ -42,10 +39,7 @@ export class TopicController {
         let { order } = req.body;
 
         if (!name || !courseId) {
-            responseUtil.sendResponse(res, {
-                code: 400,
-                message: 'Name and course ID are required',
-            });
+            ResponseUtil.sendMissingData(res);
         } else {
             try {
                 if (order) {
@@ -57,7 +51,7 @@ export class TopicController {
                 const courseRes = await CourseService.getCourseById(courseId);
                 const topic: Partial<Topic> = { name, order, course: courseRes.data };
                 const response = await TopicService.addTopic(topic);
-                responseUtil.sendResponse(res, response);
+                ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
             }
