@@ -151,7 +151,7 @@ export class UserService {
                     '<h1>Mã xác minh</h1>' +
                     "<p style='font-size:16px'>Để xác minh tài khoản của bạn hãy nhập mã này vào EduMaster:</p>" +
                     `<h2>${otp}</h2>` +
-                    "<p style='font-size:16px'>Mã xác minh hết hạn sau 48 giờ.</p>" +
+                    "<p style='font-size:16px'>Mã xác minh hết hạn sau 5 phút.</p>" +
                     "<p style='font-size:16px'>Nếu bạn không yêu cầu mã, bạn có thể bỏ qua tin nhắn này.</p>" +
                     '</div>',
             };
