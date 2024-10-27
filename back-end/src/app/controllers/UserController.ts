@@ -7,31 +7,31 @@ export class UserController {
     static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
 
-        try {
-            if (!email || !password) {
-                sendResponse(res, {
-                    code: 400,
-                    message: 'Email and password are required',
-                });
-            } else {
+        if (!email || !password) {
+            sendResponse(res, {
+                code: 400,
+                message: 'Email and password are required',
+            });
+        } else {
+            try {
                 const response = await UserService.login(email, password);
                 sendResponse(res, response);
+            } catch (error) {
+                next(error);
             }
-        } catch (error) {
-            next(error);
         }
     }
 
     static async register(req: Request, res: Response, next: NextFunction) {
         const { email, password, fullName, phoneNumber, avatar, currentGrade } = req.body;
 
-        try {
-            if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
-                sendResponse(res, {
-                    code: 400,
-                    message: 'Email, password, fullName, phoneNumber, grade are required',
-                });
-            } else {
+        if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
+            sendResponse(res, {
+                code: 400,
+                message: 'Email, password, fullName, phoneNumber, grade are required',
+            });
+        } else {
+            try {
                 const response = await UserService.register(
                     email,
                     password,
@@ -42,9 +42,45 @@ export class UserController {
                     currentGrade,
                 );
                 sendResponse(res, response);
+            } catch (error) {
+                next(error);
             }
-        } catch (error) {
-            next(error);
+        }
+    }
+
+    static async sendOTPByMail(req: Request, res: Response, next: NextFunction) {
+        const { email } = req.body;
+
+        if (!email) {
+            sendResponse(res, {
+                code: 400,
+                message: 'Email is required',
+            });
+        } else {
+            try {
+                const response = await UserService.sendOTPByMail(email);
+                sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    static async verifyOTP(req: Request, res: Response, next: NextFunction) {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            sendResponse(res, {
+                code: 400,
+                message: 'Email and OTP are required',
+            });
+        } else {
+            try {
+                const response = await UserService.verifyOTP(email, otp);
+                sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
         }
     }
 

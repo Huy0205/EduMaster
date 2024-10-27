@@ -4,7 +4,7 @@ import { UserController } from '~/app/controllers';
 const userRouter = Router();
 
 userRouter.get('/', (req, res) => {
-  res.send('User Route');
+    res.send('User Route');
 });
 
 // GET: localhost:8080/api/v1/user/:id
@@ -12,6 +12,12 @@ userRouter.get('/:id', UserController.getUserById);
 
 // GET: localhost:8080/api/v1/user/role/:role
 userRouter.get('/role/:role', UserController.getUsersByRole);
+
+// POST: localhost:8080/api/v1/user/send-otp-by-mail
+userRouter.post('/send-otp-by-mail', UserController.sendOTPByMail);
+
+// POST: localhost:8080/api/v1/user/verify-otp
+userRouter.post('/verify-otp', UserController.verifyOTP);
 
 // POST: localhost:8080/api/v1/user/login
 userRouter.post('/login', UserController.login);

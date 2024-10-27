@@ -2,7 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { tokenUtil } from '~/utils';
 
 export const authentication = (req: Request, res: Response, next: NextFunction) => {
-    const whiteList = ['/user/login', '/user/register'];
+    const whiteList = [
+        '/user/login',
+        '/user/register',
+        '/user/send-otp-by-mail',
+        '/user/verify-otp',
+    ];
     if (whiteList.includes(req.path)) {
         return next();
     }
