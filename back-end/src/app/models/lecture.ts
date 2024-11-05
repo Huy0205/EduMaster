@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { LectureType } from './lectureType';
 import { Review } from './review';
 
@@ -13,7 +20,7 @@ export class Lecture {
     @Column()
     url: string;
 
-    @Column({ type: 'text' })
+    @Column({ type: 'text', nullable: true })
     description: string;
 
     @ManyToOne(() => LectureType, (lectureType) => lectureType.lectures)
@@ -24,4 +31,10 @@ export class Lecture {
 
     @ManyToOne(() => Review, (review) => review.lectures)
     review: Review;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

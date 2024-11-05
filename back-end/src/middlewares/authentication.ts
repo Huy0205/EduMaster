@@ -3,12 +3,21 @@ import { TokenUtil } from '~/utils';
 
 export const authentication = (req: Request, res: Response, next: NextFunction) => {
     const whiteList = [
+        // user
         '/user/login',
         '/user/register',
         '/user/send-otp-by-mail',
         '/user/verify-otp',
+
+        // course
+        '/course/grade/:grade',
     ];
-    if (whiteList.includes(req.path)) {
+    const isWhiteListed = whiteList.some((path) => {
+        const regex = new RegExp(`^${path.replace(/:\w+/g, '\\w+')}$`);
+        return regex.test(req.path);
+    });
+
+    if (isWhiteListed) {
         return next();
     }
 

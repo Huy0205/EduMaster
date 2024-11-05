@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { Review } from './review';
 import { User } from './user';
 
@@ -18,4 +18,10 @@ export class ReviewProgress {
 
   @ManyToOne(() => User, (user) => user.reviewProgresses)
   user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

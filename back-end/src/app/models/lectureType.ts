@@ -1,14 +1,27 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { Lecture } from './lecture';
 
 @Entity()
 export class LectureType {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ nullable: false })
-  name: string;
+    @Column({ nullable: false })
+    name: string;
 
-  @OneToMany(() => Lecture, (lecture) => lecture.type)
-  lectures: Lecture[];
+    @OneToMany(() => Lecture, (lecture) => lecture.type)
+    lectures: Lecture[];
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
