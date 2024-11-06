@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { QuestionService, ReviewService } from '~/app/services';
 import { Question } from '~/app/models';
 import { ResponseUtil } from '~/utils';
@@ -10,6 +11,8 @@ export class QuestionController {
 
         if (!reviewId) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(reviewId)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const pageNum = Number(page) > 0 ? Number(page) : 1;

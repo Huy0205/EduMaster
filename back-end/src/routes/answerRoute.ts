@@ -3,7 +3,7 @@ import { AnswerController } from '~/app/controllers';
 
 const answerRouter = Router();
 
-// GET http://localhost:3000/answer/:questionId
-answerRouter.get('/:questionId', AnswerController.getAnswersByQuestion);
+// GET http://localhost:8080/answer/question/:questionId
+answerRouter.get('/question/:questionId', AnswerController.getAnswersByQuestion);
 
 export default answerRouter;

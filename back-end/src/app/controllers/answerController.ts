@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { AnswerService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
 
@@ -7,6 +8,8 @@ export class AnswerController {
         const { questionId } = req.params;
         if (!questionId) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(questionId)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await AnswerService.getAnswersByQuestion(questionId);

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { LectureService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
 
@@ -7,6 +8,8 @@ export class LectureController {
         const { reviewId } = req.params;
         if (!reviewId) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(reviewId)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await LectureService.getLecturesByReview(reviewId);

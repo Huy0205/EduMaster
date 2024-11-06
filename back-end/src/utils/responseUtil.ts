@@ -24,4 +24,11 @@ export class ResponseUtil {
             message: 'Missing required fields',
         });
     }
+
+    static sendInvalidData(res: Response) {
+        this.sendResponse(res, {
+            code: 400,
+            message: 'Invalid data',
+        });
+    }
 }

@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { UserService } from '~/app/services';
 import { User } from '~/app/models';
 import { ResponseUtil } from '~/utils';
@@ -88,7 +89,7 @@ export class UserController {
             if (!role) {
                 ResponseUtil.sendMissingData(res);
             } else if (Number(role) < 0 || Number(role) > 1) {
-                ResponseUtil.sendResponse(res, { code: 400, message: 'Role must be 0 or 1' });
+                ResponseUtil.sendInvalidData(res);
             } else {
                 const response = await UserService.getUsersByRole(
                     Number(role),
@@ -106,12 +107,17 @@ export class UserController {
 
     static async getUserById(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
-
-        try {
-            const response = await UserService.getUserById(id);
-            ResponseUtil.sendResponse(res, response);
-        } catch (error) {
-            next(error);
+        if (!id) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(id)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await UserService.getUserById(id);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
         }
     }
 
@@ -121,6 +127,8 @@ export class UserController {
 
         if (!id) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(id)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const data: Partial<User> = {
@@ -142,6 +150,8 @@ export class UserController {
         const { id } = req.params;
         if (!id) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(id)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await UserService.deleteUserById(id);

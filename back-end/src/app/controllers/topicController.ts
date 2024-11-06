@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { CourseService, TopicService } from '~/app/services';
 import { Topic } from '../models';
 import { ResponseUtil } from '~/utils';
@@ -9,6 +10,8 @@ export class TopicController {
 
         if (!courseId) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(courseId)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await TopicService.getTopicsByCourse(courseId);
@@ -20,13 +23,15 @@ export class TopicController {
     }
 
     static async getTopicById(req: Request, res: Response, next: NextFunction) {
-        const { topicId } = req.params;
+        const { id } = req.params;
 
-        if (!topicId) {
+        if (!id) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(id)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const response = await TopicService.getTopicById(topicId);
+                const response = await TopicService.getTopicById(id);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

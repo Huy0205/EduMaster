@@ -3,11 +3,7 @@ import { QuestionController } from '~/app/controllers';
 
 const questionRouter = Router();
 
-questionRouter.get('/', (req, res) => {
-    res.send('Question Route');
-});
-
-// GET: localhost:8080/api/v1/question/review/1
+// GET: localhost:8080/api/v1/question/review/:reviewId
 questionRouter.get('/review/:reviewId', QuestionController.getQuestionsByReview);
 
 // POST: localhost:8080/api/v1/question/add

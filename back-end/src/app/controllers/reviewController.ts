@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { validate as isUUID } from 'uuid';
 import { ReviewService, TopicService } from '~/app/services';
 import { Review } from '~/app/models';
 import { ResponseUtil } from '~/utils';
@@ -6,9 +7,10 @@ import { ResponseUtil } from '~/utils';
 export class ReviewController {
     static async getReviewsByTopic(req: Request, res: Response, next: NextFunction) {
         const { topicId } = req.params;
-
         if (!topicId) {
             ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(topicId)) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await ReviewService.getReviewsByTopic(topicId);

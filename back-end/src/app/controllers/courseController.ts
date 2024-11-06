@@ -17,6 +17,8 @@ export class CourseController {
 
         if (!grade) {
             ResponseUtil.sendMissingData(res);
+        } else if (isNaN(Number(grade))) {
+            ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const response = await CourseService.getCoursesByGrade(Number(grade));
