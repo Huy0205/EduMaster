@@ -7,20 +7,28 @@ export class QuestionService {
     /*
      * Get questions by review, order by order ascending
      */
-    static async getQuestionsByReview(reviewId: string) {
+    static async getQuestionsByReview(reviewId: string, page: number, limit: number) {
         try {
-            const questions = await questionRepository.find({
+            const [questions, total] = await questionRepository.findAndCount({
                 where: {
                     review: { id: reviewId },
                 },
                 order: {
                     order: 'ASC',
                 },
+                take: limit,
+                skip: (page - 1) * limit,
             });
+
+            const totalPages = Math.ceil(total / limit);
             return {
                 code: 200,
                 message: 'Get questions by review success',
-                data: questions,
+                data: {
+                    totalPages,
+                    currentPage: page,
+                    questions,
+                },
             };
         } catch (error) {
             console.log('Error getting questions by review', error);

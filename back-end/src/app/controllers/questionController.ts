@@ -6,12 +6,19 @@ import { ResponseUtil } from '~/utils';
 export class QuestionController {
     static async getQuestionsByReview(req: Request, res: Response, next: NextFunction) {
         const { reviewId } = req.params;
+        const { page, limit } = req.query;
 
         if (!reviewId) {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
-                const response = await QuestionService.getQuestionsByReview(reviewId);
+                const pageNum = Number(page) > 0 ? Number(page) : 1;
+                const limitNum = Number(limit) > 0 ? Number(limit) : 10;
+                const response = await QuestionService.getQuestionsByReview(
+                    reviewId,
+                    pageNum,
+                    limitNum,
+                );
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting questions by review', error);

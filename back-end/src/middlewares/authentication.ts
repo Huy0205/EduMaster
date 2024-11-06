@@ -11,6 +11,10 @@ export const authentication = (req: Request, res: Response, next: NextFunction) 
 
         // course
         '/course/grade/:grade',
+
+        // topic
+        '/topic/:topicId',
+        '/topic/course/:courseId',
     ];
     const isWhiteListed = whiteList.some((path) => {
         const regex = new RegExp(`^${path.replace(/:\w+/g, '\\w+')}$`);
