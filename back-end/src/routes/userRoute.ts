@@ -3,10 +3,6 @@ import { UserController } from '~/app/controllers';
 
 const userRouter = Router();
 
-userRouter.get('/', (req, res) => {
-    res.send('User Route');
-});
-
 // GET: localhost:8080/api/v1/user/:id
 userRouter.get('/:id', UserController.getUserById);
 
