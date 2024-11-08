@@ -5,5 +5,7 @@ export class UserService {
         return axios.get(`user/role/${role}`);
     }
 
-    // Add more methods here
+    static async login(email: string, password: string) {
+        return axios.post('user/login', { email, password });
+    }
 }

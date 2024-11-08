@@ -22,4 +22,18 @@ export class QuizController {
             }
         }
     }
+
+    static async getQuizByTopicId(req: Request, res: Response, next: NextFunction) {
+        const { topicId } = req.params;
+        if (!topicId) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await QuizService.getQuizByTopicId(topicId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
 }

@@ -1,32 +1,26 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-
-interface AxiosResponseData<T> {
-    message: string;
-    data: T;
-}
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 instance.interceptors.request.use(
-    function (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
+    (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('access_token');
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    function (error: AxiosError): Promise<AxiosError> {
-        return Promise.reject(error);
-    },
+    (error) => Promise.reject(error),
 );
 
 instance.interceptors.response.use(
-    function <T>(response: AxiosResponse<AxiosResponseData<T>>): T {
-        return response.data.data;
+    (response: AxiosResponse) => {
+        return response;
     },
-    function (error: AxiosError): Promise<AxiosError> {
+    (error) => {
+        if (error?.response) return error?.response;
         return Promise.reject(error);
     },
 );

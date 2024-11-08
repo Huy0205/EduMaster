@@ -7,6 +7,7 @@ import { ResponseUtil } from '~/utils';
 export class UserController {
     static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
+        console.log(email, password);
 
         if (!email || !password) {
             ResponseUtil.sendMissingData(res);
@@ -114,6 +115,20 @@ export class UserController {
         } else {
             try {
                 const response = await UserService.getUserById(id);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    static async authUser(req: Request, res: Response, next: NextFunction) {
+        const { email } = req['currentUser'];
+        if (!email) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await UserService.getUserByEmail(email);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

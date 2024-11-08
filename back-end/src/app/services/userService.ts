@@ -265,6 +265,33 @@ export class UserService {
     }
 
     /*
+     * Get user by email
+     */
+    static async getUserByEmail(email: string) {
+        try {
+            const user = await UserRepository.findOne({
+                where: {
+                    email,
+                },
+            });
+            if (!user) {
+                return {
+                    code: 404,
+                    message: 'User is not exist',
+                };
+            }
+            return {
+                code: 200,
+                message: 'Get user by email success',
+                data: user,
+            };
+        } catch (error) {
+            console.log('Error getting user by email', error);
+            throw error;
+        }
+    }
+
+    /*
      * Update user by id
      */
     static async updateUserById(id: string, data: Partial<User>) {
@@ -314,6 +341,32 @@ export class UserService {
             };
         } catch (error) {
             console.log('Error deleting user', error);
+            throw error;
+        }
+    }
+
+    static async checkAdminByEmail(email: string) {
+        try {
+            const user = await UserRepository.findOne({
+                where: {
+                    email,
+                    role: Role.ADMIN,
+                },
+            });
+            if (!user) {
+                return {
+                    code: 404,
+                    message: 'User is not admin',
+                    data: false,
+                };
+            }
+            return {
+                code: 200,
+                message: 'User is admin',
+                data: true,
+            };
+        } catch (error) {
+            console.log('Error checking admin by email', error);
             throw error;
         }
     }

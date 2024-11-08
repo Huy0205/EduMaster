@@ -23,4 +23,29 @@ export class QuizService {
             throw error;
         }
     }
+
+    /**
+     * Get quiz by topic id
+     * @param topicId
+     * @returns
+     */
+    static async getQuizByTopicId(topicId: string) {
+        try {
+            const quizzes = await quizRepository.find({
+                where: {
+                    topic: {
+                        id: topicId,
+                    },
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get quizzes success',
+                data: quizzes,
+            };
+        } catch (error) {
+            console.log('Error getting quizzes', error);
+            throw error;
+        }
+    }
 }
