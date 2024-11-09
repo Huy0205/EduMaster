@@ -22,7 +22,7 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
             </div>
             <div className="flex flex-1 flex-col">
                 <AdminHeader />
-                <div className="flex-1 bg-white">{children}</div>
+                <div className="flex-1 bg-foreground">{children}</div>
             </div>
         </div>
     );

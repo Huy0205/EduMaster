@@ -21,7 +21,7 @@ export class Question {
     @Column({ nullable: false })
     content: string;
 
-    @Column()
+    @Column({ nullable: true })
     image: string;
 
     @Column({

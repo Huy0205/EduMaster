@@ -73,7 +73,7 @@ function AdminLoginPage() {
     };
 
     return (
-        <div className="container h-screen flex justify-center bg-white">
+        <div className="h-screen flex justify-center bg-white">
             <div className="h-full w-[400px] py-8 flex items-center">
                 <div className="w-full shadow-[0_1px_8px_0_rgba(165,163,174,0.83)] rounded-md p-5">
                     <h4 className="text-lg text-primary font-bold text-center my-4">EduMaster</h4>
