@@ -30,17 +30,22 @@ export class ReviewService {
 
     static async getReviewsByCourse(courseId: string) {
         try {
-            const reviews = await reviewRepository.
-                createQueryBuilder('review').
-                innerJoin('review.topic', 'topic').
-                innerJoin('topic.course', 'course').
-                where('course.id = :courseId', { courseId }).
-                getMany();
+            const reviews = await reviewRepository
+                .createQueryBuilder('review')
+                .innerJoin('review.topic', 'topic')
+                .innerJoin('topic.course', 'course')
+                .where('course.id = :courseId', { courseId })
+                .getMany();
+            return {
+                code: 200,
+                message: 'Get reviews by course success',
+                data: reviews,
+            };
         } catch (error) {
             console.log('Error getting reviews by course', error);
             throw error;
         }
-
+    }
 
     /**
      * Get all reviews
