@@ -7,6 +7,7 @@ import questionRouter from './questionRoute';
 import answerRouter from './answerRoute';
 import lectureRouter from './lectureRoute';
 import quizRouter from './quizRoute';
+import quizQuestionRouter from './quiz_questionRoute';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/question', questionRouter);
 router.use('/answer', answerRouter);
 router.use('/lecture', lectureRouter);
 router.use('/quiz', quizRouter);
+router.use('/quiz-question', quizQuestionRouter);
 
 export default router;

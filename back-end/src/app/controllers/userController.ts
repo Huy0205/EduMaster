@@ -122,6 +122,22 @@ export class UserController {
         }
     }
 
+    static async getUsersByGrade(req: Request, res: Response, next: NextFunction) {
+        const { grade } = req.params;
+        if (!grade) {
+            ResponseUtil.sendMissingData(res);
+        } else if (Number(grade) < 1 || Number(grade) > 5) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await UserService.getUsersByGrade(Number(grade));
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
     static async authUser(req: Request, res: Response, next: NextFunction) {
         const { email } = req['currentUser'];
         if (!email) {

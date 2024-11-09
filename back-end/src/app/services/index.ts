@@ -6,3 +6,4 @@ export * from './questionService';
 export * from './answerService';
 export * from './lectureService';
 export * from './quizService';
+export * from './quiz_questionService';

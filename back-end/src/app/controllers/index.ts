@@ -6,3 +6,4 @@ export * from './questionController';
 export * from './answerController';
 export * from './lectureController';
 export * from './quizController';
+export * from './quiz_questionController';

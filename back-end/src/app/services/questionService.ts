@@ -36,6 +36,29 @@ export class QuestionService {
         }
     }
 
+    /**
+     * Get questions by quiz
+     * @param quizId
+     * @returns
+     */
+    static async getQuestionsByQuiz(quizId: string) {
+        try {
+            const questions = await questionRepository
+                .createQueryBuilder('question')
+                .innerJoin('question.quizQuestions', 'quizQuestion')
+                .where('quizQuestion.quizId = :quizId', { quizId })
+                .getMany();
+            return {
+                code: 200,
+                message: 'Get questions by quiz success',
+                data: questions,
+            };
+        } catch (error) {
+            console.log('Error getting questions by quiz', error);
+            throw error;
+        }
+    }
+
     /*
      * Set order for question by review from position to end
      */

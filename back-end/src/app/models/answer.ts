@@ -1,33 +1,36 @@
 import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
 import { Question } from './question';
 
 @Entity()
 export class Answer {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ nullable: false })
-  content: string;
+    @Column({ nullable: false })
+    content: string;
 
-  @Column({ nullable: false })
-  isCorrect: boolean;
+    @Column({
+        type: 'boolean',
+        default: false,
+    })
+    isCorrect: boolean;
 
-  @Column()
-  feedback: string;
+    @Column()
+    feedback: string;
 
-  @ManyToOne(() => Question, (question) => question.answers)
-  question: Question;
+    @ManyToOne(() => Question, (question) => question.answers)
+    question: Question;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

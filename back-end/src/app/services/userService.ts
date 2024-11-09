@@ -291,6 +291,29 @@ export class UserService {
         }
     }
 
+    /**
+     * Get users by grade
+     * @param grade
+     * @returns
+     */
+    static async getUsersByGrade(grade: number) {
+        try {
+            const users = await UserRepository.find({
+                where: {
+                    currentGrade: grade,
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get users by grade success',
+                data: users,
+            };
+        } catch (error) {
+            console.log('Error getting users by grade', error);
+            throw error;
+        }
+    }
+
     /*
      * Update user by id
      */

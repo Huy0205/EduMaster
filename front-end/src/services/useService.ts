@@ -8,4 +8,8 @@ export class UserService {
     static async login(email: string, password: string) {
         return axios.post('user/login', { email, password });
     }
+
+    static async getUsersByGrade(grade: number) {
+        return axios.get(`user/grade/${grade}`);
+    }
 }

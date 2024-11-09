@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { QuestionType } from '~/app/enums';
 import { Review } from './review';
-import { Quiz } from './quiz';
 import { QuizQuestion } from './quiz_question';
 import { Answer } from './answer';
 
@@ -39,7 +38,7 @@ export class Question {
     review: Review;
 
     @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.question)
-    quizzes: Quiz[];
+    quizQuestions: QuizQuestion[];
 
     @OneToMany(() => Answer, (answer) => answer.question)
     answers: Answer[];

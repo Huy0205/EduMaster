@@ -1,6 +1,10 @@
+'use client';
 import AdminMenu from './Menu';
+import { useGrade } from '~/context/GradeContext';
 
 function AdminSidebar() {
+    const { grade, setGrade } = useGrade();
+
     return (
         <aside className="w-full h-full bg-white shadow-xl">
             <div>
@@ -16,7 +20,11 @@ function AdminSidebar() {
                 </div>
             </div>
             <div className="px-3 mt-5">
-                <select className="w-full px-2 py-2 border border-gray-600 rounded-md outline-none text-base text-black">
+                <select
+                    className="w-full px-2 py-2 border border-gray-600 rounded-md outline-none text-base text-black"
+                    value={grade}
+                    onChange={(e) => setGrade(Number(e.target.value))}
+                >
                     {[...Array(5)].map((_, i) => (
                         <option
                             key={i}
@@ -27,7 +35,7 @@ function AdminSidebar() {
                     ))}
                 </select>
             </div>
-            <AdminMenu />
+            <AdminMenu gradeSelected={grade} />
         </aside>
     );
 }

@@ -30,6 +30,24 @@ export class QuestionController {
         }
     }
 
+    static async getQuestionsByQuiz(req: Request, res: Response, next: NextFunction) {
+        const { quizId } = req.params;
+
+        if (!quizId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(quizId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await QuestionService.getQuestionsByQuiz(quizId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                console.log('Error getting questions by quiz', error);
+                next(error);
+            }
+        }
+    }
+
     static async addQuestion(req: Request, res: Response, next: NextFunction) {
         // type is number in enum/questionType file
         // reviewId can be null in case of adding a question within a quiz

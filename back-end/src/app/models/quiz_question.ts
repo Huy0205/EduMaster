@@ -4,21 +4,21 @@ import { Question } from './question';
 
 @Entity()
 export class QuizQuestion {
-  @PrimaryColumn()
-  quizId: string;
+    @PrimaryColumn()
+    quizId: string;
 
-  @PrimaryColumn()
-  questionId: string;
+    @PrimaryColumn()
+    questionId: string;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions)
-  quiz: Quiz;
+    @ManyToOne(() => Quiz, (quiz) => quiz.quizQuestions)
+    quiz: Quiz;
 
-  @ManyToOne(() => Question, (question) => question.quizzes)
-  question: Question;
+    @ManyToOne(() => Question, (question) => question.quizQuestions)
+    question: Question;
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
