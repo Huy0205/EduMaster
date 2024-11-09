@@ -22,7 +22,9 @@ export class Answer {
     })
     isCorrect: boolean;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     feedback: string;
 
     @ManyToOne(() => Question, (question) => question.answers)

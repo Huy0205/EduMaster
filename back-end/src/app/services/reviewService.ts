@@ -28,6 +28,20 @@ export class ReviewService {
         }
     }
 
+    static async getReviewsByCourse(courseId: string) {
+        try {
+            const reviews = await reviewRepository.
+                createQueryBuilder('review').
+                innerJoin('review.topic', 'topic').
+                innerJoin('topic.course', 'course').
+                where('course.id = :courseId', { courseId }).
+                getMany();
+        } catch (error) {
+            console.log('Error getting reviews by course', error);
+            throw error;
+        }
+
+
     /**
      * Get all reviews
      * Oder by topic, if topic duplicate, order by order
