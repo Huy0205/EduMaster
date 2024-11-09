@@ -1,5 +1,5 @@
 'use client';
-import { Add, Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 
 import { useGrade } from '~/context/GradeContext';
