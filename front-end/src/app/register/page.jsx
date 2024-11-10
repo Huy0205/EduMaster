@@ -11,7 +11,7 @@ const RegistrationPage = () => {
     password: '',
     fullName: '',
     phoneNumber: '',
-    grade: '',
+    currentGrade: '',
   })
 
   const [errors, setErrors] = useState({})
@@ -48,11 +48,11 @@ const RegistrationPage = () => {
           delete newErrors.phoneNumber
         }
         break
-      case 'grade':
+      case 'currentGrade':
         if (!value) {
-          newErrors.grade = 'Bắt buộc chọn'
+          newErrors.currentGrade = 'Bắt buộc chọn'
         } else {
-          delete newErrors.grade
+          delete newErrors.currentGrade
         }
         break
       case 'password':
@@ -100,7 +100,7 @@ const RegistrationPage = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Tạo tài khoản</h2>
 
-            {['fullName', 'email', 'phoneNumber', 'grade', 'password'].map((field) => (
+            {['fullName', 'email', 'phoneNumber', 'currentGrade', 'password'].map((field) => (
               <div key={field}>
                 <label
                   htmlFor={field}
@@ -112,12 +112,12 @@ const RegistrationPage = () => {
                     ? 'Email'
                     : field === 'phoneNumber'
                     ? 'Số điện thoại'
-                    : field === 'grade'
+                    : field === 'currentGrade'
                     ? 'Lớp'
                     : 'Mật khẩu'}
                 </label>
                 <div className="mt-1">
-                  {field === 'grade' ? (
+                  {field === 'currentGrade' ? (
                     <select
                       id={field}
                       name={field}
@@ -129,9 +129,9 @@ const RegistrationPage = () => {
                       aria-describedby={errors[field] ? `${field}-error` : undefined}
                     >
                       <option value="">Chọn lớp</option>
-                      {[1, 2, 3, 4, 5].map((grade) => (
-                        <option key={grade} value={grade}>
-                          Lớp {grade}
+                      {[1, 2, 3, 4, 5].map((currentGrade) => (
+                        <option key={currentGrade} value={currentGrade}>
+                          Lớp {currentGrade}
                         </option>
                       ))}
                     </select>

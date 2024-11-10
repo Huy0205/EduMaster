@@ -84,9 +84,10 @@ const Header = () => {
           variant="h6"
           component="div"
           sx={{ flexGrow: 1, cursor: 'pointer' }}
-          onClick={() => router.push('/')}
         >
+          <a href='/'>
           EduMaster
+          </a>
         </Typography>
 
         {/* Right Side: Conditional Rendering */}

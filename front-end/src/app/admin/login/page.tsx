@@ -57,7 +57,7 @@ function AdminLoginPage() {
         const result = await UserService.login(email, password);
         const { data, message } = result.data;
         if (data) {
-            if (data.user.role === 0) {
+            if (data.user.role === 1) {
                 localStorage.setItem('access_token', data.token);
                 router.push('/admin/dashboard');
             } else {
