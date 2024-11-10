@@ -35,7 +35,7 @@ function AdminSidebar() {
                     ))}
                 </select>
             </div>
-            <AdminMenu gradeSelected={grade} />
+            <AdminMenu />
         </aside>
     );
 }
