@@ -2,22 +2,39 @@ import { db } from '~/configs';
 import { Topic } from '~/app/models';
 
 const TopicRepository = db.AppDataSource.getRepository(Topic);
+const columSelect: string[] = ['topic.id', 'topic.name', 'topic.order'];
 
 export class TopicService {
-    static async getTopicsByCourse(courseId: string) {
+    static async getTopicsByCourse(courseId: string, role: number) {
         try {
-            const topics = await TopicRepository.find({
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                },
-                relations: ['course'],
+            const queryBuilder = TopicRepository.createQueryBuilder('topic')
+                .where('topic.course.id = :courseId', { courseId })
+                .orderBy('topic.order', 'ASC');
+            if (role === 0) {
+                queryBuilder
+                    .select([...columSelect, 'course.id', 'course.name', 'course.grade'])
+                    .innerJoin('topic.course', 'course');
+            } else {
+                queryBuilder.select(columSelect);
+            }
+            const topics = await queryBuilder.getMany();
+            const result = topics.map((topic) => {
+                const data = {
+                    id: topic.id,
+                    name: topic.name,
+                    order: topic.order,
+                };
+                if (role === 0) {
+                    data['courseId'] = topic.course.id;
+                    data['courseName'] = topic.course.name;
+                    data['grade'] = topic.course.grade;
+                }
+                return data;
             });
             return {
                 code: 200,
-                message: 'Get topics success',
-                data: topics,
+                message: 'Get topics by course success',
+                data: result,
             };
         } catch (error) {
             console.log('Error getting topics', error);
@@ -112,6 +129,40 @@ export class TopicService {
             };
         } catch (error) {
             console.log('Error adding topic', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get topics by grade, used for admin
+     * @param grade
+     * @returns
+     */
+    static async getTopicByGrade(grade: number) {
+        try {
+            const topics = await TopicRepository.createQueryBuilder('topic')
+                .select([...columSelect, 'course.id', 'course.name', 'course.grade'])
+                .innerJoin('topic.course', 'course')
+                .where('course.grade = :grade', { grade })
+                .orderBy('topic.order', 'ASC')
+                .getMany();
+            const result = topics.map((topic) => {
+                return {
+                    id: topic.id,
+                    name: topic.name,
+                    order: topic.order,
+                    courseId: topic.course.id,
+                    courseName: topic.course.name,
+                    grade: topic.course.grade,
+                };
+            });
+            return {
+                code: 200,
+                message: 'Get topics by grade success',
+                data: result,
+            };
+        } catch (error) {
+            console.log('Error getting topics by grade', error);
             throw error;
         }
     }

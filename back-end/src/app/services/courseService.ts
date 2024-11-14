@@ -50,4 +50,26 @@ export class CourseService {
             throw error;
         }
     }
+
+    /**
+     * Get distinct grade
+     * @returns
+     */
+    static async getGradeDistinct() {
+        try {
+            const grades = await CourseRepository.createQueryBuilder()
+                .select('grade')
+                .distinct(true)
+                .orderBy('grade', 'ASC')
+                .getRawMany();
+            return {
+                code: 200,
+                message: 'Get distinct grade success',
+                data: grades.map((grade) => grade.grade),
+            };
+        } catch (error) {
+            console.log('Error getting distinct grade', error);
+            throw error;
+        }
+    }
 }

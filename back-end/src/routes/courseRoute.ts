@@ -10,4 +10,7 @@ courseRouter.get('/list', authentication, CourseController.getAllCourses);
 // GET: localhost:8080/api/v1/course/grade/:grade
 courseRouter.get('/grade/:grade', CourseController.getCoursesByGrade);
 
+// GET: localhost:8080/api/v1/course/grade-distinct
+courseRouter.get('/grade-distinct', CourseController.getGradeDistinct);
+
 export default courseRouter;

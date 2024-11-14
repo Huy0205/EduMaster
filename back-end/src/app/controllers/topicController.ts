@@ -7,6 +7,7 @@ import { ResponseUtil } from '~/utils';
 export class TopicController {
     static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
         const { courseId } = req.params;
+        const role = req.headers['role'] ? parseInt(req.headers['role'].toString()) : undefined;
 
         if (!courseId) {
             ResponseUtil.sendMissingData(res);
@@ -14,7 +15,24 @@ export class TopicController {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const response = await TopicService.getTopicsByCourse(courseId);
+                const response = await TopicService.getTopicsByCourse(courseId, role);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    static async getTopicByGrade(req: Request, res: Response, next: NextFunction) {
+        const { grade } = req.params;
+
+        if (!grade) {
+            ResponseUtil.sendMissingData(res);
+        } else if (Number(grade) < 1 || Number(grade) > 5) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await TopicService.getTopicByGrade(Number(grade));
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

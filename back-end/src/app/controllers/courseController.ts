@@ -28,4 +28,13 @@ export class CourseController {
             }
         }
     }
+
+    static async getGradeDistinct(req: Request, res: Response, next: NextFunction) {
+        try {
+            const response = await CourseService.getGradeDistinct();
+            ResponseUtil.sendResponse(res, response);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
