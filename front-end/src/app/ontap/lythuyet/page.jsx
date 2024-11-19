@@ -1,8 +1,8 @@
 // pages/ontap/lythuyet.js
 'use client';
 import React from 'react';
-import { useSearchParams,useRouter } from 'next/navigation';
-import { Box, Typography, Paper,Button,IconButton,CircularProgress  } from '@mui/material';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Box, Typography, Paper, Button, IconButton, CircularProgress } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import ReactPlayer from 'react-player';  // Import ReactPlayer
@@ -49,7 +49,7 @@ const LyThuyet = () => {
       console.error('Error fetching questions:', error);
     }
   };
-  
+
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
   };
@@ -60,7 +60,7 @@ const LyThuyet = () => {
     } else {
       const questionIdString = encodeURIComponent(JSON.stringify(questionId));
       // Proceed with navigation if questionId is valid
-       router.push(`/ontap/thuchanh?reviewId=${reviewId}&questionId=${questionIdString}`);
+      router.push(`/ontap/thuchanh?reviewId=${reviewId}&questionId=${questionIdString}`);
     }
   };
   useEffect(() => {
@@ -71,24 +71,32 @@ const LyThuyet = () => {
       fetchQuestions(reviewId);
     }
   }, [reviewId]);
+  const handleGoBackToOnTap = () => {
+    // Khi quay lại trang Ôn tập, truyền giá trị false cho isFirstLoad
+    router.push(`/ontap?initialIsFirstLoad=false`);
+  };
   return (
-    <Box sx={{paddingBottom:2, minHeight: '100vh' }} className="bg-gradient-to-r from-amber-50 to-white">
-  <Header />
-  <Navbar />
-  <Box sx={{ display: 'flex', justifyContent: 'flex-start', ml: 2, mt: 2 }}>
-        <IconButton onClick={() => router.push('/ontap')}>
+    <Box sx={{ paddingBottom: 2, minHeight: '100vh' }} className="bg-gradient-to-r from-amber-50 to-white">
+      <Header />
+      <Navbar />
+      <Box sx={{ display: 'flex', alignItems: 'center', ml: 2, mt: 2 }}>
+        <IconButton onClick={handleGoBackToOnTap}>
           <ArrowBack fontSize="large" />
         </IconButton>
+        <Typography variant="h6" sx={{ ml: 1 }} className='text-black'>
+          {/* {`Chương ${reviewId || ''}`} &gt; {`Bài ${lectureTitle || ''}`} */}
+          {`Chương 1 > Bài 1`}
+        </Typography>
       </Box>
-  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4 }}>
-    <Paper sx={{ maxWidth: 1200, width: '100%', p: 3 }} elevation={3}>
-      <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
-        {lectureTitle || 'Tên bài giảng'}
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4 }}>
+        <Paper sx={{ maxWidth: 1200, width: '100%', p: 3 }} elevation={3}>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
+            {lectureTitle || 'Tên bài giảng'}
+          </Typography>
 
-      {lectureUrl ? (
-        <Box sx={{ position: 'relative', paddingTop: '56.25%' }}> {/* 16:9 Aspect Ratio */}
-          <ReactPlayer
+          {lectureUrl ? (
+            <Box sx={{ position: 'relative', paddingTop: '56.25%' }}> {/* 16:9 Aspect Ratio */}
+              <ReactPlayer
                 url={lectureUrl}
                 controls
                 width="100%"
@@ -98,26 +106,26 @@ const LyThuyet = () => {
                 onBuffer={() => setLoading(true)} // Show spinner when buffering starts
                 onBufferEnd={() => setLoading(false)} // Hide spinner when buffering ends
               />
-        </Box>
-      ) : (
-        <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
-          Không tìm thấy video cho bài giảng này.
-        </Typography>
-      )}
+            </Box>
+          ) : (
+            <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
+              Không tìm thấy video cho bài giảng này.
+            </Typography>
+          )}
 
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
-     {/* Nút Chuyển Trang */}
-        {/* <Button
+          <Box sx={{ mt: 4, textAlign: 'center' }}>
+            {/* Nút Chuyển Trang */}
+            {/* <Button
           variant="contained"
           color="primary"
           onClick={handlePracticeQuestion}
           >
               Thực Hành Câu Hỏi
           </Button> */}
-        </Box>
-    </Paper>
-  </Box>
-</Box>
+          </Box>
+        </Paper>
+      </Box>
+    </Box>
 
   );
 };
