@@ -4,7 +4,7 @@ import { FaUser, FaEnvelope, FaPhone, FaGraduationCap } from "react-icons/fa";
 import Header from '../../components/Header';
 import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert } from '@mui/material';
 import axios from "axios";
-
+import Navbar from '~/components/Navbar';
 const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
@@ -96,6 +96,7 @@ const ProfilePage = () => {
       backgroundPosition: 'center',
     }}>
       <Header />
+      <Navbar />
       <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3, marginTop: 10 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}>
         <img

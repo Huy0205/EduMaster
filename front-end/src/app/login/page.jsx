@@ -162,7 +162,7 @@ const LoginPage = () => {
             </GoogleLogin>
           </div>
           <div className="flex items-center justify-center mt-4">
-            <span className="mr-2">Bạn chưa có tài khoản?</span>
+            <span className="mr-2 text-black">Bạn chưa có tài khoản?</span>
             <button
               className="text-cyan-400"
               onClick={() => {

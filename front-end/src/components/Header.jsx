@@ -22,6 +22,7 @@ const Header = () => {
   const [avatarUrl, setAvatarUrl] = useState(""); // State để lưu URL ảnh đại diện
   const [userId, setUserId] = useState(null); // State để lưu userId
   const [grade, setGrade] = useState("");
+  const [point,setPoint] = useState("");
   useEffect(() => {
     // Kiểm tra xem mã có đang chạy ở phía client hay không
     if (typeof window !== 'undefined') {
@@ -99,22 +100,35 @@ const Header = () => {
                   <span style={{ marginLeft: '8px' }}>Lớp: {grade} |</span> {name}
                 </Typography>
                 <IconButton onClick={handleAvatarClick} color="inherit" sx={{ p: 0 }}>
-                  <Box sx={{ position: 'relative', width: 48, height: 48 }}>
+                  <Box sx={{ position: 'relative', width: 48, height: 48,display:'flex',placeContent:'center' }}>
                     {/* Ảnh bao quanh Avatar */}
-                    <img
+                    <Box
+                      component="img"
                       src="/iframe/img/s3_3.png"
                       alt="Overlay"
-                      style={{
+                      sx={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
-                        width: '100%', // Ảnh sẽ phủ đầy IconButton
-                        height: '100%', // Ảnh sẽ phủ đầy IconButton
-                        borderRadius: '50%', // Đảm bảo ảnh hình tròn
-                        zIndex: 2, // Ảnh sẽ nằm dưới Avatar
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%', // Ảnh overlay hình tròn
+                        zIndex: 2, // Đặt ảnh overlay dưới avatar
+                        scale:'170%',
                       }}
                     />
-                    <Avatar src={avatarUrl} sx={{ width: 48, height: 48, zIndex: 1 }} />
+                    <Avatar
+                      src={avatarUrl}
+                      sx={{
+                        position: 'absolute', // Đảm bảo avatar trùng khớp với overlay
+                        top: 0,
+                        left: 0,
+                        width: '100%', // Kích thước avatar nhỏ hơn overlay để bên trong hoàn toàn
+                        height: '100%',
+                        zIndex: 1, // Avatar nằm trên ảnh overlay
+                        scale:'100%',
+                      }}
+                    />
                   </Box>
                 </IconButton>
               </Box>
@@ -131,6 +145,21 @@ const Header = () => {
                   horizontal: 'right',
                 }}
               >
+                <MenuItem
+                  sx={{
+                    minWidth: 200,
+                    justifyContent: 'space-between',
+                    cursor: 'default', // Không cho phép bấm
+                    pointerEvents: 'none', // Vô hiệu hóa hoàn toàn click
+                    borderBottom: '1px solid #ccc', // Đường gạch dưới
+                    fontWeight: 'bold', // Làm nổi bật "Quý tộc"
+                    color: 'black', // Màu chữ (tùy chỉnh)
+                    backgroundColor: 'transparent', // Nền trong suốt
+                  }}
+                >
+                  Điểm thưởng: 
+                  <span style={{ color: '#23ff23', fontWeight: 'bold' }}></span>
+                </MenuItem>
                 <MenuItem onClick={handleProfileClick} sx={{ minWidth: 200, justifyContent: 'space-between' }}>
                   Thông tin cá nhân
                 </MenuItem>
