@@ -6,46 +6,47 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '~/context/AuthContext'
 import { GoogleLogin } from '@react-oauth/google'
 import { postApiNoneToken } from '~/api/page'
-import { UserService } from '~/services';
+
 const LoginPage = () => {
-  const { loggedIn,setLoggedIn } = useAuth();
+  const { loggedIn, setLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setError('')
-    let data={
+    e.preventDefault();
+    setError("");
+    let data = {
       email: email,
       password: password,
     };
-    console.log(data);
-    try{
-      setLoading(true)
-      const res = await postApiNoneToken("/user/login",data)
-      if(res.data){
-        const userId= res.data.data.id
-        localStorage.setItem('userId',userId)
-        console.log(userId)
-        setLoggedIn(true)
-        localStorage.setItem('loggedIn', 'true')
-        router.push('/')
-      }else {
-        setError('Tài khoản, mật khẩu không đúng!')
+
+    try {
+      setLoading(true);
+      const res = await postApiNoneToken("/user/login", data);
+      if (res.data) {
+        const userId = res.data.data.user.id;
+        localStorage.setItem('userId', userId);
+        console.log(userId);
+        setLoggedIn(true);
+        localStorage.setItem('loggedIn', 'true');
+        router.push('/');
+      } else {
+        setError('Tên đăng nhập hoặc mật khẩu không đúng.');
       }
-    }catch(error){
+    } catch (error) {
       console.log(error);
+      setError('Tên đăng nhập hoặc mật khẩu không đúng.');
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleGoogleLogin = async (credentialRespone) => {
-    setLoggedIn(true)
-    // alert(" Đăng nhập thành công ");
-    router.push('/')
-  }
+    setLoggedIn(true);
+    router.push('/');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
@@ -59,18 +60,10 @@ const LoginPage = () => {
         >
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label
-                htmlFor="email-address"
-                className="sr-only"
-              >
-                Email
-              </label>
+              <label htmlFor="email-address" className="sr-only">Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <AiOutlineMail
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
+                  <AiOutlineMail className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </div>
                 <input
                   id="email-address"
@@ -86,18 +79,10 @@ const LoginPage = () => {
               </div>
             </div>
             <div>
-              <label
-                htmlFor="password"
-                className="sr-only"
-              >
-                Mật khẩu
-              </label>
+              <label htmlFor="password" className="sr-only">Mật khẩu</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <AiOutlineLock
-                    className="h-5 w-5 text-gray-400"
-                    aria-hidden="true"
-                  />
+                  <AiOutlineLock className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </div>
                 <input
                   id="password"
@@ -114,11 +99,9 @@ const LoginPage = () => {
             </div>
           </div>
 
+          {/* Thông báo lỗi */}
           {error && (
-            <div
-              className="text-red-500 text-sm mt-2"
-              role="alert"
-            >
+            <div className="text-red-500 bg-red-100 border border-red-400 rounded-md p-2 text-center text-sm mt-2">
               {error}
             </div>
           )}
@@ -179,11 +162,11 @@ const LoginPage = () => {
             </GoogleLogin>
           </div>
           <div className="flex items-center justify-center mt-4">
-            <span className="mr-2">Bạn chưa có tài khoản?</span>
+            <span className="mr-2 text-black">Bạn chưa có tài khoản?</span>
             <button
               className="text-cyan-400"
               onClick={() => {
-                router.push('/register')
+                router.push('/register');
               }}
             >
               Đăng ký
@@ -192,7 +175,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

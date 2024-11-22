@@ -4,7 +4,7 @@ import { FaUser, FaEnvelope, FaPhone, FaGraduationCap } from "react-icons/fa";
 import Header from '../../components/Header';
 import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert } from '@mui/material';
 import axios from "axios";
-
+import Navbar from '~/components/Navbar';
 const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
@@ -24,11 +24,6 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      if (!userId) {
-        setFeedbackMessage("Không tìm thấy thông tin người dùng.");
-        return;
-      }
-
       try {
         const response = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
         const userData = response.data.data;
@@ -39,7 +34,6 @@ const ProfilePage = () => {
         setAvatar(userData.avatar || "");
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-        setFeedbackMessage("Không thể tải dữ liệu người dùng");
       }
     };
 
@@ -76,7 +70,7 @@ const ProfilePage = () => {
 
   const handleSave = async () => {
     const updatedUserData = {
-      id: userId, 
+      id: userId,
       fullName: name,
       email: email,
       phoneNumber: phone,
@@ -95,15 +89,35 @@ const ProfilePage = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.paper', minHeight: '100vh' }}>
+    <Box sx={{
+      minHeight: '100vh',
+      backgroundImage: 'url(/img/bg-quiz.jpg)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    }}>
       <Header />
+      <Navbar />
       <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3, marginTop: 10 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}>
+        <img
+            src="/iframe/img/s3_3.png" 
+            alt="User frame"
+            style={{
+              position: 'absolute',
+              width: 180, 
+              height: 180,
+              top: '50%', 
+              left: '50%',
+              transform: 'translate(-50%, -50%)', 
+              zIndex: 2, 
+              pointerEvents: 'none', 
+            }}
+          />
           <IconButton onClick={handleAvatarClick}>
             <Avatar
               alt="User avatar"
               src={avatar}
-              sx={{ width: 100, height: 100, cursor: 'pointer' }}
+              sx={{ width: 100, height: 100, cursor: 'pointer', zIndex: 1 }}
             />
           </IconButton>
           <input
@@ -114,7 +128,7 @@ const ProfilePage = () => {
             accept="image/*"
           />
         </Box>
-        <Typography variant="h6" align="center" gutterBottom>
+        <Typography variant="h6" align="center" gutterBottom className="text-black">
           Thông tin người dùng
         </Typography>
         <Box component="form" noValidate>

@@ -21,7 +21,8 @@ const Header = () => {
   const [name, setName] = useState(""); // State để lưu tên người dùng
   const [avatarUrl, setAvatarUrl] = useState(""); // State để lưu URL ảnh đại diện
   const [userId, setUserId] = useState(null); // State để lưu userId
-
+  const [grade, setGrade] = useState("");
+  const [point,setPoint] = useState("");
   useEffect(() => {
     // Kiểm tra xem mã có đang chạy ở phía client hay không
     if (typeof window !== 'undefined') {
@@ -31,7 +32,6 @@ const Header = () => {
       setLoggedIn(storedLoggedIn === 'true');
     }
   }, [setLoggedIn]);
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (userId) {
@@ -40,6 +40,7 @@ const Header = () => {
           const userData = response.data.data;
           setName(userData.fullName || ""); // Cập nhật tên người dùng
           setAvatarUrl(userData.avatar || ""); // Cập nhật URL ảnh đại diện
+          setGrade(userData.currentGrade);
         } catch (error) {
           console.error("Error fetching user data:", error);
           setName("Người dùng không tìm thấy"); // Thiết lập tên mặc định hoặc thông báo
@@ -86,7 +87,7 @@ const Header = () => {
           sx={{ flexGrow: 1, cursor: 'pointer' }}
         >
           <a href='/'>
-          EduMaster
+            EduMaster
           </a>
         </Typography>
 
@@ -94,10 +95,43 @@ const Header = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {loggedIn ? (
             <>
-            <Typography sx={{ color: 'white', marginLeft: 1 }}>{name}</Typography> {/* Tên người dùng được đặt sau avatar */}
-              <IconButton onClick={handleAvatarClick} color="inherit">
-                <Avatar src={avatarUrl || "default-avatar.png"} /> {/* Sử dụng URL từ API cho Avatar */}
-              </IconButton>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography sx={{ color: 'white' }}>
+                  <span style={{ marginLeft: '8px' }}>Lớp: {grade} |</span> {name}
+                </Typography>
+                <IconButton onClick={handleAvatarClick} color="inherit" sx={{ p: 0 }}>
+                  <Box sx={{ position: 'relative', width: 48, height: 48,display:'flex',placeContent:'center' }}>
+                    {/* Ảnh bao quanh Avatar */}
+                    <Box
+                      component="img"
+                      src="/iframe/img/s3_3.png"
+                      alt="Overlay"
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%', // Ảnh overlay hình tròn
+                        zIndex: 2, // Đặt ảnh overlay dưới avatar
+                        scale:'170%',
+                      }}
+                    />
+                    <Avatar
+                      src={avatarUrl}
+                      sx={{
+                        position: 'absolute', // Đảm bảo avatar trùng khớp với overlay
+                        top: 0,
+                        left: 0,
+                        width: '100%', // Kích thước avatar nhỏ hơn overlay để bên trong hoàn toàn
+                        height: '100%',
+                        zIndex: 1, // Avatar nằm trên ảnh overlay
+                        scale:'100%',
+                      }}
+                    />
+                  </Box>
+                </IconButton>
+              </Box>
               <Menu
                 anchorEl={anchorEl}
                 open={isDropdownOpen}
@@ -111,8 +145,27 @@ const Header = () => {
                   horizontal: 'right',
                 }}
               >
-                <MenuItem onClick={handleProfileClick}>Thông tin cá nhân</MenuItem>
-                <MenuItem onClick={handleLogout} sx={{ color: 'red' }}>Đăng xuất</MenuItem>
+                <MenuItem
+                  sx={{
+                    minWidth: 200,
+                    justifyContent: 'space-between',
+                    cursor: 'default', // Không cho phép bấm
+                    pointerEvents: 'none', // Vô hiệu hóa hoàn toàn click
+                    borderBottom: '1px solid #ccc', // Đường gạch dưới
+                    fontWeight: 'bold', // Làm nổi bật "Quý tộc"
+                    color: 'black', // Màu chữ (tùy chỉnh)
+                    backgroundColor: 'transparent', // Nền trong suốt
+                  }}
+                >
+                  Điểm thưởng: 
+                  <span style={{ color: '#23ff23', fontWeight: 'bold' }}></span>
+                </MenuItem>
+                <MenuItem onClick={handleProfileClick} sx={{ minWidth: 200, justifyContent: 'space-between' }}>
+                  Thông tin cá nhân
+                </MenuItem>
+                <MenuItem onClick={handleLogout} sx={{ minWidth: 200, justifyContent: 'space-between', color: 'red' }}>
+                  Đăng xuất
+                </MenuItem>
               </Menu>
             </>
           ) : (

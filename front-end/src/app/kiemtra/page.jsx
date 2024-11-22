@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Box, Paper, Button, Typography, Select, MenuItem } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
-
+import {  useRouter } from 'next/navigation';
 const Topic = ({ title, isActive, onClick }) => {
     return (
-        <Paper elevation={2} sx={{ mb: 2, p: 1}}>
+        <Paper elevation={2} sx={{ mb: 2, p: 1 }}>
             <Button
                 onClick={onClick}
                 fullWidth
@@ -30,7 +30,7 @@ const Kiemtra = () => {
     const [topics, setTopics] = useState([]);
     const [selectedTopicId, setSelectedTopicId] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
-
+    const router = useRouter();
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -74,7 +74,10 @@ const Kiemtra = () => {
             console.error('Error fetching quizzes:', error);
         }
     };
-
+    const handleViewQuiz = () => {
+        // Khi quay lại trang Ôn tập, truyền giá trị false cho isFirstLoad
+        router.push('/kiemtra/lambai');
+      };
     return (
         <Box className="bg-gradient-to-r from-amber-50 to-white" sx={{ minHeight: '100vh' }}>
             <Header />
@@ -119,32 +122,29 @@ const Kiemtra = () => {
 
             <Box sx={{ display: 'flex', mt: 2 }}>
                 {/* Topics Sidebar */}
-                <Paper sx={{ width: '25%', p: 2, height: 'calc(100vh - 200px)', overflowY: 'auto',
+                <Paper sx={{
+                    width: '25%', p: 2, height: 'calc(100vh - 200px)', overflowY: 'auto',
                     backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
                     backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
                     backgroundPosition: 'center', // Căn giữa hình nền
                 }} elevation={3}>
-                  {Array.isArray(topics) && topics.length > 0 ? (
-                      topics.map((topic) => (
-                          <Topic
-                              key={topic.id}
-                              title={topic.name}
-                              isActive={selectedTopicId === topic.id}
-                              onClick={() => handleTopicClick(topic.id)}
-                          />
-                      ))
-                  ) : (
-                      <Typography variant="body1">Không có topic nào.</Typography>
-                  )}
-              </Paper>
-                              {/* Main Content */}
+                    {Array.isArray(topics) && topics.length > 0 ? (
+                        topics.map((topic) => (
+                            <Topic
+                                key={topic.id}
+                                title={topic.name}
+                                isActive={selectedTopicId === topic.id}
+                                onClick={() => handleTopicClick(topic.id)}
+                            />
+                        ))
+                    ) : (
+                        <Typography variant="body1"></Typography>
+                    )}
+                </Paper>
+                {/* Main Content */}
                 <Box component="main" flex={1} p={4} display="grid" gridTemplateColumns="1fr" gap={4}>
                     {/* Quizzes Section */}
-                    <Paper className="p-4" sx={{
-                      backgroundImage: 'url(/img/bg-quiz.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
-                      backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
-                      backgroundPosition: 'center', // Căn giữa hình nền
-                    }}>
+                    <Paper className="p-4">
                         {quizzes.length > 0 ? (
                             <Box
                                 sx={{
@@ -179,7 +179,7 @@ const Kiemtra = () => {
                                             variant="contained"
                                             color="success"
                                             sx={{ mt: 1, textTransform: 'none', fontWeight: 'bold' }}
-                                            onClick={() => handleViewQuiz(quiz.id)}
+                                            onClick={() => handleViewQuiz()}
                                         >
                                             Kiểm tra ngay
                                         </Button>

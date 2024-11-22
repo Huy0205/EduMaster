@@ -5,7 +5,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Navbar from '~/components/Navbar';
 import Header from '~/components/Header';
 import Image from 'next/image';
-import { useSearchParams,useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 export default function Home() {
   const searchParams = useSearchParams();
@@ -19,6 +19,10 @@ export default function Home() {
   const [questionsData, setQuestionsData] = useState([]);
   const [answerData, setAnswerData] = useState([]); // Mảng lưu câu trả lời
   const router = useRouter();
+  const chapterName = "Chương 1";
+  const lessonName = "Bài 2";
+  const exerciseName = "Bài tập Trắc nghiệm";
+
   useEffect(() => {
     if (questionIdString) {
       try {
@@ -79,72 +83,76 @@ export default function Home() {
   }
   if (currentQuestion >= questionsData.length) {
     return (
-     <Box className="min-h-screen flex flex-col items-center" sx={{
-       backgroundImage: 'url(/img/bg-question.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
-       backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
-       backgroundPosition: 'center', // Căn giữa hình nền
-     }}>
-       <Header />
-       <Navbar />
-   <Box
-     className="p-6 text-center"
-     sx={{
-       bgcolor: 'background.paper',
-       borderRadius: '8px',
-       boxShadow: 3,
-       maxWidth: 1000,
-       margin: '8px',
-       padding: 3,
-       textAlign: 'center',
-     }}
-   >
-     <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold'}} className='text-black'>
-       Hoàn thành bài ôn tập
-     </Typography>
-     
-     <Box mt={2}>
-       {/* <Typography variant="body1" color="textSecondary">
+      <Box className="min-h-screen flex flex-col items-center" sx={{
+        backgroundImage: 'url(/img/bg-question.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
+        backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
+        backgroundPosition: 'center', // Căn giữa hình nền
+      }}>
+        <Header />
+        <Navbar />
+        <Box
+          className="p-6 text-center"
+          sx={{
+            bgcolor: 'background.paper',
+            borderRadius: '8px',
+            boxShadow: 3,
+            maxWidth: 1000,
+            margin: '8px',
+            padding: 3,
+            textAlign: 'center',
+          }}
+        >
+          <Typography variant="h4" component="h2" sx={{ fontWeight: 'bold' }} className='text-black'>
+            Hoàn thành bài ôn tập
+          </Typography>
+
+          <Box mt={2}>
+            {/* <Typography variant="body1" color="textSecondary">
          Thời gian làm: {Math.floor(timeTaken / 60)} phút {timeTaken % 60} giây
        </Typography> */}
-       <Typography variant="body1" color="textSecondary" mt={1}>
-         Số câu đúng: {score} / {questionsData.length}
-       </Typography>
-       <Typography variant="body1" color="textSecondary" mt={1}>
-         Số câu sai: {incorrectAnswers} / {questionsData.length}
-       </Typography>
-     </Box>
+            <Typography variant="body1" color="textSecondary" mt={1}>
+              Số câu đúng: {score} / {questionsData.length}
+            </Typography>
+            <Typography variant="body1" color="textSecondary" mt={1}>
+              Số câu sai: {incorrectAnswers} / {questionsData.length}
+            </Typography>
+          </Box>
 
-     {/* Finish Button */}
-     <Box mt={3}>
-       <Button
-         variant="contained"
-         color="primary"
-         size="large"
-         sx={{ width: '100%', py: 1 }}
-         onClick={handleFinish}
-       >
-         Xong
-       </Button>
-     </Box>
-   </Box>
-   </Box>
- );
- }
+          {/* Finish Button */}
+          <Box mt={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ width: '100%', py: 1 }}
+              onClick={handleFinish}
+            >
+              Xong
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
   return (
     <Box className="min-h-screen flex flex-col items-center" sx={{
-      backgroundImage: 'url(/img/bg-question.jpg)', 
-      backgroundSize: 'cover', 
+      backgroundImage: 'url(/img/bg-question.jpg)',
+      backgroundSize: 'cover',
       backgroundPosition: 'center',
     }}>
       <Header />
       <Navbar />
-     
+      <Box sx={{ maxWidth: 800 }}>
+        <Typography variant="h6" component="div" sx={{ fontWeight: "bold", color: "#000" }}>
+          {chapterName} {'>'} {lessonName} {'>'} {exerciseName}
+        </Typography>
+      </Box>
       <Box className="text-lg font-bold my-4 flex items-center space-x-6 bg-white p-4 rounded-lg shadow-lg " sx={{
         maxWidth: 800,
       }}>
         <Box className="flex items-center space-x-2">
           <Image src="/img/star.svg" alt="Lesson Icon" width={24} height={24} />
-          <span className="font-bold text-lg text-black">Cố Lên</span>
+          <span className="font-bold text-lg text-black">{currentQuestion + 1}/{questionsData.length}</span>
         </Box>
 
         <Box className="flex items-center space-x-2 border rounded-lg p-2">
@@ -181,7 +189,7 @@ export default function Home() {
   );
 }
 
-function Question({ question, onNext, onSubmitAnswer,answerData }) {
+function Question({ question, onNext, onSubmitAnswer, answerData }) {
   const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [userAnswer, setUserAnswer] = useState('');
   const [isAnswered, setIsAnswered] = useState(false);
@@ -200,10 +208,10 @@ function Question({ question, onNext, onSubmitAnswer,answerData }) {
   console.log("Answer Data:", answerData);
 
   const handleAnswerChange = (answerId) => {
-    if (question.type === '1'|| question.type === 1) {
+    if (question.type === '1' || question.type === 1) {
       // For radio (type 1), only allow one selection
       setSelectedAnswer([answerId]);
-    } else if (question.type === '2'|| question.type === 2) {
+    } else if (question.type === '2' || question.type === 2) {
       // For checkbox (type 2), allow multiple selections
       setSelectedAnswer((prev) =>
         prev.includes(answerId) ? prev.filter((id) => id !== answerId) : [...prev, answerId]
@@ -213,13 +221,13 @@ function Question({ question, onNext, onSubmitAnswer,answerData }) {
 
   const handleSubmit = () => {
     let correct = false;
-    if (question.type === '1' || question.type === '2'||question.type === 1 ||question.type === 2) {
+    if (question.type === '1' || question.type === '2' || question.type === 1 || question.type === 2) {
       correct = answerData.every(
         (answer) =>
           (selectedAnswer.includes(answer.id) && answer.isCorrect) ||
           (!selectedAnswer.includes(answer.id) && !answer.isCorrect)
       );
-    } else if (question.type === '3'|| question.type === 3) {
+    } else if (question.type === '3' || question.type === 3) {
       correct = userAnswer.trim().toLowerCase() === answerData[0].content.trim().toLowerCase();
     }
 
@@ -243,7 +251,7 @@ function Question({ question, onNext, onSubmitAnswer,answerData }) {
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" width="100%" sx={{marginTop:10}}>
+    <Box display="flex" flexDirection="column" alignItems="center" width="100%" sx={{ marginTop: 10 }}>
       <Box
         p={3}
         border={1}
@@ -251,76 +259,84 @@ function Question({ question, onNext, onSubmitAnswer,answerData }) {
         borderRadius="8px"
         boxShadow={3}
         width="100%"
-        maxWidth="600px"
+        maxWidth="800px"
+        height="670px" // Chiều cao cố định
         bgcolor="background.paper"
         textAlign="center"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center" // Đảm bảo nút và nội dung nằm trong khung
       >
         <Typography variant="h6" gutterBottom className='text-black'>
           {question.content}
         </Typography>
 
         {question.image && (
-          <Box mt={2}>
+          <Box mt={2} display="flex" justifyContent="center" alignItems="center">
             <Image
               src={question.image}
               alt="Question Image"
-              width={500}
-              height={300}
               layout="intrinsic"
-              objectFit="contain"
+              width={500} // Độ rộng tối đa
+              height={300} // Chiều cao tối đa
+              style={{
+                maxWidth: '100%', // Giới hạn độ rộng tối đa theo container
+                maxHeight: '250px', // Giới hạn chiều cao tối đa
+                objectFit: 'contain', // Bảo đảm hình ảnh không bị méo
+              }}
             />
           </Box>
         )}
 
-          {(question.type === '1' || question.type === 1 || question.type === '2'|| question.type === 2) ? (
-            answerData.map((answer) => (
-              <Box key={answer.id} display="flex" alignItems="center" mb={1}>
-                {question.type === 1 ? (
-                  <Radio
-                    checked={selectedAnswer.includes(answer.id)}
-                    onChange={() => handleAnswerChange(answer.id)}
-                  />
-                ) : (
-                  <Checkbox
-                    checked={selectedAnswer.includes(answer.id)}
-                    onChange={() => handleAnswerChange(answer.id)}
-                  />
-                )}
-                <Typography className='text-black'>{answer.content}</Typography>
-              </Box>
-            ))
-          ) : (
-            <TextField
-              fullWidth
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="Nhập câu trả lời"
-              sx={{ mt: 2 }}
-            />
-          )}
+        {(question.type === '1' || question.type === 1 || question.type === '2' || question.type === 2) ? (
+          answerData.map((answer) => (
+            <Box key={answer.id} display="flex" alignItems="center" mb={1}>
+              {question.type === 1 ? (
+                <Radio
+                  checked={selectedAnswer.includes(answer.id)}
+                  onChange={() => handleAnswerChange(answer.id)}
+                />
+              ) : (
+                <Checkbox
+                  checked={selectedAnswer.includes(answer.id)}
+                  onChange={() => handleAnswerChange(answer.id)}
+                />
+              )}
+              <Typography className='text-black'>{answer.content}</Typography>
+            </Box>
+          ))
+        ) : (
+          <TextField
+            fullWidth
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            placeholder="Nhập câu trả lời"
+            sx={{ mt: 2 }}
+          />
+        )}
         {isAnswered && (
-          <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2 }}>
-          {isCorrect ? (
-            'Câu trả lời chính xác!'
-          ) : (
-            <>
-              Sai rồi! Câu trả lời chính là:{" "}
-              <Typography component="span" color="green">
-                {answerData
-                  .filter(answer => answer.isCorrect)
-                  .map(answer => answer.content)
-                  .join(', ')}
-              </Typography>
-            </>
-          )}
-        </Typography>
+            <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2 }}>
+              {isCorrect ? (
+                'Câu trả lời chính xác!'
+              ) : (
+                <>
+                  Sai rồi! Câu trả lời chính là:{" "}
+                  <Typography component="span" color="green">
+                    {answerData
+                      .filter(answer => answer.isCorrect)
+                      .map(answer => answer.content)
+                      .join(', ')}
+                  </Typography>
+                </>
+              )}
+            </Typography>
         )}
 
         <Box display="flex" justifyContent="center" mt={2}>
           {isAnswered ? (
             <Button variant="contained" onClick={handleNext}>Tiếp theo</Button>
           ) : (
-            <Button variant="contained" onClick={handleSubmit}>Xác nhận</Button>
+            <Button variant="contained" onClick={handleSubmit}>Trả lời</Button>
           )}
         </Box>
       </Box>
