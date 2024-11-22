@@ -7,6 +7,7 @@
 :root {
     --primary: #f00000;
     --foreground: #f5f5f5;
+    --text: #333;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,7 +18,7 @@
 }
 
 body {
-    color: var(--foreground);
+    color: var(--text);
     background: var(--background);
     font-family: 'Varela Round', sans-serif;
 }

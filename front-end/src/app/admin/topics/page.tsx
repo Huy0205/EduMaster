@@ -1,42 +1,53 @@
 'use client';
-import { useState } from 'react';
-import AdminFilter from '../components/Filter';
-import AdminTable from '../components/Table';
-import { TopicService } from '~/services';
+import { Delete, Edit } from '@mui/icons-material';
 
-interface FilterData {
-    grade: number;
-    courseId: string;
-}
+import { useCourses, useGrades } from '~/hooks';
+import { useFilterData } from '~/context';
+import { TopicService } from '~/services';
+import AdminManagementWrapper from '../components/management';
 
 function AdminTopicsPage() {
-    const [filterData, setFilterData] = useState([]);
+    const { filterData } = useFilterData();
+    const grades = useGrades();
+    const courses = useCourses(filterData.grade);
 
-    const handleFilter = async ({ grade, courseId }: FilterData) => {
-        const result = courseId
-            ? await TopicService.getTopicsByCourse(courseId, 0)
-            : await TopicService.getTopicByGrade(grade);
-        const { data, message } = result.data;
-        if (data) {
-            setFilterData(data);
-        } else {
-            console.error(message);
-        }
+    const fetchData = async (filters: any) => {
+        if (filters.courseId) return await TopicService.getTopicsByCourse(filters.courseId, 0);
+        if (filters.grade) return await TopicService.getTopicByGrade(filters.grade);
+        return await TopicService.getAllTopics();
+    };
+
+    const filterConfig = [
+        {
+            key: 'grade',
+            placeholder: 'Chọn lớp',
+            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
+        },
+        {
+            key: 'courseId',
+            placeholder: 'Chọn môn học',
+            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
+            disabled: !filterData.grade,
+            tooltipTitle: 'Vui lòng chọn lớp trước',
+        },
+    ];
+
+    const tableConfig = {
+        header: ['STT', 'Tên chương mục', 'Môn học', 'Lớp'],
+        columnsData: ['name', 'courseName', 'grade'],
+        actions: [
+            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
+            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+        ],
+        addLink: '/admin/topics/add',
     };
 
     return (
-        <div>
-            <AdminFilter
-                grade
-                course
-                onFilterChange={handleFilter}
-            />
-            <AdminTable
-                header={['STT', 'Tên chương mục', 'Môn học', 'Lớp']}
-                columnsData={['name', 'courseName', 'grade']}
-                data={filterData}
-            />
-        </div>
+        <AdminManagementWrapper
+            fetchData={fetchData}
+            filterConfig={filterConfig}
+            tableConfig={tableConfig}
+        />
     );
 }
 

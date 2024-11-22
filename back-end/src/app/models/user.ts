@@ -1,66 +1,66 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    OneToMany,
 } from 'typeorm';
 import { Role } from '../enums';
 import { Enrollment } from './enrollment';
-import { ReviewProgress } from './reviewProgress';
-import { QuizProgress } from './quizProgress';
+import { PracticeProgress } from './practiceProgress';
+import { Result } from './result';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({
-    unique: true,
-  })
-  email: string;
+    @Column({
+        unique: true,
+    })
+    email: string;
 
-  @Column()
-  password: string;
+    @Column()
+    password: string;
 
-  @Column()
-  fullName: string;
+    @Column()
+    fullName: string;
 
-  @Column({
-    unique: true,
-  })
-  phoneNumber: string;
+    @Column({
+        unique: true,
+    })
+    phoneNumber: string;
 
-  @Column()
-  avatar: string;
+    @Column()
+    avatar: string;
 
-  @Column()
-  currentGrade: number;
+    @Column()
+    currentGrade: number;
 
-  @Column({ default: 0 })
-  totalPoint: number;
+    @Column({ default: 0 })
+    totalPoint: number;
 
-  @Column({
-    type: 'enum',
-    enum: Role,
-    default: Role.STUDENT,
-    enumName: 'role',
-  })
-  role: Role;
+    @Column({
+        type: 'enum',
+        enum: Role,
+        default: Role.STUDENT,
+        enumName: 'role',
+    })
+    role: Role;
 
-  @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
-  enrollments: Enrollment[];
+    @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
+    enrollments: Enrollment[];
 
-  @OneToMany(() => ReviewProgress, (reviewProgress) => reviewProgress.user)
-  reviewProgresses: ReviewProgress[];
+    @OneToMany(() => PracticeProgress, (practiceProgress) => practiceProgress.user)
+    practiceProgress: PracticeProgress[];
 
-  @OneToMany(() => QuizProgress, (quizProgress) => quizProgress.user)
-  quizProgress: QuizProgress[];
+    @OneToMany(() => Result, (result) => result.user)
+    results: Result[];
 
-  @CreateDateColumn()
-  createdAt: Date;
+    @CreateDateColumn()
+    createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+    @UpdateDateColumn()
+    updatedAt: Date;
 }

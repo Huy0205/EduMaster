@@ -6,11 +6,11 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { LectureType } from './lectureType';
-import { Review } from './review';
+import { TheoryType } from './theoryType';
+import { Lesson } from './lesson';
 
 @Entity()
-export class Lecture {
+export class Theory {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -23,14 +23,17 @@ export class Lecture {
     @Column({ type: 'text', nullable: true })
     description: string;
 
-    @ManyToOne(() => LectureType, (lectureType) => lectureType.lectures)
-    type: LectureType;
+    @ManyToOne(() => TheoryType, (theoryType) => theoryType.theories)
+    type: TheoryType;
+
+    @Column({ nullable: false })
+    orderInLesson: number;
 
     @Column({ default: false })
     isViewed: boolean;
 
-    @ManyToOne(() => Review, (review) => review.lectures)
-    review: Review;
+    @ManyToOne(() => Lesson, (lesson) => lesson.theories)
+    lesson: Lesson;
 
     @CreateDateColumn()
     createdAt: Date;

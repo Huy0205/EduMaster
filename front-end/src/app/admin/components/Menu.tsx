@@ -50,7 +50,7 @@ function AdminMenu() {
                             active === item.href.split('/')[2]
                                 ? 'text-primary bg-red-100'
                                 : 'text-gray-500 bg-white'
-                        } rounded-md transition-all`}
+                        } rounded-md transition-all hover:bg-red-100 hover:text-primary`}
                     >
                         <Link
                             href={item.href}

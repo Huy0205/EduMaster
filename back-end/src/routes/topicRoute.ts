@@ -3,6 +3,9 @@ import { TopicController } from '~/app/controllers';
 
 const topicRouter = Router();
 
+// GET: localhost:8080/api/v1/topic/list
+topicRouter.get('/list', TopicController.getAllTopics);
+
 // GET: localhost:8080/api/v1/topic/course/:courseId
 topicRouter.get('/course/:courseId', TopicController.getTopicsByCourse);
 

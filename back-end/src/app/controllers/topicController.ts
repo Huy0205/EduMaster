@@ -5,6 +5,15 @@ import { Topic } from '../models';
 import { ResponseUtil } from '~/utils';
 
 export class TopicController {
+    static async getAllTopics(req: Request, res: Response, next: NextFunction) {
+        try {
+            const response = await TopicService.getAllTopics();
+            ResponseUtil.sendResponse(res, response);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
         const { courseId } = req.params;
         const role = req.headers['role'] ? parseInt(req.headers['role'].toString()) : undefined;
@@ -59,20 +68,20 @@ export class TopicController {
 
     static async addTopic(req: Request, res: Response, next: NextFunction) {
         const { name, courseId } = req.body;
-        let { order } = req.body;
+        let { orderInCourse } = req.body;
 
         if (!name || !courseId) {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
-                if (order) {
-                    await TopicService.setOrderForTopicByCourse(courseId, order);
+                if (orderInCourse) {
+                    await TopicService.setOrderForTopicByCourse(courseId, orderInCourse);
                 } else {
                     const resTotalTopics = await TopicService.countTopicsByCourse(courseId);
-                    order = resTotalTopics.data + 1;
+                    orderInCourse = resTotalTopics.data + 1;
                 }
                 const courseRes = await CourseService.getCourseById(courseId);
-                const topic: Partial<Topic> = { name, order, course: courseRes.data };
+                const topic: Partial<Topic> = { name, orderInCourse, course: courseRes.data };
                 const response = await TopicService.addTopic(topic);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {

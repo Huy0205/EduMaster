@@ -1,7 +1,7 @@
 import axios from '~/util/axios.customize';
 
 export class UserService {
-    static async getUserByRole(role: number) {
+    static async getUsersByRole(role: number) {
         return axios.get(`user/role/${role}`);
     }
 

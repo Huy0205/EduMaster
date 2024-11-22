@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Course } from './course';
 import { Quiz } from './quiz';
-import { Review } from './review';
+import { Lesson } from './lesson';
 
 @Entity()
 export class Topic {
@@ -20,16 +20,16 @@ export class Topic {
     name: string;
 
     @Column({ nullable: false })
-    order: number;
+    orderInCourse: number;
 
     @ManyToOne(() => Course, (course) => course.topics)
     course: Course;
 
-    @OneToMany(() => Review, (review) => review.topic)
-    reviews: Review[];
-
     @OneToMany(() => Quiz, (quiz) => quiz.topic)
     quizzes: Quiz[];
+
+    @OneToMany(() => Lesson, (lesson) => lesson.topic)
+    lessons: Lesson[];
 
     @CreateDateColumn()
     createdAt: Date;

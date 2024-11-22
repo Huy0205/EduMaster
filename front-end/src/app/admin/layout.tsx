@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import AdminHeader from './components/Header';
 import AdminSidebar from './components/Sidebar';
 import { KeyboardArrowRight, Search } from '@mui/icons-material';
-import { GradeProvider } from '~/context/GradeContext';
+import { FilterDataProvider } from '~/context';
 // import Link from 'next/link';
 
 interface AdminLayoutProps {
@@ -19,7 +19,7 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
     if (isLoginPage) return <>{children}</>;
 
     return (
-        <GradeProvider>
+        <FilterDataProvider>
             <div className="flex flex-row">
                 <div className="w-[220px] h-screen">
                     <AdminSidebar />
@@ -47,11 +47,11 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
                                 </button>
                             </div>
                         </div>
-                        <div className="flex flex-1 mt-3 ml-3 bg-white">{children}</div>
+                        <div className="flex flex-1 mt-3 ml-3">{children}</div>
                     </div>
                 </div>
             </div>
-        </GradeProvider>
+        </FilterDataProvider>
     );
 }
 

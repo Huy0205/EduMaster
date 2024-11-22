@@ -6,18 +6,18 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { Lecture } from './lecture';
+import { Theory } from './theory';
 
 @Entity()
-export class LectureType {
+export class TheoryType {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ nullable: false })
     name: string;
 
-    @OneToMany(() => Lecture, (lecture) => lecture.type)
-    lectures: Lecture[];
+    @OneToMany(() => Theory, (theory) => theory.type)
+    theories: Theory[];
 
     @CreateDateColumn()
     createdAt: Date;

@@ -8,8 +8,8 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { Topic } from './topic';
-import { QuizQuestion } from './quiz_question';
-import { QuizProgress } from './quizProgress';
+import { QuizQuestion } from './quizQuestion';
+import { Result } from './result';
 
 @Entity()
 export class Quiz {
@@ -31,8 +31,8 @@ export class Quiz {
     @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.quiz)
     quizQuestions: QuizQuestion[];
 
-    @OneToMany(() => QuizProgress, (quizProgress) => quizProgress.quiz)
-    quizProgress: QuizProgress[];
+    @OneToMany(() => Result, (result) => result.quiz)
+    results: Result[];
 
     @CreateDateColumn()
     createdAt: Date;

@@ -1,87 +1,41 @@
 'use client';
-import { Delete, Edit } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
-
-import { useGrade } from '~/context/GradeContext';
+import { useGrades } from '~/hooks';
 import { UserService } from '~/services';
+import AdminManagementWrapper from '../components/management';
+import { Delete, Edit } from '@mui/icons-material';
 
-interface User {
-    id: string;
-    email: string;
-    password: string;
-    fullName: string;
-    phoneNumber: string;
-    avatar: string;
-    currentGrade: number;
-    totalPoint: number;
-    role: number;
-}
+function AdminUsersPage() {
+    const grades = useGrades();
 
-function AdminUserManagementPage() {
-    const [users, setUsers] = useState<User[]>([]);
-    const { grade } = useGrade();
+    const fetchData = async (filters: any) => {
+        if (filters.grade) return await UserService.getUsersByGrade(filters.grade);
+        return await UserService.getUsersByRole(1);
+    };
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const usersRes = await UserService.getUsersByGrade(grade);
-            const { data, message } = usersRes.data;
-            if (data) {
-                setUsers(data);
-            } else {
-                console.error(message);
-            }
-        };
-        fetchUsers();
-    }, [grade]);
+    const filterConfig = [
+        {
+            key: 'grade',
+            placeholder: 'Chọn lớp',
+            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
+        },
+    ];
+
+    const tableConfig = {
+        header: ['STT', 'Họ và tên', 'Email', 'Số điện thoại', 'Lớp', 'Điểm'],
+        columnsData: ['fullName', 'email', 'phoneNumber', 'currentGrade', 'totalPoint'],
+        actions: [
+            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
+            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+        ],
+    };
 
     return (
-        <div className="flex flex-col flex-1 bg-white">
-            <div className="p-3">
-                <h3 className="text-lg text-gray-600 font-bold">Quản lý tài khoản người dùng</h3>
-            </div>
-            <div className="w-full p-3 pt-0">
-                <table className="w-full border-collapse text-base text-gray-500">
-                    <thead>
-                        <tr>
-                            <th className="border-2 border-slate-300">STT</th>
-                            <th className="border-2 border-slate-300">Họ và tên</th>
-                            <th className="border-2 border-slate-300">Email</th>
-                            <th className="border-2 border-slate-300">Số điện thoại</th>
-                            <th className="border-2 border-slate-300">Điểm thưởng</th>
-                            <th className="border-2 border-slate-300 p-1">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user, index) => (
-                            <tr key={user.id}>
-                                <td className="border-2 border-slate-300 text-center">
-                                    {index + 1}
-                                </td>
-                                <td className="border-2 border-slate-300 px-1">{user.fullName}</td>
-                                <td className="border-2 border-slate-300 px-1">{user.email}</td>
-                                <td className="border-2 border-slate-300 text-center">
-                                    {user.phoneNumber}
-                                </td>
-                                <td className="border-2 border-slate-300 text-center">
-                                    {user.totalPoint}
-                                </td>
-                                <td className="border-2 border-slate-300 p-1">
-                                    <div className="flex gap-2 justify-center items-center">
-                                        <button className="border-2 border-slate-300 rounded-md p-[1px]">
-                                            <Edit />
-                                        </button>
-                                        <button className="border-2 border-slate-300 rounded-md p-[1px]">
-                                            <Delete />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <AdminManagementWrapper
+            fetchData={fetchData}
+            filterConfig={filterConfig}
+            tableConfig={tableConfig}
+        />
     );
 }
 
-export default AdminUserManagementPage;
+export default AdminUsersPage;

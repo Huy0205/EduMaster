@@ -8,16 +8,17 @@ import {
     UpdateDateColumn,
 } from 'typeorm';
 import { QuestionType } from '~/app/enums';
-import { Review } from './review';
-import { QuizQuestion } from './quiz_question';
+import { Lesson } from './lesson';
+import { QuizQuestion } from './quizQuestion';
 import { Answer } from './answer';
+import { PracticeQuestion } from './practiceQuestion';
 
 @Entity()
 export class Question {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ nullable: false })
+    @Column()
     content: string;
 
     @Column({ nullable: true })
@@ -31,17 +32,20 @@ export class Question {
     })
     type: QuestionType;
 
-    @Column({ nullable: false })
-    order: number;
+    @Column({ nullable: true })
+    orderInLesson: number;
 
-    @ManyToOne(() => Review, (review) => review.questions)
-    review: Review;
+    @ManyToOne(() => Lesson, (lesson) => lesson.questions)
+    lesson: Lesson;
 
     @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.question)
     quizQuestions: QuizQuestion[];
 
     @OneToMany(() => Answer, (answer) => answer.question)
     answers: Answer[];
+
+    @OneToMany(() => PracticeQuestion, (practiceQuestion) => practiceQuestion.question)
+    practiceQuestions: PracticeQuestion[];
 
     @CreateDateColumn()
     createdAt: Date;

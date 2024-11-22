@@ -228,7 +228,7 @@ export class UserService {
                 data: {
                     totalPages,
                     currentPage: page,
-                    users,
+                    list: users,
                 },
             };
         } catch (error) {
@@ -301,6 +301,7 @@ export class UserService {
             const users = await UserRepository.find({
                 where: {
                     currentGrade: grade,
+                    role: Role.STUDENT,
                 },
             });
             return {
