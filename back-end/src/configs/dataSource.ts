@@ -16,6 +16,8 @@ import {
     PracticeProgress,
     PracticeQuestion,
     Result,
+    AvatarFrame,
+    AvatarFrameUser,
 } from '~/app/models';
 
 const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT } = process.env;
@@ -31,6 +33,8 @@ const AppDataSource = new DataSource({
     logging: false,
     entities: [
         Answer,
+        AvatarFrame,
+        AvatarFrameUser,
         Course,
         Enrollment,
         Theory,

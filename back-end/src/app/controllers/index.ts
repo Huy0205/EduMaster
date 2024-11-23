@@ -7,3 +7,5 @@ export * from './quizQuestionController';
 export * from './theoryController';
 export * from './topicController';
 export * from './userController';
+export * from './avatarFrameController';
+export * from './avatarFrameUserController';

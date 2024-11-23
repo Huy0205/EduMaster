@@ -8,6 +8,8 @@ import theoryRouter from './theoryRoute';
 import quizRouter from './quizRoute';
 import quizQuestionRouter from './quiz_questionRoute';
 import lessonRouter from './lessonRoute';
+import avatarFrameRouter from './avatarFrameRoute';
+import avatarFrameUserRouter from './avatarFrameUserRoute';
 
 const router = Router();
 
@@ -20,5 +22,7 @@ router.use('/topic', topicRouter);
 router.use('/question', questionRouter);
 router.use('/quiz', quizRouter);
 router.use('/quiz-question', quizQuestionRouter);
+router.use('/avatar-frame', avatarFrameRouter);
+router.use('/avatar-frame-user', avatarFrameUserRouter);
 
 export default router;

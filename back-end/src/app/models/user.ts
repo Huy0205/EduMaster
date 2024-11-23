@@ -10,6 +10,7 @@ import { Role } from '../enums';
 import { Enrollment } from './enrollment';
 import { PracticeProgress } from './practiceProgress';
 import { Result } from './result';
+import { AvatarFrameUser } from './avatarFrameUser';
 
 @Entity()
 export class User {
@@ -57,6 +58,9 @@ export class User {
 
     @OneToMany(() => Result, (result) => result.user)
     results: Result[];
+
+    @OneToMany(() => AvatarFrameUser, (avatarFrameUser) => avatarFrameUser.user)
+    avatarFrameUsers: AvatarFrameUser[];
 
     @CreateDateColumn()
     createdAt: Date;

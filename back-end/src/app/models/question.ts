@@ -32,9 +32,6 @@ export class Question {
     })
     type: QuestionType;
 
-    @Column({ nullable: true })
-    orderInLesson: number;
-
     @ManyToOne(() => Lesson, (lesson) => lesson.questions)
     lesson: Lesson;
 

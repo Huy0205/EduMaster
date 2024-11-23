@@ -1,4 +1,11 @@
-import { CreateDateColumn, Entity, ManyToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    PrimaryColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { Practice } from './practice';
 import { Question } from './question';
 
@@ -9,6 +16,9 @@ export class PracticeQuestion {
 
     @PrimaryColumn()
     questionId: string;
+
+    @Column()
+    orderInPractice: number;
 
     @ManyToOne(() => Practice, (practice) => practice.practiceQuestions)
     practice: Practice;

@@ -6,7 +6,6 @@ const questionRepository = db.AppDataSource.getRepository(Question);
 interface AdminQuestion {
     id: string;
     content: string;
-    orderInLesson: number;
     lesson: {
         name: string;
         orderInTopic: number;
@@ -80,7 +79,6 @@ export class QuestionService {
                         },
                         orderInTopic: 'ASC',
                     },
-                    orderInLesson: 'ASC',
                 },
                 skip: (page - 1) * limit,
                 take: limit,
@@ -132,7 +130,6 @@ export class QuestionService {
                         },
                         orderInTopic: 'ASC',
                     },
-                    orderInLesson: 'ASC',
                 },
                 skip: (page - 1) * limit,
                 take: limit,
@@ -181,7 +178,6 @@ export class QuestionService {
                         },
                         orderInTopic: 'ASC',
                     },
-                    orderInLesson: 'ASC',
                 },
                 skip: (page - 1) * limit,
                 take: limit,
@@ -225,7 +221,6 @@ export class QuestionService {
                     lesson: {
                         orderInTopic: 'ASC',
                     },
-                    orderInLesson: 'ASC',
                 },
                 skip: (page - 1) * limit,
                 take: limit,
@@ -255,7 +250,6 @@ export class QuestionService {
                     lesson: { id: lessonId },
                 },
                 order: {
-                    orderInLesson: 'ASC',
                 },
                 take: limit,
                 skip: (page - 1) * limit,
@@ -296,31 +290,6 @@ export class QuestionService {
             };
         } catch (error) {
             console.log('Error getting questions by quiz', error);
-            throw error;
-        }
-    }
-
-    /*
-     * Set order for question by review from position to end
-     */
-    static async setOrderForQuestionByLesson(lessonId: string, position: number) {
-        try {
-            const questions = await questionRepository.find({
-                where: {
-                    lesson: { id: lessonId },
-                },
-                order: {
-                    orderInLesson: 'ASC',
-                },
-            });
-            questions.forEach(async (question) => {
-                if (question.orderInLesson >= position) {
-                    question.orderInLesson += 1;
-                    await questionRepository.save(question);
-                }
-            });
-        } catch (error) {
-            console.log('Error setting order for question by review', error);
             throw error;
         }
     }

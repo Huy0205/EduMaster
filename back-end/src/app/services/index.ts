@@ -7,3 +7,5 @@ export * from './quizService';
 export * from './theoryService';
 export * from './topicService';
 export * from './userService';
+export * from './avatarFrameService';
+export * from './avatarFrameUserService';

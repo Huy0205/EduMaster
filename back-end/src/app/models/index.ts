@@ -1,4 +1,6 @@
 export * from './answer';
+export * from './avatarFrame';
+export * from './avatarFrameUser';
 export * from './course';
 export * from './enrollment';
 export * from './theory';

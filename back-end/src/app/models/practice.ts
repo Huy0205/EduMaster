@@ -20,7 +20,7 @@ export class Practice {
     name: string;
 
     @Column()
-    order: number;
+    orderInTopic: number;
 
     @Column({
         default: 10,
