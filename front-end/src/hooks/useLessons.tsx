@@ -10,10 +10,10 @@ function useLessons(topicId: string) {
             setLessons([]);
             const fetchLessons = async () => {
                 if (!topicId) return;
-                const result = await LessonService.getLessonsByTopic(topicId);
+                const result = await LessonService.getLessonsByTopic(topicId, 0, 1, 100);
                 const { data, message } = result.data;
                 if (data) {
-                    setLessons(data);
+                    setLessons(data.list);
                 } else {
                     console.error(message);
                 }

@@ -1,18 +1,18 @@
 'use client';
-import { Add } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-
-import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
-import { LessonService } from '~/services';
-import AdminForm from '~/app/admin/components/Form';
+import { useCourses, useGrades, useTopics } from '~/hooks';
+import useLessons from '~/hooks/useLessons';
+import AdminForm from '../../components/Form';
+import { Add } from '@mui/icons-material';
 
-function AdminAddLessonPage(): JSX.Element {
+function AdminAddQuestionPage() {
     const router = useRouter();
     const { filterData, resetFilterData } = useFilterData();
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
+    const lessons = useLessons(filterData.topicId);
 
     const items = [
         {
@@ -37,37 +37,31 @@ function AdminAddLessonPage(): JSX.Element {
             options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
         },
         {
-            type: 'text',
-            key: 'lessonName',
-            label: 'Tên Bài học',
+            type: 'select',
+            key: 'lessonId',
+            label: 'Chương bài học',
+            selected: filterData.lessonId,
+            options: lessons.map((lesson: any) => ({ value: lesson.id, label: lesson.name })),
         },
     ];
 
-    const handleAddLesson = async ({ lessonName, topicId }: any) => {
-        const addLessonRes = await LessonService.addLesson(lessonName, topicId);
-        const { data, message } = addLessonRes.data;
-        if (data) {
-            alert('Thêm bài học thành công');
-            resetFilterData();
-            router.push('/admin/lessons');
-        } else {
-            alert('Có lỗi xảy ra: ' + message);
-        }
+    const handleAddQuestion = async () => {
+        router.push('/admin/questions');
     };
 
     return (
         <div className="w-full flex justify-center bg-white">
             <AdminForm
-                title="Thêm bài học"
+                title="Thêm câu hỏi"
                 items={items}
                 action={{
                     label: 'Thêm',
                     icon: Add,
-                    onClick: handleAddLesson,
+                    onClick: handleAddQuestion,
                 }}
             />
         </div>
     );
 }
 
-export default AdminAddLessonPage;
+export default AdminAddQuestionPage;

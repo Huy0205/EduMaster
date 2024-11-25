@@ -1,8 +1,8 @@
 import { ResponseUtil } from '~/utils';
 import { validate as isUUID } from 'uuid';
-import { LessonService } from '../services';
+import { LessonService, TopicService } from '../services';
 import { NextFunction, Request, Response } from 'express';
-import { Role } from '../enums';
+import { Role, Status } from '../enums';
 
 export class LessonController {
     public static async getAllLessons(req: Request, res: Response, next: NextFunction) {
@@ -91,6 +91,47 @@ export class LessonController {
                     pageNum,
                     limitNum,
                 );
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async addLesson(req: Request, res: Response, next: NextFunction) {
+        const { lessonName, topicId } = req.body;
+        console.log(lessonName, topicId);
+        if (!lessonName || !topicId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(topicId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const maxOrderRes = await LessonService.getMaxOrderInTopic(topicId);
+                const topicRes = await TopicService.getTopicById(topicId);
+                const response = await LessonService.addLesson({
+                    name: lessonName,
+                    orderInTopic: maxOrderRes.data + 1,
+                    topic: topicRes.data,
+                });
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async updateStatus(req: Request, res: Response, next: NextFunction) {
+        const { lessonId } = req.params;
+        const { status } = req.body;
+
+        if (!lessonId || status === undefined) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(lessonId) || !(status in Status)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await LessonService.updateStatus(lessonId, Number(status));
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

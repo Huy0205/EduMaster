@@ -42,8 +42,8 @@ function AdminLessonsPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Tên chương mục', 'Môn học', 'Lớp'],
-        columnsData: ['name', 'courseName', 'grade'],
+        header: ['STT', 'Tên bài học', 'Chương mục', 'Môn học', 'Lớp', 'Trạng thái'],
+        columnsData: ['name', 'topicName', 'courseName', 'grade', 'status'],
         actions: [
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
@@ -54,6 +54,7 @@ function AdminLessonsPage() {
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
+            updateStatus={LessonService.updateStatus}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
         />

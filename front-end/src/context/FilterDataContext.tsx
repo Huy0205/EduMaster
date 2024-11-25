@@ -5,6 +5,7 @@ interface FilterData {
     grade: number;
     courseId: string;
     topicId: string;
+    lessonId: string;
 }
 
 interface FilterDataContextProps {
@@ -17,6 +18,7 @@ const defaultFilterData: FilterData = {
     grade: 0,
     courseId: '',
     topicId: '',
+    lessonId: '',
 };
 
 export const FilterDataContext = createContext<FilterDataContextProps | undefined>(undefined);

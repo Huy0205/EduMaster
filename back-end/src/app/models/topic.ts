@@ -10,6 +10,7 @@ import {
 import { Course } from './course';
 import { Quiz } from './quiz';
 import { Lesson } from './lesson';
+import { Status } from '../enums';
 
 @Entity()
 export class Topic {
@@ -21,6 +22,13 @@ export class Topic {
 
     @Column({ nullable: false })
     orderInCourse: number;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.INACTIVE,
+    })
+    status: Status;
 
     @ManyToOne(() => Course, (course) => course.topics)
     course: Course;

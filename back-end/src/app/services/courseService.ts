@@ -37,7 +37,7 @@ export class CourseService {
      * @param courseId
      * @returns
      */
-    static async getCourseById(courseId: string) {
+    public static async getCourseById(courseId: string) {
         try {
             const course = await CourseRepository.findOne({ where: { id: courseId } });
             return {

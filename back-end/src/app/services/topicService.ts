@@ -1,13 +1,15 @@
 import { db } from '~/configs';
 import { Topic } from '~/app/models';
+import { Role, Status } from '../enums';
+import { In } from 'typeorm';
 
 const TopicRepository = db.AppDataSource.getRepository(Topic);
-const columnSelect: string[] = ['topic.id', 'topic.name', 'topic.order'];
 
 interface AdminData {
     id: string;
     name: string;
     orderInCourse: number;
+    status: Status;
     course: {
         id: string;
         name: string;
@@ -39,23 +41,57 @@ export class TopicService {
     }
 
     /**
-     * Get all topics, used for admin
+     * Get all topics, order by course grade and name, topic order
+     * paginated
+     * only for admin
+     * @param page
+     * @param limit
      * @returns
      */
-    public static async getAllTopics() {
+    public static async getAllTopics(page: number, limit: number) {
         try {
-            const topics = await TopicRepository.createQueryBuilder('topic')
-                .select([...columnSelect, 'course.id', 'course.name', 'course.grade'])
-                .innerJoin('topic.course', 'course')
-                .orderBy('course.grade', 'ASC')
-                .orderBy('course.name', 'ASC')
-                .orderBy('topic.orderInCourse', 'ASC')
-                .getMany();
-            const result = this.convertData(topics, 0);
+            const [topics, total] = await TopicRepository.findAndCount({
+                relations: ['course'],
+                select: {
+                    id: true,
+                    name: true,
+                    orderInCourse: true,
+                    status: true,
+                    course: {
+                        name: true,
+                        grade: true,
+                    },
+                },
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+                order: {
+                    course: {
+                        grade: 'ASC',
+                        name: 'ASC',
+                    },
+                    orderInCourse: 'ASC',
+                },
+                skip: (page - 1) * limit,
+                take: limit,
+            });
+            const result = topics.map((item) => {
+                const topic = {
+                    id: item.id,
+                    name: item.name,
+                    courseName: item.course.name,
+                    grade: item.course.grade,
+                    status: item.status,
+                };
+                return topic;
+            });
             return {
                 code: 200,
                 message: 'Get all topics success',
-                data: result,
+                data: {
+                    totalPage: Math.ceil(total / limit),
+                    list: result,
+                },
             };
         } catch (error) {
             console.log('Error getting all topics', error);
@@ -63,52 +99,142 @@ export class TopicService {
         }
     }
 
-    public static async getTopicsByCourse(courseId: string, role: number) {
+    /**
+     * Get topics by grade, order by course name, topic order
+     * paginated
+     * only for admin
+     * @param grade
+     * @param page
+     * @param limit
+     * @returns
+     */
+    public static async getTopicByGrade(grade: number, page: number, limit: number) {
         try {
-            const queryBuilder = TopicRepository.createQueryBuilder('topic')
-                .where('topic.course.id = :courseId', { courseId })
-                .orderBy('topic.order', 'ASC');
-            if (role === 0) {
-                queryBuilder
-                    .select([...columnSelect, 'course.id', 'course.name', 'course.grade'])
-                    .innerJoin('topic.course', 'course');
-            } else {
-                queryBuilder.select(columnSelect);
-            }
-            const topics = await queryBuilder.getMany();
-            const result = this.convertData(topics, role);
+            const topics = await TopicRepository.find({
+                relations: ['course'],
+                select: {
+                    id: true,
+                    name: true,
+                    orderInCourse: true,
+                    status: true,
+                    course: {
+                        name: true,
+                        grade: true,
+                    },
+                },
+                where: {
+                    course: {
+                        grade,
+                    },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+                order: {
+                    course: {
+                        grade: 'ASC',
+                        name: 'ASC',
+                    },
+                    orderInCourse: 'ASC',
+                },
+                skip: (page - 1) * limit,
+                take: limit,
+            });
+
+            const result = topics.map((item) => {
+                const topic = {
+                    id: item.id,
+                    name: item.name,
+                    courseName: item.course.name,
+                    grade: item.course.grade,
+                    status: item.status,
+                };
+                return topic;
+            });
             return {
                 code: 200,
-                message: 'Get topics by course success',
-                data: result,
+                message: 'Get topics by grade success',
+                data: {
+                    totalPage: Math.ceil(topics.length / limit),
+                    list: result,
+                },
             };
         } catch (error) {
-            console.log('Error getting topics', error);
+            console.log('Error getting topics by grade', error);
             throw error;
         }
     }
 
-    /**
-     * Get topics by grade, used for admin
-     * @param grade
-     * @returns
-     */
-    public static async getTopicByGrade(grade: number) {
+    public static async getTopicsByCourse(
+        courseId: string,
+        role: number,
+        page: number,
+        limit: number,
+    ) {
         try {
-            const topics = await TopicRepository.createQueryBuilder('topic')
-                .select([...columnSelect, 'course.id', 'course.name', 'course.grade'])
-                .innerJoin('topic.course', 'course')
-                .where('course.grade = :grade', { grade })
-                .orderBy('topic.order', 'ASC')
-                .getMany();
-            const result = this.convertData(topics, 0);
+            const [topics, total] = await TopicRepository.findAndCount({
+                relations: role === Role.ADMIN ? ['course'] : [],
+                select:
+                    role === 0
+                        ? {
+                              id: true,
+                              name: true,
+                              orderInCourse: true,
+                              course: {
+                                  name: true,
+                                  grade: true,
+                              },
+                          }
+                        : {
+                              id: true,
+                              name: true,
+                              orderInCourse: true,
+                          },
+                where: {
+                    course: {
+                        id: courseId,
+                    },
+                    status:
+                        role === Role.ADMIN ? In([Status.ACTIVE, Status.INACTIVE]) : Status.ACTIVE,
+                },
+                order:
+                    role === Role.ADMIN
+                        ? {
+                              course: {
+                                  grade: 'ASC',
+                                  name: 'ASC',
+                              },
+                              orderInCourse: 'ASC',
+                          }
+                        : {
+                              orderInCourse: 'ASC',
+                          },
+                skip: (page - 1) * limit,
+                take: limit,
+            });
+            const result = topics.map((item) => {
+                const topic = {
+                    id: item.id,
+                    name: item.name,
+                };
+                if (role === Role.ADMIN) {
+                    topic['courseId'] = item.course.id;
+                    topic['courseName'] = item.course.name;
+                    topic['grade'] = item.course.grade;
+                    topic['status'] = item.status;
+                } else {
+                    topic['orderInCourse'] = item.orderInCourse;
+                }
+                return topic;
+            });
             return {
                 code: 200,
-                message: 'Get topics by grade success',
-                data: result,
+                message: 'Get topics by course success',
+                data: {
+                    totalPage: Math.ceil(total / limit),
+                    list: result,
+                },
             };
         } catch (error) {
-            console.log('Error getting topics by grade', error);
+            console.log('Error getting topics', error);
             throw error;
         }
     }
@@ -132,55 +258,22 @@ export class TopicService {
     }
 
     /**
-     * Set order for topic by course from position to end
-     * @param courseId
-     * @param position
-     */
-    public static async setOrderForTopicByCourse(courseId: string, position: number) {
-        try {
-            const topics = await TopicRepository.find({
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                },
-                order: {
-                    orderInCourse: 'ASC',
-                },
-            });
-            topics.forEach(async (topic) => {
-                if (topic.orderInCourse >= position) {
-                    topic.orderInCourse += 1;
-                    await TopicRepository.save(topic);
-                }
-            });
-        } catch (error) {
-            console.log('Error setting order for topic by course', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Count topics by course
+     * Get max order in course
      * @param courseId
      * @returns
      */
-    public static async countTopicsByCourse(courseId: string) {
+    public static async getMaxOrderInCourse(courseId: string) {
         try {
-            const count = await TopicRepository.count({
-                where: {
-                    course: {
-                        id: courseId,
-                    },
-                },
+            const maxOrder = await TopicRepository.maximum('orderInCourse', {
+                course: { id: courseId },
             });
             return {
                 code: 200,
-                message: 'Count topics by course success',
-                data: count,
+                message: 'Get max order in course success',
+                data: maxOrder,
             };
         } catch (error) {
-            console.log('Error counting topics by course', error);
+            console.log('Error getting max order in course', error);
             throw error;
         }
     }
@@ -191,6 +284,7 @@ export class TopicService {
      * @returns
      */
     public static async addTopic(topic: Partial<Topic>) {
+        console.log('Adding topic', topic);
         try {
             const newTopic = await TopicRepository.save(topic);
             return {
@@ -200,6 +294,19 @@ export class TopicService {
             };
         } catch (error) {
             console.log('Error adding topic', error);
+            throw error;
+        }
+    }
+
+    public static async updateStatus(topicId: string, status: Status) {
+        try {
+            await TopicRepository.update(topicId, { status });
+            return {
+                code: 200,
+                message: 'Update topic status success',
+            };
+        } catch (error) {
+            console.log('Error updating topic status', error);
             throw error;
         }
     }

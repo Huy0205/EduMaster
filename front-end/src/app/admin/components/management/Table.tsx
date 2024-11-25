@@ -1,6 +1,20 @@
 import { Tooltip } from '@mui/material';
+import Switch from '../Switch';
 
-function AdminTable({ header, data, columnsData, actions }: AdminTableProps) {
+function AdminTable({
+    header,
+    data,
+    columnsData,
+    actions,
+    page,
+    limit,
+    onStatusChange,
+}: AdminTableProps) {
+    const handleStatusChange = (id: string, rowIndex: number, newState: boolean) => {
+        const newStatus = newState ? 1 : 0;
+        onStatusChange(id, rowIndex, newStatus);
+    };
+
     return (
         <table className="w-full bg-white border-collapse">
             <thead>
@@ -23,13 +37,24 @@ function AdminTable({ header, data, columnsData, actions }: AdminTableProps) {
                             key={rowIndex}
                             className="border hover:bg-gray-100"
                         >
-                            <td className="border p-2">{rowIndex + 1}</td>
+                            <td className="border p-2">{rowIndex - 9 + page * limit}</td>
                             {columnsData.map((column, colIndex) => (
                                 <td
                                     key={colIndex}
                                     className="border p-2"
                                 >
-                                    {item[column]}
+                                    {column === 'status' ? (
+                                        <div className="flex justify-center items-center">
+                                            <Switch
+                                                visible={item.status}
+                                                onToggle={(newState) =>
+                                                    handleStatusChange(item.id, rowIndex, newState)
+                                                }
+                                            />
+                                        </div>
+                                    ) : (
+                                        item[column]
+                                    )}
                                 </td>
                             ))}
                             {actions && (

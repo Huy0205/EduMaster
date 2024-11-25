@@ -11,10 +11,11 @@ function AdminTopicsPage() {
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
 
-    const fetchData = async (filters: any) => {
-        if (filters.courseId) return await TopicService.getTopicsByCourse(filters.courseId, 0);
-        if (filters.grade) return await TopicService.getTopicByGrade(filters.grade);
-        return await TopicService.getAllTopics();
+    const fetchData = async (filters: any, page?: number, limit?: number) => {
+        if (filters.courseId)
+            return await TopicService.getTopicsByCourse(filters.courseId, 0, page, limit);
+        if (filters.grade) return await TopicService.getTopicByGrade(filters.grade, page, limit);
+        return await TopicService.getAllTopics(page, limit);
     };
 
     const filterConfig = [
@@ -33,8 +34,8 @@ function AdminTopicsPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Tên chương mục', 'Môn học', 'Lớp'],
-        columnsData: ['name', 'courseName', 'grade'],
+        header: ['STT', 'Tên chương mục', 'Môn học', 'Lớp', 'Trạng thái'],
+        columnsData: ['name', 'courseName', 'grade', 'status'],
         actions: [
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
@@ -45,6 +46,7 @@ function AdminTopicsPage() {
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
+            updateStatus={TopicService.updateStatus}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
         />

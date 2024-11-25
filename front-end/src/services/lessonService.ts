@@ -20,4 +20,12 @@ export class LessonService {
     public static getLessonsByGrade(grade: number, page?: number, limit?: number) {
         return axios.get(`lesson/grade/${grade}`, { params: { page, limit } });
     }
+
+    public static addLesson(lessonName: string, topicId: string) {
+        return axios.post('lesson/add', { lessonName, topicId });
+    }
+
+    public static updateStatus(id: string, status: 0 | 1) {
+        return axios.put(`lesson/update-status/${id}`, { status });
+    }
 }

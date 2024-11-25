@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { LessonService, QuestionService } from '~/app/services';
-import { Question } from '~/app/models';
+import { QuestionService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
 
 export class QuestionController {
@@ -132,46 +131,6 @@ export class QuestionController {
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting questions by quiz', error);
-                next(error);
-            }
-        }
-    }
-
-    static async addQuestion(req: Request, res: Response, next: NextFunction) {
-        // type is number in enum/questionType file
-        // reviewId can be null in case of adding a question within a quiz
-        const { content, image, type, lessonId } = req.body;
-        let { orderInLesson } = req.body;
-
-        if (!content || !type) {
-            ResponseUtil.sendMissingData(res);
-        } else {
-            try {
-                let lessonRes = null;
-                if (lessonId) {
-                    if (orderInLesson) {
-                        // If there is an order, move the old questions back
-                        await QuestionService.setOrderForQuestionByLesson(lessonId, orderInLesson);
-                    } else {
-                        // If there is no order, get the current number of questions and increase the order by 1
-                        const resTotalQuestions = await QuestionService.countQuestionsByLesson(
-                            lessonId,
-                        );
-                        orderInLesson = resTotalQuestions.data + 1;
-                    }
-                    lessonRes = await LessonService.getLessonById(lessonId);
-                }
-                const question: Partial<Question> = {
-                    content,
-                    image,
-                    type,
-                    orderInLesson,
-                    lesson: lessonRes?.data,
-                };
-                const response = await QuestionService.addQuestion(question);
-                ResponseUtil.sendResponse(res, response);
-            } catch (error) {
-                console.log('Error adding question', error);
                 next(error);
             }
         }

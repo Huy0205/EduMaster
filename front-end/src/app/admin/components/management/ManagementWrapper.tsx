@@ -1,29 +1,51 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useFilterData } from '~/context/FilterDataContext';
-import AdminFilter from './Filter';
 import Link from 'next/link';
 import { Add } from '@mui/icons-material';
+
+import { useFilterData } from '~/context/FilterDataContext';
+import AdminFilter from './Filter';
 import AdminTable from './Table';
+import { usePathname } from 'next/navigation';
 
 function AdminManagementWrapper({
     fetchData,
+    updateStatus,
     filterConfig,
     tableConfig,
 }: AdminManagementWrapperProps) {
+    const pathname = usePathname();
     const { filterData, resetFilterData } = useFilterData();
     const [tableData, setTableData] = useState([]);
+    const [totalPage, setTotalPage] = useState(0);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
     const [mounted, setMounted] = useState(false);
 
-    const handleFilterChange = async () => {
-        const result = await fetchData(filterData);
+    const handleFilterChange = async (page?: number, limit?: number) => {
+        console.log(page, limit);
+        const result = await fetchData(filterData, page, limit);
         const { data, message } = result.data;
         if (data) {
-            console.log(data.arr || data);
-            setTableData(data.arr || data);
+            console.log(data.list || data);
+            const { totalPage, list } = data;
+            if (totalPage && list) {
+                setTableData(list);
+                setTotalPage(totalPage);
+                setPage(page || 1);
+                setLimit(limit || 10);
+            } else setTableData(data);
         } else {
             console.error(message);
         }
+    };
+
+    const handleStatusChange = async (id: string, rowIndex: number, newStatus: 0 | 1) => {
+        const updateTableData = [...tableData];
+        updateTableData[rowIndex].status = newStatus;
+        setTableData(updateTableData);
+        const res = await updateStatus(id, newStatus);
+        console.log(res);
     };
 
     useEffect(() => {
@@ -31,13 +53,15 @@ function AdminManagementWrapper({
         else setMounted(true);
 
         return () => {
-            resetFilterData();
+            if (!tableConfig.addLink?.includes(pathname)) {
+                resetFilterData();
+            }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted]);
 
     return (
-        <div className="w-full text-gray-600">
+        <div className="flex-1 flex flex-col text-gray-600">
             <div className="flex p-3 mb-1 bg-white">
                 <AdminFilter
                     filters={filterConfig}
@@ -52,10 +76,31 @@ function AdminManagementWrapper({
                     </Link>
                 )}
             </div>
-            <AdminTable
-                {...tableConfig}
-                data={tableData}
-            />
+            <div className="flex-1 flex flex-col justify-between">
+                <AdminTable
+                    {...tableConfig}
+                    data={tableData}
+                    page={page}
+                    limit={limit}
+                    onStatusChange={handleStatusChange}
+                />
+                {/* paging */}
+                {totalPage && (
+                    <div className="flex justify-center p-3 bg-white">
+                        <button className="px-4 py-2 bg-gray-200 rounded">Trang trước</button>
+                        {Array.from({ length: totalPage }, (_, i) => (
+                            <button
+                                key={i}
+                                className="px-4 py-2 bg-gray-200 rounded"
+                                onClick={() => handleFilterChange(i + 1, 10)}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                        <button className="px-4 py-2 bg-gray-200 rounded">Trang sau</button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

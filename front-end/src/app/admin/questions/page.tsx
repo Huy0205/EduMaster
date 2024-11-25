@@ -57,7 +57,7 @@ function AdminQuestionsPage() {
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
         ],
-        addLink: '/admin/topics/add',
+        addLink: '/admin/questions/add',
     };
 
     return (

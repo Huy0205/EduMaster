@@ -1,7 +1,7 @@
 import { db } from '~/configs';
 import { Lesson } from '~/app/models';
-import { Role } from '../enums';
-import { FindOptionsOrderValue } from 'typeorm';
+import { Role, Status } from '../enums';
+import { FindOptionsOrderValue, In } from 'typeorm';
 
 const LessonRepository = db.AppDataSource.getRepository(Lesson);
 
@@ -9,6 +9,7 @@ interface AdminLesson {
     id: string;
     name: string;
     orderInTopic: number;
+    status: Status;
     topic: {
         name: string;
         orderInCourse: number;
@@ -30,6 +31,7 @@ const columnSelectAdmin = {
     topic: {
         name: true,
         orderInCourse: true,
+        status: true,
         course: {
             name: true,
             grade: true,
@@ -46,6 +48,7 @@ export class LessonService {
                 topicName: item.topic.name,
                 courseName: item.topic.course.name,
                 grade: item.topic.course.grade,
+                status: item.status,
             };
             return lesson;
         });
@@ -66,6 +69,9 @@ export class LessonService {
             const [lessons, total] = await LessonRepository.findAndCount({
                 relations: ['topic', 'topic.course'],
                 select: columnSelectAdmin,
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 order: {
                     topic: {
                         course: {
@@ -112,7 +118,11 @@ export class LessonService {
     ) {
         try {
             const baseQuery = {
-                where: { topic: { id: topicId } },
+                where: {
+                    topic: {
+                        id: topicId,
+                    },
+                },
                 order: { orderInTopic: 'ASC' as FindOptionsOrderValue },
                 skip: (page - 1) * limit,
                 take: limit,
@@ -121,6 +131,7 @@ export class LessonService {
                 role === Role.STUDENT
                     ? await LessonRepository.findAndCount({
                           ...baseQuery,
+                          where: { ...baseQuery.where, status: Status.ACTIVE },
                           select: columnSelectStudent,
                       })
                     : await LessonRepository.findAndCount({
@@ -157,7 +168,14 @@ export class LessonService {
         try {
             const [lessons, total] = await LessonRepository.findAndCount({
                 relations: ['topic', 'topic.course'],
-                where: { topic: { course: { id: courseId } } },
+                where: {
+                    topic: {
+                        course: {
+                            id: courseId,
+                        },
+                    },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 select: columnSelectAdmin,
                 order: {
                     topic: {
@@ -187,7 +205,10 @@ export class LessonService {
         try {
             const [lessons, total] = await LessonRepository.findAndCount({
                 relations: ['topic', 'topic.course'],
-                where: { topic: { course: { grade } } },
+                where: {
+                    topic: { course: { grade } },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 select: columnSelectAdmin,
                 order: {
                     topic: {
@@ -228,6 +249,65 @@ export class LessonService {
             };
         } catch (error) {
             console.log('Error getting lesson', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get max order in topic
+     * @param topicId
+     * @returns
+     */
+    public static async getMaxOrderInTopic(topicId: string) {
+        try {
+            const maxOrder = await LessonRepository.maximum('orderInTopic', {
+                topic: { id: topicId },
+            });
+            return {
+                code: 200,
+                message: 'Get max order in topic success',
+                data: maxOrder,
+            };
+        } catch (error) {
+            console.log('Error getting max order in topic', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Add new lesson
+     * @param lesson
+     * @returns
+     */
+    public static async addLesson(lesson: Partial<Lesson>) {
+        try {
+            const newLesson = await LessonRepository.save(lesson);
+            return {
+                code: 201,
+                message: 'Add lesson success',
+                data: newLesson,
+            };
+        } catch (error) {
+            console.log('Error adding lesson', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update lesson status
+     * @param lessonId
+     * @param status
+     * @returns
+     */
+    public static async updateStatus(lessonId: string, status: Status) {
+        try {
+            await LessonRepository.update({ id: lessonId }, { status });
+            return {
+                code: 200,
+                message: 'Update lesson status success',
+            };
+        } catch (error) {
+            console.log('Error updating lesson status', error);
             throw error;
         }
     }

@@ -15,4 +15,10 @@ lessonRouter.get('/course/:courseId', LessonController.getLessonsByCourse);
 // GET http://localhost:8080/api/v1/lesson/grade/:grade
 lessonRouter.get('/grade/:grade', LessonController.getLessonsByGrade);
 
+// POST: http://localhost:8080/api/v1/lesson/add
+lessonRouter.post('/add', LessonController.addLesson);
+
+// PUT: http://localhost:8080/api/v1/lesson/update-status/:lessonId
+lessonRouter.put('/update-status/:lessonId', LessonController.updateStatus);
+
 export default lessonRouter;
