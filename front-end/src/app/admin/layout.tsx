@@ -47,7 +47,9 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
                                 </button>
                             </div>
                         </div>
-                        <div className="flex flex-1 mt-3 ml-3">{children}</div>
+                        <div className="flex flex-1 justify-center mt-3 ml-3 bg-white">
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

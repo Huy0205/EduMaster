@@ -68,8 +68,7 @@ function AdminAddPracticeQuestionPage() {
                 const answerRes = await AnswerService.addAnswers(answerData);
                 const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
                 if (answerDataRes) {
-                    alert('Add question and answers successfully');
-                    console.log('Add question and answers successfully');
+                    alert('Thêm câu hỏi và câu trả lời thành công');
                     resetFilterData();
                     router.push('/admin/questions/practice');
                 } else {

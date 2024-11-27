@@ -1,22 +1,24 @@
 import { db } from '~/configs';
 import { Question } from '~/app/models';
 import { Status } from '../enums';
+import { In, IsNull, Not } from 'typeorm';
 
 const questionRepository = db.AppDataSource.getRepository(Question);
 
 interface AdminQuestion {
     id: string;
     content: string;
+    status: Status;
     lesson: {
         name: string;
         orderInTopic: number;
-        topic: {
+    };
+    topic: {
+        name: string;
+        orderInCourse: number;
+        course: {
             name: string;
-            orderInCourse: number;
-            course: {
-                name: string;
-                grade: number;
-            };
+            grade: number;
         };
     };
 }
@@ -24,17 +26,17 @@ interface AdminQuestion {
 const columnSelectAdmin = {
     id: true,
     content: true,
-    orderInLesson: true,
+    status: true,
     lesson: {
         name: true,
         orderInTopic: true,
-        topic: {
+    },
+    topic: {
+        name: true,
+        orderInCourse: true,
+        course: {
             name: true,
-            orderInCourse: true,
-            course: {
-                name: true,
-                grade: true,
-            },
+            grade: true,
         },
     },
 };
@@ -45,39 +47,46 @@ export class QuestionService {
             const question = {
                 id: item.id,
                 content: item.content,
-                lessonName: item.lesson.name,
-                topicName: item.lesson.topic.name,
-                courseName: item.lesson.topic.course.name,
-                grade: item.lesson.topic.course.grade,
+                topicName: item.topic.name,
+                courseName: item.topic.course.name,
+                grade: item.topic.course.grade,
+                status: item.status,
             };
+            if (item.lesson) {
+                question['lessonName'] = item.lesson.name;
+            }
             return question;
         });
         return result;
     }
 
     /**
-     * Get all questions including id, content, lesson name, topic name, course name, grade
-     * ordered by grade, course name, topic order, lesson order, question order
+     * Get all questions of practice/quiz including id, content, lesson name, topic name, course name, grade
+     * ordered by course name, topic order, lesson order, question order
      * paginated by page and limit
      * only for admin
      * @param page
      * @param limit
      * @returns
      */
-    public static async getAllQuestions(page: number, limit: number) {
+    public static async getAllQuestions(isQuizQuestion: boolean, page: number, limit: number) {
         try {
             const [questions, total] = await questionRepository.findAndCount({
-                relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
+                relations: ['lesson', 'topic', 'topic.course'],
                 select: columnSelectAdmin,
+                where: {
+                    lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 order: {
-                    lesson: {
-                        topic: {
-                            course: {
-                                grade: 'ASC',
-                                name: 'ASC',
-                            },
-                            orderInCourse: 'ASC',
+                    topic: {
+                        course: {
+                            grade: 'ASC',
+                            name: 'ASC',
                         },
+                        orderInCourse: 'ASC',
+                    },
+                    lesson: {
                         orderInTopic: 'ASC',
                     },
                 },
@@ -109,26 +118,28 @@ export class QuestionService {
      * @param limit
      * @returns
      */
-    public static async getQuestionsByGrade(grade: number, page: number, limit: number) {
+    public static async getQuestionsByGrade(
+        isQuizQuestion: boolean,
+        grade: number,
+        page: number,
+        limit: number,
+    ) {
         try {
             const [questions, total] = await questionRepository.findAndCount({
                 relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
                 select: columnSelectAdmin,
                 where: {
-                    lesson: {
-                        topic: {
-                            course: { grade },
-                        },
-                    },
+                    topic: { course: { grade } },
+                    lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
                 },
                 order: {
-                    lesson: {
-                        topic: {
-                            course: {
-                                name: 'ASC',
-                            },
-                            orderInCourse: 'ASC',
+                    topic: {
+                        course: {
+                            name: 'ASC',
                         },
+                        orderInCourse: 'ASC',
+                    },
+                    lesson: {
                         orderInTopic: 'ASC',
                     },
                 },
@@ -160,23 +171,27 @@ export class QuestionService {
      * @param limit
      * @returns
      */
-    public static async getQuestionsByCourse(courseId: string, page: number, limit: number) {
+    public static async getQuestionsByCourse(
+        isQuizQuestion: boolean,
+        courseId: string,
+        page: number,
+        limit: number,
+    ) {
         try {
             const [questions, total] = await questionRepository.findAndCount({
                 relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
                 select: columnSelectAdmin,
                 where: {
-                    lesson: {
-                        topic: {
-                            course: { id: courseId },
-                        },
+                    topic: {
+                        course: { id: courseId },
                     },
+                    lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
                 },
                 order: {
+                    topic: {
+                        orderInCourse: 'ASC',
+                    },
                     lesson: {
-                        topic: {
-                            orderInCourse: 'ASC',
-                        },
                         orderInTopic: 'ASC',
                     },
                 },
@@ -241,32 +256,77 @@ export class QuestionService {
         }
     }
 
-    /*
-     * Get questions by review, order by order ascending
+    /**
+     * Get questions by lesson including id, content, lesson name, topic name, course name, grade
+     * Paginated by page and limit
+     * Only for admin
+     * @param lessonId
+     * @param page
+     * @param limit
+     * @returns
      */
-    static async getQuestionsByLesson(lessonId: string, page: number, limit: number) {
+    public static async getQuestionsByLesson(lessonId: string, page: number, limit: number) {
         try {
             const [questions, total] = await questionRepository.findAndCount({
+                relations: ['lesson', 'topic', 'topic.course'],
+                select: columnSelectAdmin,
                 where: {
                     lesson: { id: lessonId },
                 },
-                order: {},
                 take: limit,
                 skip: (page - 1) * limit,
             });
 
-            const totalPages = Math.ceil(total / limit);
             return {
                 code: 200,
                 message: 'Get questions by review success',
                 data: {
-                    totalPages,
-                    currentPage: page,
-                    questions,
+                    totalPages: Math.ceil(total / limit),
+                    list: this.convertData(questions),
                 },
             };
         } catch (error) {
             console.log('Error getting questions by review', error);
+            throw error;
+        }
+    }
+
+    public static async getQuestionByPractice(practiceId: string) {
+        try {
+            const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
+                where: {
+                    status: Status.ACTIVE,
+                    practiceQuestions: {
+                        practiceId,
+                    },
+                },
+                order: {
+                    practiceQuestions: {
+                        orderInPractice: 'ASC',
+                    },
+                },
+            });
+
+            return {
+                code: 200,
+                message: 'Get questions by practice success',
+                data: questions,
+            };
+        } catch (error) {
+            console.log('Error getting questions by practice', error);
             throw error;
         }
     }
@@ -353,6 +413,19 @@ export class QuestionService {
             };
         } catch (error) {
             console.log('Error adding question', error);
+            throw error;
+        }
+    }
+
+    public static async updateQuestion(questionId: string, question: Partial<Question>) {
+        try {
+            await questionRepository.update(questionId, question);
+            return {
+                code: 200,
+                message: 'Update question success',
+            };
+        } catch (error) {
+            console.log('Error updating question', error);
             throw error;
         }
     }

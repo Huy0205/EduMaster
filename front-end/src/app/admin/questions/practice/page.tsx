@@ -15,10 +15,13 @@ function AdminPracticeQuestionsPage() {
     const lessons = useLessons(filterData.topicId);
 
     const fetchData = async (filters: any) => {
-        if (filters.topicId) return await QuestionService.getQuestionsByTopic(filters.topicId);
-        if (filters.courseId) return await QuestionService.getQuestionsByCourse(filters.courseId);
-        if (filters.grade) return await QuestionService.getQuestionsByGrade(filters.grade);
-        return await QuestionService.getAllQuestions();
+        if (filters.lessonId) return await QuestionService.getQuestionsByLesson(filters.lessonId);
+        if (filters.topicId)
+            return await QuestionService.getQuestionsByTopic(false, filters.topicId);
+        if (filters.courseId)
+            return await QuestionService.getQuestionsByCourse(false, filters.courseId);
+        if (filters.grade) return await QuestionService.getQuestionsByGrade(false, filters.grade);
+        return await QuestionService.getAllQuestions(false);
     };
 
     const filterConfig = [
@@ -51,8 +54,8 @@ function AdminPracticeQuestionsPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Nội dung', 'Bài học', 'Chương mục', 'Môn học', 'Lớp'],
-        columnsData: ['content', 'lessonName', 'topicName', 'courseName', 'grade'],
+        header: ['STT', 'Nội dung', 'Bài học', 'Chương mục', 'Môn học', 'Lớp', 'Trạng thái'],
+        columnsData: ['content', 'lessonName', 'topicName', 'courseName', 'grade', 'status'],
         actions: [
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
@@ -63,6 +66,7 @@ function AdminPracticeQuestionsPage() {
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
+            updateStatus={QuestionService.updateStatus}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
         />

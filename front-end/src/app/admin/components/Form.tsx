@@ -43,7 +43,7 @@ function AdminForm({ title, items, action }: AdminFormProps) {
             className="w-full h-full"
             onSubmit={handleSubmit}
         >
-            {title && <h3 className="text-2xl text-center my-3">{title}</h3>}
+            {title && <h3 className="text-2xl text-center mt-6 mb-3">{title}</h3>}
             {items.map((item, index) => {
                 if (item.type === 'select') {
                     return (
@@ -56,10 +56,10 @@ function AdminForm({ title, items, action }: AdminFormProps) {
                             }
                             arrow
                         >
-                            <div className="w-full flex flex-col">
+                            <div className="w-full flex flex-col my-3">
                                 <label className="text-lg mb-1">{item.label}:</label>
                                 <select
-                                    className="border rounded-md p-1 text-lg"
+                                    className="border border-gray-800 rounded-md p-1 text-lg"
                                     value={item.selected}
                                     disabled={item.disabled}
                                     onChange={(e) => handleChange(item.key, e.target.value)}
@@ -86,7 +86,7 @@ function AdminForm({ title, items, action }: AdminFormProps) {
                         <label className="text-lg mb-1">{item.label}:</label>
                         <input
                             type="text"
-                            className="border rounded-md p-1 text-lg"
+                            className="border border-gray-800 rounded-md p-1 text-lg"
                             value={formData[item.key]}
                             onChange={(e) => handleChange(item.key, e.target.value, false)}
                         />
@@ -94,12 +94,19 @@ function AdminForm({ title, items, action }: AdminFormProps) {
                 );
             })}
             {action && (
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white rounded-md p-2 mt-3"
+                <div
+                    className="
+                    flex
+                    mt-3
+                "
                 >
-                    {action.label}
-                </button>
+                    <button
+                        type="submit"
+                        className="flex-1 bg-blue-500 text-white rounded-md p-2 mt-3"
+                    >
+                        {action.label}
+                    </button>
+                </div>
             )}
         </form>
     );

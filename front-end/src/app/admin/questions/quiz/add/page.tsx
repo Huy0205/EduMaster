@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useFilterData } from '~/context';
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import AdminAddQuestion from '~/app/admin/components/AddQuestion';
+import { AnswerService, QuestionService } from '~/services';
 
 function AdminAddQuizQuestionPage() {
     const router = useRouter();
@@ -39,12 +40,44 @@ function AdminAddQuizQuestionPage() {
     ];
 
     const handleAddQuizQuestion = async (FormData: any) => {
-        console.log(FormData);
-        console.log(filterData.topicId);
-        // router.push('/admin/questions/practice');
+        const { answers, ...question } = FormData;
+        try {
+            const questionData = {
+                ...question,
+                topicId: filterData.topicId,
+                lessonId: null,
+            };
+            const questionRes = await QuestionService.addQuestion(questionData);
+            const { data, message } = questionRes.data;
+            if (data) {
+                const questionId = data.id;
+                const answerData = answers.map((answer: any) => ({
+                    ...answer,
+                    questionId,
+                }));
+                const answerRes = await AnswerService.addAnswers(answerData);
+                const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
+                if (answerDataRes) {
+                    alert('Thêm câu hỏi và câu trả lời thành công');
+                    resetFilterData();
+                    router.push('/admin/questions/quiz');
+                } else {
+                    console.log(answerMessageRes);
+                }
+            } else {
+                console.log(message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    return <AdminAddQuestion items={items} />;
+    return (
+        <AdminAddQuestion
+            items={items}
+            onSave={handleAddQuizQuestion}
+        />
+    );
 }
 
 export default AdminAddQuizQuestionPage;

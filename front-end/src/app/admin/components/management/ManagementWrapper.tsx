@@ -23,13 +23,12 @@ function AdminManagementWrapper({
     const [mounted, setMounted] = useState(false);
 
     const handleFilterChange = async (page?: number, limit?: number) => {
-        console.log(page, limit);
         const result = await fetchData(filterData, page, limit);
         const { data, message } = result.data;
         if (data) {
-            console.log(data.list || data);
-            const { totalPage, list } = data;
-            if (totalPage && list) {
+            const { totalPages, list } = data;
+            if (totalPages && list) {
+                console.log(list);
                 setTableData(list);
                 setTotalPage(totalPage);
                 setPage(page || 1);

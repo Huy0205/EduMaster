@@ -3,7 +3,6 @@ import { Delete, Edit } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
-import useLessons from '~/hooks/useLessons';
 import { QuestionService } from '~/services';
 import AdminManagementWrapper from '~/app/admin/components/management';
 
@@ -12,13 +11,14 @@ function AdminQuizQuestionsPage() {
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
-    const lessons = useLessons(filterData.topicId);
 
     const fetchData = async (filters: any) => {
-        if (filters.topicId) return await QuestionService.getQuestionsByTopic(filters.topicId);
-        if (filters.courseId) return await QuestionService.getQuestionsByCourse(filters.courseId);
-        if (filters.grade) return await QuestionService.getQuestionsByGrade(filters.grade);
-        return await QuestionService.getAllQuestions();
+        if (filters.topicId)
+            return await QuestionService.getQuestionsByTopic(true, filters.topicId);
+        if (filters.courseId)
+            return await QuestionService.getQuestionsByCourse(true, filters.courseId);
+        if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade);
+        return await QuestionService.getAllQuestions(true);
     };
 
     const filterConfig = [
@@ -44,8 +44,8 @@ function AdminQuizQuestionsPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Nội dung', 'Chương mục', 'Môn học', 'Lớp'],
-        columnsData: ['content', 'topicName', 'courseName', 'grade'],
+        header: ['STT', 'Nội dung', 'Chương mục', 'Môn học', 'Lớp', 'Trạng thái'],
+        columnsData: ['content', 'topicName', 'courseName', 'grade', 'status'],
         actions: [
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
@@ -56,6 +56,7 @@ function AdminQuizQuestionsPage() {
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
+            updateStatus={QuestionService.updateStatus}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
         />

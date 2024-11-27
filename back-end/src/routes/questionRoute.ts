@@ -18,10 +18,16 @@ questionRouter.get('/topic/:topicId', QuestionController.getQuestionsByTopic);
 // GET: localhost:8080/api/v1/question/lesson/:lessonId
 questionRouter.get('/lesson/:lessonId', QuestionController.getQuestionsByLesson);
 
+// GET: localhost:8080/api/v1/question/practice/:practiceId
+questionRouter.get('/practice/:practiceId', QuestionController.getQuestionByPractice);
+
 // GET: localhost:8080/api/v1/question/quiz/:quizId
 questionRouter.get('/quiz/:quizId', QuestionController.getQuestionsByQuiz);
 
 // POST: localhost:8080/api/v1/question/add
 questionRouter.post('/add', QuestionController.addQuestion);
+
+// PUT: localhost:8080/api/v1/question/update/:questionId
+questionRouter.put('/update/:questionId', QuestionController.updateQuestion);
 
 export default questionRouter;
