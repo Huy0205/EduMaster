@@ -15,10 +15,13 @@ questionRouter.get('/course/:courseId', QuestionController.getQuestionsByCourse)
 // GET: localhost:8080/api/v1/question/topic/:topicId
 questionRouter.get('/topic/:topicId', QuestionController.getQuestionsByTopic);
 
-// GET: localhost:8080/api/v1/question/review/:reviewId
-questionRouter.get('/review/:reviewId', QuestionController.getQuestionsByReview);
+// GET: localhost:8080/api/v1/question/lesson/:lessonId
+questionRouter.get('/lesson/:lessonId', QuestionController.getQuestionsByLesson);
 
 // GET: localhost:8080/api/v1/question/quiz/:quizId
 questionRouter.get('/quiz/:quizId', QuestionController.getQuestionsByQuiz);
+
+// POST: localhost:8080/api/v1/question/add
+questionRouter.post('/add', QuestionController.addQuestion);
 
 export default questionRouter;

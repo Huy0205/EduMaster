@@ -20,4 +20,19 @@ export class AnswerController {
             }
         }
     }
+
+    public static async addAnswers(req: Request, res: Response, next: NextFunction) {
+        const { answers } = req.body;
+        if (!answers || answers.length === 0) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await AnswerService.addAnswer(answers);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                console.log('Error adding answers', error);
+                next(error);
+            }
+        }
+    }
 }

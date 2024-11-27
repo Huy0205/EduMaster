@@ -1,5 +1,6 @@
 import { db } from '~/configs';
 import { Question } from '~/app/models';
+import { Status } from '../enums';
 
 const questionRepository = db.AppDataSource.getRepository(Question);
 
@@ -249,8 +250,7 @@ export class QuestionService {
                 where: {
                     lesson: { id: lessonId },
                 },
-                order: {
-                },
+                order: {},
                 take: limit,
                 skip: (page - 1) * limit,
             });
@@ -272,17 +272,40 @@ export class QuestionService {
     }
 
     /**
-     * Get questions by quiz
+     * Get questions by quiz, order by orderInQuiz ascending
+     * Include id, content, image, type, feedback, answers
      * @param quizId
      * @returns
      */
-    static async getQuestionsByQuiz(quizId: string) {
+    public static async getQuestionsByQuiz(quizId: string) {
         try {
-            const questions = await questionRepository
-                .createQueryBuilder('question')
-                .innerJoin('question.quizQuestions', 'quizQuestion')
-                .where('quizQuestion.quizId = :quizId', { quizId })
-                .getMany();
+            const questions = await questionRepository.find({
+                relations: ['quizQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
+                where: {
+                    status: Status.ACTIVE,
+                    quizQuestions: {
+                        quizId,
+                    },
+                },
+                order: {
+                    quizQuestions: {
+                        orderInQuiz: 'ASC',
+                    },
+                },
+            });
+
             return {
                 code: 200,
                 message: 'Get questions by quiz success',
@@ -315,10 +338,12 @@ export class QuestionService {
         }
     }
 
-    /*
-     * Add question
+    /**
+     * Add new question
+     * @param question
+     * @returns
      */
-    static async addQuestion(question: Partial<Question>) {
+    public static async addQuestion(question: Partial<Question>) {
         try {
             const newQuestion = await questionRepository.save(question);
             return {

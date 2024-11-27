@@ -6,10 +6,14 @@ import questionRouter from './questionRoute';
 import answerRouter from './answerRoute';
 import theoryRouter from './theoryRoute';
 import quizRouter from './quizRoute';
-import quizQuestionRouter from './quiz_questionRoute';
+import quizQuestionRouter from './quizQuestionRoute';
 import lessonRouter from './lessonRoute';
 import avatarFrameRouter from './avatarFrameRoute';
 import avatarFrameUserRouter from './avatarFrameUserRoute';
+import practiceRouter from './practiceRoute';
+import resultRouter from './resultRoute';
+import enrollmentRouter from './enrollmentRoute';
+import practiceProgressRouter from './practiceProgressRoute';
 
 const router = Router();
 
@@ -24,5 +28,9 @@ router.use('/quiz', quizRouter);
 router.use('/quiz-question', quizQuestionRouter);
 router.use('/avatar-frame', avatarFrameRouter);
 router.use('/avatar-frame-user', avatarFrameUserRouter);
+router.use('/practice', practiceRouter);
+router.use('/result', resultRouter);
+router.use('/enrollment', enrollmentRouter);
+router.use('practice-progress', practiceProgressRouter);
 
 export default router;

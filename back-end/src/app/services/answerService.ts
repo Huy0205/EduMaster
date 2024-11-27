@@ -28,4 +28,23 @@ export class AnswerService {
             throw error;
         }
     }
+
+    /**
+     * Add multiple answers
+     * @param answers
+     * @returns
+     */
+    public static async addAnswer(answers: Answer[]) {
+        try {
+            const response = await AnswerRepository.save(answers);
+            return {
+                code: 200,
+                message: 'Add answer success',
+                data: response,
+            };
+        } catch (error) {
+            console.log('Error adding answer', error);
+            throw error;
+        }
+    }
 }

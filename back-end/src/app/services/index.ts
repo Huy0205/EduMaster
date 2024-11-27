@@ -9,3 +9,7 @@ export * from './topicService';
 export * from './userService';
 export * from './avatarFrameService';
 export * from './avatarFrameUserService';
+export * from './practiceService';
+export * from './resultService';
+export * from './enrollmentService';
+export * from './practiceProgressService';

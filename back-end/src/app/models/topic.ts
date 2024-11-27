@@ -11,6 +11,7 @@ import { Course } from './course';
 import { Quiz } from './quiz';
 import { Lesson } from './lesson';
 import { Status } from '../enums';
+import { Question } from './question';
 
 @Entity()
 export class Topic {
@@ -32,6 +33,9 @@ export class Topic {
 
     @ManyToOne(() => Course, (course) => course.topics)
     course: Course;
+
+    @OneToMany(() => Question, (question) => question.topic)
+    questions: Question[];
 
     @OneToMany(() => Quiz, (quiz) => quiz.topic)
     quizzes: Quiz[];

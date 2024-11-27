@@ -25,5 +25,5 @@ export class QuizQuestionService {
             console.log('Error adding quiz question', error);
             throw error;
         }
-    }        
+    }
 }

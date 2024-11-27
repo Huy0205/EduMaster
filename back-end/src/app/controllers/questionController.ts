@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { QuestionService } from '~/app/services';
+import { LessonService, QuestionService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
+import { QuestionType } from '../enums';
 
 export class QuestionController {
     public static async getAllQuestions(req: Request, res: Response, next: NextFunction) {
@@ -93,26 +94,26 @@ export class QuestionController {
         }
     }
 
-    static async getQuestionsByReview(req: Request, res: Response, next: NextFunction) {
-        const { reviewId } = req.params;
-        const { page, limit } = req.query;
+    public static async getQuestionsByLesson(req: Request, res: Response, next: NextFunction) {
+        const { lessonId } = req.params;
 
-        if (!reviewId) {
+        if (!lessonId) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(reviewId)) {
+        } else if (!isUUID(lessonId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
+                const { page, limit } = req.query;
                 const pageNum = Number(page) > 0 ? Number(page) : 1;
                 const limitNum = Number(limit) > 0 ? Number(limit) : 10;
                 const response = await QuestionService.getQuestionsByLesson(
-                    reviewId,
+                    lessonId,
                     pageNum,
                     limitNum,
                 );
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
-                console.log('Error getting questions by review', error);
+                console.log('Error getting questions by lesson', error);
                 next(error);
             }
         }
@@ -131,6 +132,28 @@ export class QuestionController {
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting questions by quiz', error);
+                next(error);
+            }
+        }
+    }
+
+    public static async addQuestion(req: Request, res: Response, next: NextFunction) {
+        const { content, image, type, feedback, lessonId } = req.body;
+        if ((!content && !image) || !type || !lessonId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(lessonId) || !(type in QuestionType)) {
+            try {
+                const lessonRes = await LessonService.getLessonById(lessonId);
+                const response = await QuestionService.addQuestion({
+                    content,
+                    image,
+                    type,
+                    feedback,
+                    lesson: lessonRes.data,
+                });
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                console.log('Error adding question', error);
                 next(error);
             }
         }

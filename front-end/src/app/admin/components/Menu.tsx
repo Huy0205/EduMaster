@@ -12,32 +12,35 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
-// interface AdminMenuProps {
-//     onNavigate: (breadcrumbItems: { label: string; href: string }[]) => void;
-// }
-
-// interface Course {
-//     id: string;
-//     name: string;
-//     grade: number;
-// }
-
 const menuItems = [
     { icon: <Home />, label: 'Trang chủ', href: '/admin/dashboard' },
     { icon: <AccountCircle />, label: 'Người dùng', href: '/admin/users' },
     { icon: <LibraryBooks />, label: 'Chương mục', href: '/admin/topics' },
     { icon: <MenuBook />, label: 'Bài học', href: '/admin/lessons' },
     { icon: <OndemandVideo />, label: 'Bài giảng', href: '/admin/theories' },
-    { icon: <Help />, label: 'Câu hỏi', href: '/admin/questions' },
+    {
+        icon: <Help />,
+        label: 'Câu hỏi',
+        href: '/admin/questions',
+        children: [
+            { icon: <Help />, label: 'Thực hành', href: '/admin/questions/practice' },
+            { icon: <Help />, label: 'Kiểm tra', href: '/admin/questions/quiz' },
+        ],
+    },
     { icon: <Assessment />, label: 'Đề thực hành', href: '/admin/practices' },
     { icon: <FactCheck />, label: 'Đề kiểm tra', href: '/admin/quizzes' },
 ];
 
 function AdminMenu() {
     const [active, setActive] = useState<string>('dashboard');
+    const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
-    const handleSelectItem = (activeNamePrev: string, activeNameCurrent: string) => {
+    const handleSelectItem = (activeNameCurrent: string) => {
         setActive(activeNameCurrent);
+    };
+
+    const toggleSubmenu = (label: string) => {
+        setOpenSubmenu((prev) => (prev === label ? null : label));
     };
 
     return (
@@ -46,20 +49,51 @@ function AdminMenu() {
                 {menuItems.map((item, index) => (
                     <li
                         key={index}
-                        className={`my-1 py-2 px-2 ${
-                            active === item.href.split('/')[2]
-                                ? 'text-primary bg-red-100'
-                                : 'text-gray-500 bg-white'
-                        } rounded-md transition-all hover:bg-red-100 hover:text-primary`}
+                        className="my-1"
                     >
-                        <Link
-                            href={item.href}
-                            className="flex items-center gap-2 font-medium"
-                            onClick={() => handleSelectItem(active, item.href.split('/')[2])}
+                        <div
+                            className={`py-2 px-2 flex items-center gap-2 font-medium rounded-md transition-all hover:bg-red-100 hover:text-primary cursor-pointer ${
+                                active === item.href.split('/')[2]
+                                    ? 'text-primary bg-red-100'
+                                    : 'text-gray-500 bg-white'
+                            }`}
+                            onClick={() => {
+                                if (item.children) {
+                                    toggleSubmenu(item.label);
+                                } else {
+                                    handleSelectItem(item.href.split('/')[2]);
+                                }
+                            }}
                         >
                             {item.icon}
-                            <span className="text-lg">{item.label}</span>
-                        </Link>
+                            <span className="text-lg flex-1">{item.label}</span>
+                            {item.children && (
+                                <span className="text-sm text-gray-400">
+                                    {openSubmenu === item.label ? '▲' : '▼'}
+                                </span>
+                            )}
+                        </div>
+                        {item.children && openSubmenu === item.label && (
+                            <ul className="pl-6 pt-1 space-y-1 bg-slate-100">
+                                {item.children.map((child, childIndex) => (
+                                    <li
+                                        key={childIndex}
+                                        className="py-1 px-2 rounded-md transition-all hover:bg-gray-100"
+                                    >
+                                        <Link
+                                            href={child.href}
+                                            className="flex items-center gap-2 text-gray-600 hover:text-primary"
+                                            onClick={() =>
+                                                handleSelectItem(child.href.split('/')[3])
+                                            }
+                                        >
+                                            {child.icon}
+                                            <span className="text-md">{child.label}</span>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </li>
                 ))}
             </ul>

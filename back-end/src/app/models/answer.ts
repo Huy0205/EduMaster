@@ -13,7 +13,7 @@ export class Answer {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ nullable: false })
+    @Column()
     content: string;
 
     @Column({
@@ -21,11 +21,6 @@ export class Answer {
         default: false,
     })
     isCorrect: boolean;
-
-    @Column({
-        nullable: true,
-    })
-    feedback: string;
 
     @ManyToOne(() => Question, (question) => question.answers)
     question: Question;

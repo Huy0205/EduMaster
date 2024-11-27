@@ -7,11 +7,12 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { QuestionType } from '~/app/enums';
+import { QuestionType, Status } from '~/app/enums';
 import { Lesson } from './lesson';
 import { QuizQuestion } from './quizQuestion';
 import { Answer } from './answer';
 import { PracticeQuestion } from './practiceQuestion';
+import { Topic } from './topic';
 
 @Entity()
 export class Question {
@@ -32,8 +33,23 @@ export class Question {
     })
     type: QuestionType;
 
+    @Column({
+        nullable: true,
+    })
+    feedback: string;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.INACTIVE,
+    })
+    status: Status;
+
     @ManyToOne(() => Lesson, (lesson) => lesson.questions)
     lesson: Lesson;
+
+    @ManyToOne(() => Topic, (topic) => topic.questions)
+    topic: Topic;
 
     @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.question)
     quizQuestions: QuizQuestion[];

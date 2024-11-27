@@ -1,17 +1,19 @@
 'use client';
+import { Tooltip } from '@mui/material';
 import { useState } from 'react';
 import { useFilterData } from '~/context';
 
 interface AdminFormProps {
-    title: string;
+    title?: string;
     items: {
         type: string;
         key: string;
         label: string;
         selected?: any;
         options?: { value: string; label: string }[];
+        disabled?: boolean;
     }[];
-    action: {
+    action?: {
         label: string;
         icon: React.ComponentType;
         onClick: (fomData: any) => void;
@@ -38,34 +40,42 @@ function AdminForm({ title, items, action }: AdminFormProps) {
 
     return (
         <form
-            className="w-1/2 h-full"
+            className="w-full h-full"
             onSubmit={handleSubmit}
         >
-            <h3 className="text-2xl text-center my-3">{title}</h3>
+            {title && <h3 className="text-2xl text-center my-3">{title}</h3>}
             {items.map((item, index) => {
                 if (item.type === 'select') {
                     return (
-                        <div
+                        <Tooltip
                             key={index}
-                            className="w-full flex flex-col"
+                            title={
+                                item.disabled
+                                    ? `Vui lòng chọn ${item.label.toLowerCase()} trước`
+                                    : ''
+                            }
+                            arrow
                         >
-                            <label className="text-lg mb-1">{item.label}:</label>
-                            <select
-                                className="border rounded-md p-1 text-lg"
-                                value={item.selected}
-                                onChange={(e) => handleChange(item.key, e.target.value)}
-                            >
-                                <option value="">Chọn {item.label.toLowerCase()}</option>
-                                {item.options?.map((option, index) => (
-                                    <option
-                                        key={index}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                            <div className="w-full flex flex-col">
+                                <label className="text-lg mb-1">{item.label}:</label>
+                                <select
+                                    className="border rounded-md p-1 text-lg"
+                                    value={item.selected}
+                                    disabled={item.disabled}
+                                    onChange={(e) => handleChange(item.key, e.target.value)}
+                                >
+                                    <option value="">Chọn {item.label.toLowerCase()}</option>
+                                    {item.options?.map((option, index) => (
+                                        <option
+                                            key={index}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </Tooltip>
                     );
                 }
                 return (
@@ -83,12 +93,14 @@ function AdminForm({ title, items, action }: AdminFormProps) {
                     </div>
                 );
             })}
-            <button
-                type="submit"
-                className="bg-blue-500 text-white rounded-md p-2 mt-3"
-            >
-                {action.label}
-            </button>
+            {action && (
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white rounded-md p-2 mt-3"
+                >
+                    {action.label}
+                </button>
+            )}
         </form>
     );
 }
