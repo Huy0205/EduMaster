@@ -5,3 +5,4 @@ export * from './lessonService';
 export * from './theoryService';
 export * from './questionService';
 export * from './answerService';
+export * from './practiceService';

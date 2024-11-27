@@ -47,7 +47,7 @@ function AdminAddTopicPage(): JSX.Element {
     };
 
     return (
-        <div className="w-full flex justify-center bg-white">
+        <div className="w-2/5 flex bg-white">
             <AdminForm
                 title="Thêm chương mục"
                 items={items}

@@ -84,7 +84,7 @@ function AdminManagementWrapper({
                     onStatusChange={handleStatusChange}
                 />
                 {/* paging */}
-                {totalPage && (
+                {/* {totalPage && (
                     <div className="flex justify-center p-3 bg-white">
                         <button className="px-4 py-2 bg-gray-200 rounded">Trang trước</button>
                         {Array.from({ length: totalPage }, (_, i) => (
@@ -97,6 +97,80 @@ function AdminManagementWrapper({
                             </button>
                         ))}
                         <button className="px-4 py-2 bg-gray-200 rounded">Trang sau</button>
+                    </div>
+                )} */}
+                {totalPage > 1 && (
+                    <div className="flex justify-center items-center gap-2 p-3 bg-white">
+                        {/* Nút "Trang đầu" */}
+                        <button
+                            className={`px-3 py-1 rounded border ${
+                                page === 1
+                                    ? 'bg-gray-300 text-gray-500'
+                                    : 'bg-white hover:bg-gray-100'
+                            }`}
+                            disabled={page === 1}
+                            onClick={() => handleFilterChange(1, limit)}
+                        >
+                            Trang đầu
+                        </button>
+
+                        {/* Nút "Trang trước" */}
+                        <button
+                            className={`px-3 py-1 rounded border ${
+                                page === 1
+                                    ? 'bg-gray-300 text-gray-500'
+                                    : 'bg-white hover:bg-gray-100'
+                            }`}
+                            disabled={page === 1}
+                            onClick={() => handleFilterChange(page - 1, limit)}
+                        >
+                            Trang trước
+                        </button>
+
+                        {/* Hiển thị các trang xung quanh */}
+                        {Array.from({ length: Math.min(5, totalPage) }, (_, i) => {
+                            const displayPage = i + Math.max(1, page - 2);
+                            if (displayPage > totalPage) return null;
+                            return (
+                                <button
+                                    key={displayPage}
+                                    className={`px-3 py-1 rounded border ${
+                                        page === displayPage
+                                            ? 'bg-blue-500 text-white'
+                                            : 'bg-white hover:bg-gray-100'
+                                    }`}
+                                    onClick={() => handleFilterChange(displayPage, limit)}
+                                >
+                                    {displayPage}
+                                </button>
+                            );
+                        })}
+
+                        {/* Nút "Trang sau" */}
+                        <button
+                            className={`px-3 py-1 rounded border ${
+                                page === totalPage
+                                    ? 'bg-gray-300 text-gray-500'
+                                    : 'bg-white hover:bg-gray-100'
+                            }`}
+                            disabled={page === totalPage}
+                            onClick={() => handleFilterChange(page + 1, limit)}
+                        >
+                            Trang sau
+                        </button>
+
+                        {/* Nút "Trang cuối" */}
+                        <button
+                            className={`px-3 py-1 rounded border ${
+                                page === totalPage
+                                    ? 'bg-gray-300 text-gray-500'
+                                    : 'bg-white hover:bg-gray-100'
+                            }`}
+                            disabled={page === totalPage}
+                            onClick={() => handleFilterChange(totalPage, limit)}
+                        >
+                            Trang cuối
+                        </button>
                     </div>
                 )}
             </div>
