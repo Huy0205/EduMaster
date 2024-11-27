@@ -3,11 +3,11 @@ import { Delete, Edit } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
-import AdminManagementWrapper from '../components/management';
 import useLessons from '~/hooks/useLessons';
 import { QuestionService } from '~/services';
+import AdminManagementWrapper from '~/app/admin/components/management';
 
-function AdminQuestionsPage() {
+function AdminQuizQuestionsPage() {
     const { filterData } = useFilterData();
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
@@ -41,23 +41,16 @@ function AdminQuestionsPage() {
             disabled: !filterData.courseId,
             tooltipTitle: 'Vui lòng chọn môn học trước',
         },
-        {
-            key: 'lessonId',
-            placeholder: 'Chọn bài học',
-            options: lessons.map((lesson: any) => ({ value: lesson.id, label: lesson.name })),
-            disabled: !filterData.topicId,
-            tooltipTitle: 'Vui lòng chọn chương mục trước',
-        },
     ];
 
     const tableConfig = {
-        header: ['STT', 'Nội dung', 'Bài học', 'Chương mục', 'Môn học', 'Lớp'],
-        columnsData: ['content', 'lessonName', 'topicName', 'courseName', 'grade'],
+        header: ['STT', 'Nội dung', 'Chương mục', 'Môn học', 'Lớp'],
+        columnsData: ['content', 'topicName', 'courseName', 'grade'],
         actions: [
             { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
             { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
         ],
-        addLink: '/admin/questions/add',
+        addLink: '/admin/questions/quiz/add',
     };
 
     return (
@@ -69,4 +62,4 @@ function AdminQuestionsPage() {
     );
 }
 
-export default AdminQuestionsPage;
+export default AdminQuizQuestionsPage;

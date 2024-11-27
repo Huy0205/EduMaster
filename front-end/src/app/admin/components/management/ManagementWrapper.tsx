@@ -62,7 +62,7 @@ function AdminManagementWrapper({
 
     return (
         <div className="flex-1 flex flex-col text-gray-600">
-            <div className="flex p-3 mb-1 bg-white">
+            <div className="flex justify-between p-3 mb-1 bg-white">
                 <AdminFilter
                     filters={filterConfig}
                     onFilterChange={handleFilterChange}

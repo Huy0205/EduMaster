@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { LessonService, QuestionService } from '~/app/services';
+import { LessonService, QuestionService, TopicService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
 import { QuestionType } from '../enums';
 
@@ -138,18 +138,24 @@ export class QuestionController {
     }
 
     public static async addQuestion(req: Request, res: Response, next: NextFunction) {
-        const { content, image, type, feedback, lessonId } = req.body;
-        if ((!content && !image) || !type || !lessonId) {
+        const { content, image, type, feedback, lessonId, topicId } = req.body;
+        if ((!content && !image) || !type || !topicId) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(lessonId) || !(type in QuestionType)) {
+        } else if (!isUUID(topicId) || !(type in QuestionType) || (lessonId && !isUUID(lessonId))) {
             try {
-                const lessonRes = await LessonService.getLessonById(lessonId);
+                const topicRes = await TopicService.getTopicById(topicId);
+                let lessonData = null;
+                if (lessonId) {
+                    const lessonRes = await LessonService.getLessonById(lessonId);
+                    lessonData = lessonRes.data;
+                }
                 const response = await QuestionService.addQuestion({
                     content,
                     image,
                     type,
                     feedback,
-                    lesson: lessonRes.data,
+                    lesson: lessonData,
+                    topic: topicRes.data,
                 });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {

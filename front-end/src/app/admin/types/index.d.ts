@@ -60,3 +60,21 @@ interface TopicFormData {
     topicName: string;
     courseId: string;
 }
+
+interface AdminAddQuestionProps {
+    items: {
+        type: string;
+        key: string;
+        label: string;
+        selected: string | number;
+        options?: { value: string | number; label: string }[];
+        disabled?: boolean;
+    }[];
+    onSave: (data: any) => void;
+}
+
+interface BorderWrapperProps {
+    title: string;
+    classes?: string;
+    children: React.ReactNode;
+}
