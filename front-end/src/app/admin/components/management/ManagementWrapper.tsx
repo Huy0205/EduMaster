@@ -26,8 +26,8 @@ function AdminManagementWrapper({
         const result = await fetchData(filterData, page, limit);
         const { data, message } = result.data;
         if (data) {
-            const { totalPages, list } = data;
-            if (totalPages && list) {
+            const { totalPage, list } = data;
+            if (totalPage && list) {
                 console.log(list);
                 setTableData(list);
                 setTotalPage(totalPage);

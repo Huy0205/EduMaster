@@ -6,3 +6,4 @@ export * from './theoryService';
 export * from './questionService';
 export * from './answerService';
 export * from './practiceService';
+export * from './quizService';

@@ -39,7 +39,7 @@ export class PracticeService {
                 code: 200,
                 message: 'Get all practices successfully',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: result,
                 },
             };

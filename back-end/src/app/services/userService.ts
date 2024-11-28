@@ -221,12 +221,12 @@ export class UserService {
                 skip: (page - 1) * limit,
             });
 
-            const totalPages = Math.ceil(total / limit);
+            const totalPage = Math.ceil(total / limit);
             return {
                 code: 200,
                 message: 'Get users by role success',
                 data: {
-                    totalPages,
+                    totalPage,
                     currentPage: page,
                     list: users,
                 },

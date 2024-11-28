@@ -98,7 +98,7 @@ export class QuestionService {
                 code: 200,
                 message: 'Get all questions success',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: this.convertData(questions),
                 },
             };
@@ -151,7 +151,7 @@ export class QuestionService {
                 code: 200,
                 message: 'Get questions by grade success',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: this.convertData(questions),
                 },
             };
@@ -203,7 +203,7 @@ export class QuestionService {
                 code: 200,
                 message: 'Get questions by course success',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: this.convertData(questions),
                 },
             };
@@ -246,7 +246,7 @@ export class QuestionService {
                 code: 200,
                 message: 'Get questions by topic success',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: this.convertData(questions),
                 },
             };
@@ -281,7 +281,7 @@ export class QuestionService {
                 code: 200,
                 message: 'Get questions by review success',
                 data: {
-                    totalPages: Math.ceil(total / limit),
+                    totalPage: Math.ceil(total / limit),
                     list: this.convertData(questions),
                 },
             };

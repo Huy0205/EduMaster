@@ -25,6 +25,9 @@ export class Quiz {
     @Column({ nullable: false })
     bonusPoint: number;
 
+    @Column()
+    orderInTopic: number;
+
     @ManyToOne(() => Topic, (topic) => topic.quizzes)
     topic: Topic;
 
