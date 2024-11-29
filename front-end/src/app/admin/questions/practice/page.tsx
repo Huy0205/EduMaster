@@ -14,14 +14,14 @@ function AdminPracticeQuestionsPage() {
     const topics = useTopics(filterData.courseId);
     const lessons = useLessons(filterData.topicId);
 
-    const fetchData = async (filters: any) => {
-        if (filters.lessonId) return await QuestionService.getQuestionsByLesson(filters.lessonId);
+    const fetchData = async (filters: any,page?: number, limit?: number) => {
+        if (filters.lessonId) return await QuestionService.getQuestionsByLesson(filters.lessonId,page, limit);
         if (filters.topicId)
-            return await QuestionService.getQuestionsByTopic(false, filters.topicId);
+            return await QuestionService.getQuestionsByTopic(false, filters.topicId,page, limit);
         if (filters.courseId)
-            return await QuestionService.getQuestionsByCourse(false, filters.courseId);
-        if (filters.grade) return await QuestionService.getQuestionsByGrade(false, filters.grade);
-        return await QuestionService.getAllQuestions(false);
+            return await QuestionService.getQuestionsByCourse(false, filters.courseId,page, limit);
+        if (filters.grade) return await QuestionService.getQuestionsByGrade(false, filters.grade,page, limit);
+        return await QuestionService.getAllQuestions(false,page, limit);
     };
 
     const filterConfig = [

@@ -12,13 +12,13 @@ function AdminQuizQuestionsPage() {
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
 
-    const fetchData = async (filters: any) => {
+    const fetchData = async (filters: any,page?: number, limit?: number) => {
         if (filters.topicId)
-            return await QuestionService.getQuestionsByTopic(true, filters.topicId);
+            return await QuestionService.getQuestionsByTopic(true, filters.topicId,page, limit);
         if (filters.courseId)
-            return await QuestionService.getQuestionsByCourse(true, filters.courseId);
-        if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade);
-        return await QuestionService.getAllQuestions(true);
+            return await QuestionService.getQuestionsByCourse(true, filters.courseId,page, limit);
+        if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade,page, limit);
+        return await QuestionService.getAllQuestions(true,page, limit);
     };
 
     const filterConfig = [

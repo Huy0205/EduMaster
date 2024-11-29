@@ -1,4 +1,4 @@
-'use client';
+"use client"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '~/context/AuthContext';
@@ -22,7 +22,9 @@ const Header = () => {
   const [avatarUrl, setAvatarUrl] = useState(""); // State để lưu URL ảnh đại diện
   const [userId, setUserId] = useState(null); // State để lưu userId
   const [grade, setGrade] = useState("");
-  const [point,setPoint] = useState("");
+  const [point, setPoint] = useState("");
+  const [activeFrameUrl, setActiveFrameUrl] = useState("/iframe/img/default.png");
+
   useEffect(() => {
     // Kiểm tra xem mã có đang chạy ở phía client hay không
     if (typeof window !== 'undefined') {
@@ -32,19 +34,30 @@ const Header = () => {
       setLoggedIn(storedLoggedIn === 'true');
     }
   }, [setLoggedIn]);
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (userId) {
         try {
-          const response = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
-          const userData = response.data.data;
+          const userResponse = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
+          const userData = userResponse.data.data;
           setName(userData.fullName || ""); // Cập nhật tên người dùng
           setAvatarUrl(userData.avatar || ""); // Cập nhật URL ảnh đại diện
           setGrade(userData.currentGrade);
+          setPoint(userData.totalPoint || 0);
+
+          // Gọi API để lấy avatar frame đang active
+          const frameResponse = await axios.get(`http://localhost:8080/api/v1/avatar-frame-user/user/${userId}`);
+          const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
+          
+          if (activeFrame) {
+            setActiveFrameUrl(activeFrame.url); // Cập nhật URL ảnh bao quanh avatar
+          }
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Error fetching user data or active frame:", error);
           setName("Người dùng không tìm thấy"); // Thiết lập tên mặc định hoặc thông báo
           setAvatarUrl(""); // Có thể thiết lập một URL mặc định cho avatar nếu cần
+          setActiveFrameUrl("/iframe/img/default.png"); // URL mặc định nếu không có frame active
         }
       }
     };
@@ -100,11 +113,11 @@ const Header = () => {
                   <span style={{ marginLeft: '8px' }}>Lớp: {grade} |</span> {name}
                 </Typography>
                 <IconButton onClick={handleAvatarClick} color="inherit" sx={{ p: 0 }}>
-                  <Box sx={{ position: 'relative', width: 48, height: 48,display:'flex',placeContent:'center' }}>
+                  <Box sx={{ position: 'relative', width: 48, height: 48, display: 'flex', placeContent: 'center' }}>
                     {/* Ảnh bao quanh Avatar */}
                     <Box
                       component="img"
-                      src="/iframe/img/s3_3.png"
+                      src={"/iframe/img/s3_3.png"} // Sử dụng URL frame active
                       alt="Overlay"
                       sx={{
                         position: 'absolute',
@@ -113,8 +126,8 @@ const Header = () => {
                         width: '100%',
                         height: '100%',
                         borderRadius: '50%', // Ảnh overlay hình tròn
+                        scale:"160%",
                         zIndex: 2, // Đặt ảnh overlay dưới avatar
-                        scale:'170%',
                       }}
                     />
                     <Avatar
@@ -126,7 +139,6 @@ const Header = () => {
                         width: '100%', // Kích thước avatar nhỏ hơn overlay để bên trong hoàn toàn
                         height: '100%',
                         zIndex: 1, // Avatar nằm trên ảnh overlay
-                        scale:'100%',
                       }}
                     />
                   </Box>
@@ -148,7 +160,7 @@ const Header = () => {
                 <MenuItem
                   sx={{
                     minWidth: 200,
-                    justifyContent: 'space-between',
+                    justifyContent: 'flex-start',
                     cursor: 'default', // Không cho phép bấm
                     pointerEvents: 'none', // Vô hiệu hóa hoàn toàn click
                     borderBottom: '1px solid #ccc', // Đường gạch dưới
@@ -157,8 +169,8 @@ const Header = () => {
                     backgroundColor: 'transparent', // Nền trong suốt
                   }}
                 >
-                  Điểm thưởng: 
-                  <span style={{ color: '#23ff23', fontWeight: 'bold' }}></span>
+                  Điểm thưởng:
+                  <span style={{ color: '#23ff23', fontWeight: 'bold', marginLeft: 6 }}>{point}</span>
                 </MenuItem>
                 <MenuItem onClick={handleProfileClick} sx={{ minWidth: 200, justifyContent: 'space-between' }}>
                   Thông tin cá nhân
