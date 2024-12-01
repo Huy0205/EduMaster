@@ -16,7 +16,7 @@ import {
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-
+import Header from '~/components/Header';
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questionsData, setQuestionsData] = useState([]);
@@ -27,6 +27,7 @@ const Quiz = () => {
   const searchParams = useSearchParams();
   const quizId = searchParams.get('quizId'); // Lấy quizId từ URL query
   const router = useRouter();
+  const [flaggedQuestions, setFlaggedQuestions] = useState([]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -70,7 +71,7 @@ const Quiz = () => {
 
   const handleAutoSubmit = () => {
     alert('Hết giờ, bài làm sẽ được nộp!');
-    handleSubmit();
+    handleSubmitResult();
   };
 
   const handleSubmit = () => {
@@ -80,7 +81,13 @@ const Quiz = () => {
   const handleDialogClose = () => {
     setDialogOpen(false);
   };
-
+  const toggleFlag = (questionId) => {
+    setFlaggedQuestions((prev) =>
+      prev.includes(questionId)
+        ? prev.filter((id) => id !== questionId) // Nếu đã cắm cờ, thì bỏ cờ
+        : [...prev, questionId] // Nếu chưa cắm cờ, thì thêm vào
+    );
+  };
   const handleSubmitResult = async () => {
     try {
       // Tính số câu đúng và điểm
@@ -113,6 +120,7 @@ const Quiz = () => {
       };
 
       // Gửi dữ liệu đến API
+      console.log('Payload gửi đi:', payload);
       await axios.post('http://localhost:8080/api/v1/result/add', payload);
       alert('Bài làm đã được nộp thành công!');
       router.push('/kiemtra'); // Điều hướng về trang /kiemtra
@@ -130,7 +138,7 @@ const Quiz = () => {
             checked={answers[question.id] === answer.id}
             onChange={() => handleAnswerChange(question.id, answer.id)}
           />
-          <Typography sx={{ color: 'black' }}>{answer.content}</Typography>
+          <Typography sx={{ color: 'black', fontSize: 32 }}>{answer.content}</Typography>
         </label>
       ));
     }
@@ -150,7 +158,7 @@ const Quiz = () => {
               );
             }}
           />
-          <Typography sx={{ color: 'black' }}>{answer.content}</Typography>
+          <Typography sx={{ color: 'black', fontSize: 32 }}>{answer.content}</Typography>
         </label>
       ));
     }
@@ -163,7 +171,7 @@ const Quiz = () => {
           onChange={(e) => handleAnswerChange(question.id, e.target.value)}
           placeholder="Nhập câu trả lời"
           fullWidth
-          sx={{ input: { color: 'black' } }}
+          sx={{ input: { color: 'black' }, fontSize: 32 }}
         />
       );
     }
@@ -172,47 +180,63 @@ const Quiz = () => {
   };
 
   return (
-    <Box display="flex" height="100vh" padding={4} bgcolor="#f5f5f5">
+    <Box display="flex" height="95vh" bgcolor="#f5f5f5">
       {/* Main Content */}
-      <Box flex={2} display="flex" flexDirection="column" justifyContent="space-between" padding={3} bgcolor="#ffffff" borderRadius={2}>
+      <Box flex={2} display="flex" flexDirection="column" justifyContent="center" padding={3} bgcolor="#ffffff" borderRadius={2} gap={10}>
         {questionsData.length > 0 ? (
           <>
-            <Typography variant="h5" sx={{ color: 'black' }}>
-              {questionsData[currentQuestion].content}
+            <Typography variant="h5" sx={{ color: 'black', fontSize: 32 }} >
+              Câu {currentQuestion + 1} : {questionsData[currentQuestion].content}
             </Typography>
             {questionsData[currentQuestion].image && (
-              <Box mt={2} display="flex" justifyContent="center">
-                <img
-                  src={questionsData[currentQuestion].image}
-                  alt="Question"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '250px',
-                    objectFit: 'contain',
-                  }}
-                />
+              <Box display="flex" justifyContent="center">
+                {/* Trường hợp 2: Hiển thị ảnh */}
+                {questionsData[currentQuestion].image.startsWith("http") ? (
+                  <img
+                    src={questionsData[currentQuestion].image}
+                    alt="Question"
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '250px',
+                      objectFit: 'contain',
+                    }}
+                  />
+                ) : (
+                  // Trường hợp 3: Hiển thị chữ sau "text_" hoặc "Text_"
+                  questionsData[currentQuestion].image.toLowerCase().startsWith("text_") && (
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 'bold',
+                        color: 'black',
+                        textAlign: 'center',
+                        fontSize:32,
+                      }}
+                    >
+                      {questionsData[currentQuestion].image.slice(5)}
+                    </Typography>
+                  )
+                )}
               </Box>
             )}
-            <Box mt={2}>{renderQuestion(questionsData[currentQuestion])}</Box>
+            <Box > {renderQuestion(questionsData[currentQuestion])}</Box>
             {showAlert && (
               <Alert severity="warning" sx={{ mt: 2 }}>
                 Bạn còn câu chưa trả lời.
               </Alert>
             )}
-            <Box display="flex" justifyContent="space-between" mt={3}>
+            <Box display="flex" justifyContent="space-between" marginTop="auto">
               {currentQuestion > 0 && (
                 <Button variant="contained" color="primary" onClick={() => setCurrentQuestion(currentQuestion - 1)}>
-                  Quay lại
+                  Câu trước
                 </Button>
               )}
               {currentQuestion < questionsData.length - 1 ? (
                 <Button variant="contained" color="primary" onClick={() => setCurrentQuestion(currentQuestion + 1)}>
-                  Tiếp theo
+                  Câu tiếp
                 </Button>
               ) : (
-                <Button variant="contained" color="secondary" onClick={handleSubmit}>
-                  Nộp bài
-                </Button>
+                <Typography></Typography>
               )}
             </Box>
           </>
@@ -225,31 +249,62 @@ const Quiz = () => {
 
       {/* Navigation Panel */}
       <Box flex={1} padding={3} ml={4} bgcolor="#ffffff" borderRadius={2}>
+        <Typography mt={4} sx={{ textAlign: 'center', color: 'black', fontSize: 32 }}>
+          Thời gian còn lại:
+          <span style={{ color: 'red' }}>{formatTime()}</span>
+        </Typography>
         <Typography variant="h6" sx={{ color: 'black' }} gutterBottom>
           Danh sách câu hỏi
         </Typography>
         <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={1}>
-          {questionsData.map((q, index) => (
-            <Button
-              key={q.id}
-              variant="contained"
-              onClick={() => setCurrentQuestion(index)}
-              color={answers[q.id] ? 'success' : 'inherit'}
-              sx={{
-                border: currentQuestion === index ? '2px solid gold' : '1px solid #ccc',
-                fontWeight: currentQuestion === index ? 'bold' : 'normal',
-              }}
-            >
-              {index + 1}
-            </Button>
-          ))}
+          {questionsData.map((q, index) => {
+            const isFlagged = flaggedQuestions.includes(q.id);
+            const isAnswered = !!answers[q.id]; // Kiểm tra nếu câu hỏi đã được trả lời
+            const isCurrent = currentQuestion === index;
+
+            return (
+              <Button
+                key={q.id}
+                variant="contained"
+                onClick={() => setCurrentQuestion(index)}
+                sx={{
+                  border: isCurrent ? '2px solid gold' : '1px solid #ccc',
+                  fontWeight: isCurrent ? 'bold' : 'normal',
+                  backgroundColor: isFlagged
+                    ? 'red' // Màu đỏ nếu cắm cờ
+                    : isAnswered
+                      ? 'green' // Màu xanh nếu đã trả lời
+                      : 'inherit', // Mặc định
+                  color: isFlagged ? 'white' : 'inherit',
+                }}
+              >
+                {index + 1}
+              </Button>
+            );
+          })}
         </Box>
-        <Typography mt={4} sx={{ textAlign: 'center', color: 'black', fontSize: '18px' }}>
-          Thời gian còn lại: {formatTime()}
-        </Typography>
-        <Button variant="contained" color="secondary" onClick={handleSubmit}>
-          Nộp bài
-        </Button>
+        <Box display="flex" justifyContent="space-between" mt={2}>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => toggleFlag(questionsData[currentQuestion].id)}
+            sx={{ flex: 1, marginRight: 2 }}
+          >
+            {questionsData[currentQuestion]
+              ? flaggedQuestions.includes(questionsData[currentQuestion].id)
+                ? 'Bỏ cắm cờ'
+                : 'Cắm cờ'
+              : '...'}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleSubmit}
+            sx={{ flex: 1 }}
+          >
+            Nộp bài
+          </Button>
+        </Box>
       </Box>
 
       {/* Dialog */}

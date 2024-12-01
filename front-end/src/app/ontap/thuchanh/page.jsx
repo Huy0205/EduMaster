@@ -125,7 +125,7 @@ export default function Home() {
       <Navbar />
       <Box sx={{ maxWidth: 800 }}>
         <Typography variant="h6" component="div" sx={{ fontWeight: "bold", color: "#000" }}>
-          {chapterName} {'>'} {lessonName} 
+          {chapterName} {'>'} {lessonName}
         </Typography>
       </Box>
       <Box className="text-lg font-bold my-4 flex items-center justify-center gap-28 space-x-6 bg-white p-4 rounded-lg shadow-lg " sx={{
@@ -150,10 +150,11 @@ export default function Home() {
           <span className="text-red-600 font-bold text-lg">{incorrectAnswers}</span>
         </Box>
       </Box>
-      <Box className="flex flex-col items-center justify-center mt-8 p-4 " sx={{ maxWidth: 1000, width: '100%', height: 500 }}>
+      <Box className="flex flex-col items-center justify-center mt-8 p-4 " sx={{ maxWidth: 1000, width: '100%', height: 500, marginTop: 10 }}>
         {questionsData.length > 0 ? (
           <Question
             question={questionsData[currentQuestion]}
+            questionlist={currentQuestion}
             onNext={handleNextQuestion}
             onSubmitAnswer={handleAnswerSubmission}
           />
@@ -165,7 +166,7 @@ export default function Home() {
   );
 }
 
-function Question({ question, onNext, onSubmitAnswer }) {
+function Question({ question, onNext, onSubmitAnswer, questionlist }) {
   const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [userAnswer, setUserAnswer] = useState('');
   const [isAnswered, setIsAnswered] = useState(false);
@@ -243,7 +244,7 @@ function Question({ question, onNext, onSubmitAnswer }) {
           height={300}
           style={{
             maxWidth: '100%',
-            maxHeight: '250px',
+            maxHeight: '150px',
             objectFit: 'contain',
           }}
         />
@@ -266,69 +267,86 @@ function Question({ question, onNext, onSubmitAnswer }) {
         display="flex"
         flexDirection="column"
         justifyContent="center"
+        position="relative"
       >
-        <Typography variant="h6" gutterBottom className='text-black' sx={{fontSize:32}}>
-          {question.content}
+
+        <Typography variant="h6" gutterBottom className='text-black font-bold' sx={{ fontSize: 32 }}>
+          Câu {questionlist + 1}: {question.content}
         </Typography>
+
 
         {renderImage(question.image)}
 
-        {(question.type === '1' || question.type === 1 || question.type === '2' || question.type === 2) ? (
-          question.answers.map((answer) => (
-            <Box key={answer.id} display="flex" alignItems="center" mb={1}>
-              {question.type === 1 ? (
-                <Radio
-                  checked={selectedAnswer.includes(answer.id)}
-                  onChange={() => handleAnswerChange(answer.id)}
-                />
-              ) : (
-                <Checkbox
-                  checked={selectedAnswer.includes(answer.id)}
-                  onChange={() => handleAnswerChange(answer.id)}
-                />
-              )}
-              <Typography className='text-black' sx={{fontSize:32}}>{answer.content}</Typography>
-            </Box>
-          ))
-        ) : (
-          <TextField
-            fullWidth
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            placeholder="Nhập câu trả lời"
-            sx={{ mt: 2 }}
-          />
-        )}
-        {isAnswered && (
-          <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2,fontSize:32 }}>
-            {isCorrect ? (
-              'Câu trả lời chính xác!'
-            ) : (
-              <>
-                Sai rồi! Câu trả lời chính là:{" "}
-                <Typography component="span" color="green" sx={{fontSize:32}}>
-                  {question.answers
-                    .filter(answer => answer.isCorrect)
-                    .map(answer => answer.content)
-                    .join(', ')}
-                </Typography>
-              </>
-            )}
-          </Typography>
-        )}
+        <Box display="flex" flexDirection="column" width="100%" sx={{ position: 'relative' }}>
+          {(question.type === '1' || question.type === 1 || question.type === '2' || question.type === 2) ? (
+            question.answers.map((answer) => (
+              <Box key={answer.id} display="flex" alignItems="center" mb={1}>
+                {question.type === 1 ? (
+                  <Radio
+                    checked={selectedAnswer.includes(answer.id)}
+                    onChange={() => handleAnswerChange(answer.id)}
+                  />
+                ) : (
+                  <Checkbox
+                    checked={selectedAnswer.includes(answer.id)}
+                    onChange={() => handleAnswerChange(answer.id)}
+                  />
+                )}
+                <Typography className='text-black' sx={{ fontSize: 32 }}>{answer.content}</Typography>
+              </Box>
+            ))
+          ) : (
+            <TextField
+              fullWidth
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              placeholder="Nhập câu trả lời"
+              sx={{ mt: 2 }}
+            />
+          )}
 
-        <Box display="flex" justifyContent="center" mt={1}>
+          {isAnswered && (
+            <Box sx={{
+              position: 'absolute',
+              top:60, // Đặt phần chú thích ở phía dưới
+              width: '100%',
+              textAlign: 'center',
+            }}>
+              <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2, fontSize: 32 }}>
+                {isCorrect ? (
+                  'Câu trả lời chính xác!'
+                ) : (
+                  <>
+                    Sai rồi! Câu trả lời chính là:{" "}
+                    <Typography component="span" color="green" sx={{ fontSize: 32 }}>
+                      {question.answers
+                        .filter(answer => answer.isCorrect)
+                        .map(answer => answer.content)
+                        .join(', ')}
+                    </Typography>
+                  </>
+                )}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+
+        <Box display="flex" justifyContent="center" mt={1} sx={{
+          position: 'absolute', // Fix the position of the button container
+          bottom: 20, // Thêm khoảng cách từ dưới lên
+          width: '100%',
+        }}>
           {isAnswered ? (
-            <Button variant="contained" onClick={handleNext}sx={{
-              width: '1200px', // Tăng độ rộng
+            <Button variant="contained" onClick={handleNext} sx={{
+              width: '1000px', // Tăng độ rộng
               height: '50px', // Tăng chiều cao
               fontSize: '16px', // Tăng cỡ chữ
               fontWeight: 'bold', // Tăng độ đậm
               borderRadius: '10px', // Làm nút tròn hơn
-            }}>Tiếp theo</Button>
+            }}>Câu Tiếp</Button>
           ) : (
-            <Button variant="contained" onClick={handleSubmit}sx={{
-              width: '1200px', // Tăng độ rộng
+            <Button variant="contained" onClick={handleSubmit} sx={{
+              width: '1000px', // Tăng độ rộng
               height: '50px', // Tăng chiều cao
               fontSize: '16px', // Tăng cỡ chữ
               fontWeight: 'bold', // Tăng độ đậm
