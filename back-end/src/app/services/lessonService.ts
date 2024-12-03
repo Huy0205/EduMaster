@@ -1,74 +1,22 @@
 import { db } from '~/configs';
 import { Lesson } from '~/app/models';
 import { Role, Status } from '../enums';
-import { FindOptionsOrderValue, In } from 'typeorm';
+import { In } from 'typeorm';
 
 const LessonRepository = db.AppDataSource.getRepository(Lesson);
 
-interface AdminLesson {
-    id: string;
-    name: string;
-    orderInTopic: number;
-    status: Status;
-    topic: {
-        name: string;
-        orderInCourse: number;
-        course: {
-            name: string;
-            grade: number;
-        };
-    };
-}
-
-const columnSelectStudent = {
-    id: true,
-    name: true,
-    orderInTopic: true,
-};
-
-const columnSelectAdmin = {
-    ...columnSelectStudent,
-    topic: {
-        name: true,
-        orderInCourse: true,
-        status: true,
-        course: {
-            name: true,
-            grade: true,
-        },
-    },
-};
-
 export class LessonService {
-    private static convertData(data: AdminLesson[]) {
-        const result = data.map((item: AdminLesson) => {
-            const lesson = {
-                id: item.id,
-                name: item.name,
-                topicName: item.topic.name,
-                courseName: item.topic.course.name,
-                grade: item.topic.course.grade,
-                status: item.status,
-            };
-            return lesson;
-        });
-        return result;
-    }
-
     /**
-     * Get all lessons including id, name, topic name, course name, grade
+     * Get all lessons
      * ordered by grade, course name, topic order, lesson order
-     * paginated by page and limit
      * only for admin
      * @param page
      * @param limit
      * @returns
      */
-    public static async getAllLessons(page: number, limit: number) {
+    public static async getAllLessons() {
         try {
-            const [lessons, total] = await LessonRepository.findAndCount({
-                relations: ['topic', 'topic.course'],
-                select: columnSelectAdmin,
+            const lessons = await LessonRepository.find({
                 where: {
                     status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
@@ -82,17 +30,12 @@ export class LessonService {
                     },
                     orderInTopic: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get lessons success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(lessons),
-                },
+                data: lessons,
             };
         } catch (error) {
             console.log('Error getting lessons', error);
@@ -100,74 +43,44 @@ export class LessonService {
         }
     }
 
-    /**
-     * Get lessons by topic id, ordered by lesson order in topic
-     * paginated by page and limit
-     * for both admin and user
-     * @param topicId
-     * @param role
-     * @param page
-     * @param limit
-     * @returns
-     */
-    public static async getLessonsByTopic(
-        topicId: string,
-        role: Role,
-        page: number,
-        limit: number,
-    ) {
+    public static async getLessonsByGrade(grade: number) {
         try {
-            const baseQuery = {
+            const lessons = await LessonRepository.find({
                 where: {
-                    topic: {
-                        id: topicId,
-                    },
+                    topic: { course: { grade } },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
-                order: { orderInTopic: 'ASC' as FindOptionsOrderValue },
-                skip: (page - 1) * limit,
-                take: limit,
-            };
-            const [lessons, total] =
-                role === Role.STUDENT
-                    ? await LessonRepository.findAndCount({
-                          ...baseQuery,
-                          where: { ...baseQuery.where, status: Status.ACTIVE },
-                          select: columnSelectStudent,
-                      })
-                    : await LessonRepository.findAndCount({
-                          ...baseQuery,
-                          relations: ['topic', 'topic.course'],
-                          select: columnSelectAdmin,
-                      });
+                order: {
+                    topic: {
+                        orderInCourse: 'ASC',
+                    },
+                    orderInTopic: 'ASC',
+                },
+            });
 
-            const result = role === Role.STUDENT ? lessons : this.convertData(lessons);
             return {
                 code: 200,
-                message: 'Get lessons by topic success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: result,
-                },
+                message: 'Get lessons by grade success',
+                data: lessons,
             };
         } catch (error) {
-            console.log('Error getting lessons by topic', error);
+            console.log('Error getting lessons by grade', error);
             throw error;
         }
     }
 
     /**
-     * Get lessons by course id, ordered by topic order in course, lesson order in topic
-     * paginated by page and limit
+     * Get lessons by course
+     * ordered by topic order in course, lesson order in topic
      * only for admin
      * @param courseId
      * @param page
      * @param limit
      * @returns
      */
-    public static async getLessonsByCourse(courseId: string, page: number, limit: number) {
+    public static async getLessonsByCourse(courseId: string) {
         try {
-            const [lessons, total] = await LessonRepository.findAndCount({
-                relations: ['topic', 'topic.course'],
+            const lessons = await LessonRepository.find({
                 where: {
                     topic: {
                         course: {
@@ -176,24 +89,18 @@ export class LessonService {
                     },
                     status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
-                select: columnSelectAdmin,
                 order: {
                     topic: {
                         orderInCourse: 'ASC',
                     },
                     orderInTopic: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get lessons by course success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(lessons),
-                },
+                data: lessons,
             };
         } catch (error) {
             console.log('Error getting lessons by course', error);
@@ -201,35 +108,37 @@ export class LessonService {
         }
     }
 
-    public static async getLessonsByGrade(grade: number, page: number, limit: number) {
+    /**
+     * Get lessons by topic id
+     * ordered by lesson order in topic
+     * for both admin and user
+     * @param topicId
+     * @param role
+     * @param page
+     * @param limit
+     * @returns
+     */
+    public static async getLessonsByTopic(topicId: string, role: Role) {
         try {
-            const [lessons, total] = await LessonRepository.findAndCount({
-                relations: ['topic', 'topic.course'],
+            const lessons = await LessonRepository.find({
                 where: {
-                    topic: { course: { grade } },
-                    status: In([Status.ACTIVE, Status.INACTIVE]),
-                },
-                select: columnSelectAdmin,
-                order: {
                     topic: {
-                        orderInCourse: 'ASC',
+                        id: topicId,
                     },
+                    status:
+                        role === Role.ADMIN ? In([Status.ACTIVE, Status.INACTIVE]) : Status.ACTIVE,
+                },
+                order: {
                     orderInTopic: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
-
             return {
                 code: 200,
-                message: 'Get lessons by grade success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(lessons),
-                },
+                message: 'Get lessons by topic success',
+                data: lessons,
             };
         } catch (error) {
-            console.log('Error getting lessons by grade', error);
+            console.log('Error getting lessons by topic', error);
             throw error;
         }
     }
@@ -275,39 +184,20 @@ export class LessonService {
     }
 
     /**
-     * Add new lesson
+     * Save lesson
      * @param lesson
      * @returns
      */
-    public static async addLesson(lesson: Partial<Lesson>) {
+    public static async saveLesson(lesson: Partial<Lesson>) {
         try {
             const newLesson = await LessonRepository.save(lesson);
             return {
                 code: 201,
-                message: 'Add lesson success',
+                message: 'Save lesson success',
                 data: newLesson,
             };
         } catch (error) {
-            console.log('Error adding lesson', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Update lesson status
-     * @param lessonId
-     * @param status
-     * @returns
-     */
-    public static async updateStatus(lessonId: string, status: Status) {
-        try {
-            await LessonRepository.update({ id: lessonId }, { status });
-            return {
-                code: 200,
-                message: 'Update lesson status success',
-            };
-        } catch (error) {
-            console.log('Error updating lesson status', error);
+            console.log('Error saving lesson', error);
             throw error;
         }
     }

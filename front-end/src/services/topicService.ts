@@ -16,6 +16,10 @@ export class TopicService {
         });
     }
 
+    public static getTopicById(topicId: string) {
+        return axios.get(`topic/${topicId}`);
+    }
+
     public static addTopic(data: { topicName: string; courseId: string }) {
         return axios.post('topic/add', data);
     }

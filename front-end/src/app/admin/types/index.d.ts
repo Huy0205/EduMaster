@@ -1,6 +1,6 @@
 interface AdminManagementWrapperProps {
     fetchData: (filterData: any, page?: number, limit?: number) => Promise<any>;
-    updateData: (id: string, data: any) => Promise<any>;
+    updateData?: (id: string, data: any) => Promise<any>;
     filterConfig: {
         key: string;
         placeholder: string;
@@ -13,7 +13,7 @@ interface AdminManagementWrapperProps {
             key: string;
             label: string;
             width: string;
-            align: 'center' | 'left' | 'right';
+            align: 'center' | 'left' | 'right' | string;
         }[];
         actions?: {
             label: string;
@@ -26,9 +26,8 @@ interface AdminManagementWrapperProps {
         link?: string;
         onClick?: () => void;
         disabled?: boolean;
-        currentPath?: string;
     };
-    reLoadTable: boolean;
+    onReloadTable?: (setReloadFn: (reload: boolean) => void) => void;
 }
 
 interface AdminFilterProps {
@@ -40,20 +39,6 @@ interface AdminFilterProps {
         tooltipTitle?: string;
     }[];
     onFilterChange: () => void;
-}
-
-interface AdminTableProps {
-    header: string[];
-    data: any[];
-    columnsData: string[];
-    actions?: {
-        label: string;
-        icon: React.ComponentType;
-        onClick: (item: any) => void;
-    }[];
-    page: number;
-    limit: number;
-    onStatusChange: (id: string, rowIndex: number, newState: 0 | 1) => void;
 }
 
 interface TooltipProps {
@@ -74,12 +59,9 @@ interface TopicFormData {
 
 interface AdminAddQuestionProps {
     items: {
-        type: string;
         key: string;
         label: string;
-        selected: string | number;
-        options?: { value: string | number; label: string }[];
-        disabled?: boolean;
+        value: string;
     }[];
     onSave: (data: any) => void;
 }
@@ -101,4 +83,23 @@ interface ConfirmDialogProps {
     content: string;
     onClose: () => void;
     onConfirm: () => void;
+}
+
+interface Action {
+    label: string;
+    icon: React.ElementType;
+    color: any;
+    onClick: (item: any) => void;
+}
+
+interface AdminTableProps {
+    columns: {
+        key: string;
+        label: string;
+        width: string;
+        align: 'center' | 'left' | 'right' | string;
+    }[];
+    data: any[];
+    actions?: Action[];
+    onStatusChange: (id: string, rowIndex: number, newStatus: 0 | 1) => void;
 }

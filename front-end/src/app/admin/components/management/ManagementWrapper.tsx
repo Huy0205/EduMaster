@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
 
 import { useFilterData } from '~/context/FilterDataContext';
 import AdminFilter from './Filter';
 import AdminTable from './Table';
 import AddButton from '../AddButton';
+import { usePathname } from 'next/navigation';
 
 function AdminManagementWrapper({
     fetchData,
@@ -13,21 +13,20 @@ function AdminManagementWrapper({
     filterConfig,
     tableConfig,
     addBtn,
-    reLoadTable,
+    onReloadTable,
 }: AdminManagementWrapperProps) {
     const pathname = usePathname();
     const { filterData, resetFilterData } = useFilterData();
     const [tableData, setTableData] = useState([]);
     const [mounted, setMounted] = useState(false);
+    const [reLoadTable, setReLoadTable] = useState(false);
 
-    const handleFilterChange = async (page?: number, limit?: number) => {
-        const result = await fetchData(filterData, page, limit);
+    const handleFilterChange = async () => {
+        const result = await fetchData(filterData);
         const { data, message } = result.data;
         if (data) {
-            const { totalPage, list } = data;
-            if (totalPage && list) {
-                setTableData(list);
-            } else setTableData(data);
+            console.log(data);
+            setTableData(data);
         } else {
             console.error(message);
         }
@@ -37,23 +36,37 @@ function AdminManagementWrapper({
         const updateTableData = [...tableData];
         updateTableData[rowIndex].status = newStatus;
         setTableData(updateTableData);
-        const res = await updateData(id, { status: newStatus });
-        console.log(res);
+        if (typeof updateData === 'function') {
+            const res = await updateData(id, { status: newStatus });
+            console.log(res);
+        }
     };
+
+    useEffect(() => {
+        if (typeof onReloadTable === 'function') {
+            onReloadTable(setReLoadTable); // Truyền setReLoadTable lên component cha
+        }
+    }, [onReloadTable]);
+
+    useEffect(() => {
+        if (reLoadTable) {
+            handleFilterChange();
+            setReLoadTable(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reLoadTable]);
 
     useEffect(() => {
         if (mounted) handleFilterChange();
         else setMounted(true);
 
         return () => {
-            console.log('unmount');
-            const navigationPath = addBtn.link || addBtn.currentPath;
-            if (navigationPath && !navigationPath.includes(pathname)) {
-                resetFilterData();
-            }
+            if (addBtn.link && addBtn.link.includes(pathname)) return;
+            console.log('unmount:');
+            resetFilterData();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mounted, reLoadTable]);
+    }, [mounted]);
 
     return (
         <div className="flex-auto text-gray-600">

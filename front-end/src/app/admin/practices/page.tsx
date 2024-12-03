@@ -1,5 +1,5 @@
 'use client';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
@@ -12,8 +12,13 @@ function AdminPracticesPage() {
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
 
-    const fetchData = async (filters: any, page?: number, limit?: number) => {
-        return await PracticeService.getAllPractices(page, limit);
+    const fetchData = async (filters: any) => {
+        if (filters.lessonId)
+            return await PracticeService.getPracticesByLesson(filters.lessonId, 0);
+        if (filters.topicId) return await PracticeService.getPracticesByTopic(filters.topicId);
+        if (filters.courseId) return await PracticeService.getPracticesByCourse(filters.courseId);
+        if (filters.grade) return await PracticeService.getPracticesByGrade(filters.grade);
+        return await PracticeService.getAllPractices();
     };
 
     const filterConfig = [
@@ -39,21 +44,51 @@ function AdminPracticesPage() {
     ];
 
     const tableConfig = {
-        header: [
-            'STT',
-            'Tên đề thực hành',
-            'Điểm thưởng',
-            'Bài học',
-            'Chuyên mục',
-            'Môn học',
-            'Lớp',
+        columns: [
+            {
+                key: 'name',
+                label: 'Tên thực hành',
+                width: 'auto',
+                align: 'left',
+            },
+            {
+                key: 'bonusPoint',
+                label: 'Điểm thưởng',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'status',
+                label: 'Trạng thái',
+                width: '200px',
+                align: 'center',
+            },
         ],
-        columnsData: ['name', 'bonusPoint', 'lessonName', 'topicName', 'courseName', 'grade'],
         actions: [
-            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
-            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+            {
+                label: 'Sửa',
+                icon: Edit,
+                color: 'blue',
+                onClick: (item: any) => console.log('Edit', item),
+            },
+            {
+                label: 'Xóa',
+                icon: Delete,
+                color: 'red',
+                onClick: (item: any) => console.log('Delete', item),
+            },
+            {
+                label: 'Xem chi tiết',
+                icon: ViewList,
+                color: 'green',
+                onClick: (item: any) => console.log('Detail', item),
+            },
         ],
-        addLink: '/admin/practices/add',
+    };
+
+    const addBtn = {
+        link: '/admin/practices/add',
+        disabled: !filterData.lessonId,
     };
 
     return (
@@ -61,6 +96,7 @@ function AdminPracticesPage() {
             fetchData={fetchData}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
+            addBtn={addBtn}
         />
     );
 }

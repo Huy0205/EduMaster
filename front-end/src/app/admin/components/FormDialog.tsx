@@ -13,7 +13,7 @@ interface DialogComponentProps {
     onClose: () => void;
     onSave: (data: any) => void;
     title: string;
-    fields: { key: string; label: string; type: string }[];
+    fields: { key: string; label: string; type: string; multiline?: boolean }[];
     initialData?: any;
 }
 
@@ -57,6 +57,8 @@ function AdminFormDialog({
                         margin="dense"
                         value={formData?.[field.key] || ''}
                         onChange={(e) => handleChange(field.key, e.target.value)}
+                        multiline={field.multiline}
+                        rows={field.multiline ? 4 : 1}
                     />
                 ))}
             </DialogContent>

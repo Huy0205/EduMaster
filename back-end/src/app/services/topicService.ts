@@ -5,41 +5,7 @@ import { In } from 'typeorm';
 
 const TopicRepository = db.AppDataSource.getRepository(Topic);
 
-interface AdminData {
-    id: string;
-    name: string;
-    orderInCourse: number;
-    status: Status;
-    course: {
-        id: string;
-        name: string;
-        grade: number;
-    };
-}
-
 export class TopicService {
-    /**
-     * Convert data to format for admin
-     * @param data
-     * @returns
-     */
-    private static convertData(data: AdminData[], role?: number) {
-        const result = data.map((item: AdminData) => {
-            const topic = {
-                id: item.id,
-                name: item.name,
-                order: item.orderInCourse,
-            };
-            if (role === 0) {
-                topic['courseId'] = item.course.id;
-                topic['courseName'] = item.course.name;
-                topic['grade'] = item.course.grade;
-            }
-            return topic;
-        });
-        return result;
-    }
-
     /**
      * Get all topics, order by course grade and name, topic order
      * paginated

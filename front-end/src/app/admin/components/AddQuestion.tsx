@@ -1,7 +1,6 @@
 'use client';
 import { Add, Close } from '@mui/icons-material';
 import { useState } from 'react';
-import AdminForm from '~/app/admin/components/Form';
 import BorderWrapper from './BorderWrapper';
 
 function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
@@ -81,7 +80,15 @@ function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
         <div className="w-full flex bg-white py-5">
             <div className="flex-2 flex flex-col items-center px-5 border-r-2">
                 <div className="w-full mb-5">
-                    <AdminForm items={items} />
+                    {items.map((item, index) => (
+                        <div
+                            key={index}
+                            className="flex flex-col pb-3"
+                        >
+                            <label className="text-base font-medium m-1">{item.label}:</label>
+                            <span className="border-2 rounded-md px-2 py-1">{item.value}</span>
+                        </div>
+                    ))}
                 </div>
                 <BorderWrapper title="Loại câu hỏi">
                     <label className="flex items-center">

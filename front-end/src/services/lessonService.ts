@@ -1,31 +1,37 @@
 import axios from '~/util/axios.customize';
 
 export class LessonService {
-    public static getAllLessons(page?: number, limit?: number) {
-        return axios.get('lesson/list', { params: { page, limit } });
+    public static getAllLessons() {
+        return axios.get('lesson/list');
     }
 
-    public static getLessonsByTopic(topicId: string, role?: number, page?: number, limit?: number) {
+    public static getLessonsByGrade(grade: number) {
+        return axios.get(`lesson/grade/${grade}`);
+    }
+
+    public static getLessonsByCourse(courseId: string) {
+        return axios.get(`lesson/course/${courseId}`);
+    }
+
+    public static getLessonsByTopic(topicId: string, role?: 0 | 1) {
         const headers = role !== undefined ? { role } : {};
         return axios.get(`lesson/topic/${topicId}`, {
             headers,
-            params: { page, limit },
         });
     }
 
-    public static getLessonsByCourse(courseId: string, page?: number, limit?: number) {
-        return axios.get(`lesson/course/${courseId}`, { params: { page, limit } });
+    public static getLessonById(lessonId: string) {
+        return axios.get(`lesson/${lessonId}`);
     }
 
-    public static getLessonsByGrade(grade: number, page?: number, limit?: number) {
-        return axios.get(`lesson/grade/${grade}`, { params: { page, limit } });
+    public static addLesson(data: { lessonName: string; topicId: string }) {
+        return axios.post('lesson/add', data);
     }
 
-    public static addLesson(lessonName: string, topicId: string) {
-        return axios.post('lesson/add', { lessonName, topicId });
-    }
-
-    public static updateStatus(id: string, status: 0 | 1) {
-        return axios.put(`lesson/update-status/${id}`, { status });
+    public static updateLesson(
+        lessonId: string,
+        data: { lessonName?: string; status?: -1 | 0 | 1 },
+    ) {
+        return axios.put(`lesson/update/${lessonId}`, data);
     }
 }

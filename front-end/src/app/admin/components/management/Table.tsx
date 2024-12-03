@@ -1,4 +1,4 @@
-import React from 'react';
+import { useMemo, useState } from 'react';
 import {
     IconButton,
     Paper,
@@ -14,25 +14,11 @@ import {
 } from '@mui/material';
 import Switch from '../Switch';
 
-interface Action {
-    label: string;
-    icon: React.ElementType;
-    color: string;
-    onClick: (item: any) => void;
-}
-
-interface AdminTableProps {
-    columns: { key: string; label: string; width: string; align: 'center' | 'left' | 'right' }[];
-    data: any[];
-    actions?: Action[];
-    onStatusChange: (id: string, rowIndex: number, newState: number) => void;
-}
-
 export default function AdminTable({ data, columns, actions, onStatusChange }: AdminTableProps) {
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const [page, setPage] = React.useState(0);
-    const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
-    const [orderBy, setOrderBy] = React.useState<string>('');
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [page, setPage] = useState(0);
+    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+    const [orderBy, setOrderBy] = useState<string>('');
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -54,7 +40,7 @@ export default function AdminTable({ data, columns, actions, onStatusChange }: A
         setOrderBy(column);
     };
 
-    const sortedData = React.useMemo(() => {
+    const sortedData = useMemo(() => {
         if (!orderBy) return data;
         return [...data].sort((a, b) => {
             if (a[orderBy] < b[orderBy]) {

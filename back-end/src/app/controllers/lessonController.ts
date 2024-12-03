@@ -6,41 +6,23 @@ import { Role, Status } from '../enums';
 
 export class LessonController {
     public static async getAllLessons(req: Request, res: Response, next: NextFunction) {
-        const { page, limit } = req.query;
-        const pageNum = Number(page) > 0 ? Number(page) : 1;
-        const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
         try {
-            const response = await LessonService.getAllLessons(pageNum, limitNum);
+            const response = await LessonService.getAllLessons();
             ResponseUtil.sendResponse(res, response);
         } catch (error) {
             next(error);
         }
     }
 
-    public static async getLessonsByTopic(req: Request, res: Response, next: NextFunction) {
-        const { topicId } = req.params;
-        const { page, limit } = req.query;
-
-        if (!topicId) {
+    public static async getLessonsByGrade(req: Request, res: Response, next: NextFunction) {
+        const { grade } = req.params;
+        if (!grade) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(topicId)) {
+        } else if (Number(grade) < 1 || Number(grade) > 5) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            let role = Role.ADMIN;
-            if (Number(req.headers['role']) in Role) {
-                role = Number(req.headers['role']);
-            }
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
             try {
-                const response = await LessonService.getLessonsByTopic(
-                    topicId,
-                    role,
-                    pageNum,
-                    limitNum,
-                );
+                const response = await LessonService.getLessonsByGrade(Number(grade));
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
@@ -50,22 +32,13 @@ export class LessonController {
 
     public static async getLessonsByCourse(req: Request, res: Response, next: NextFunction) {
         const { courseId } = req.params;
-        const { page, limit } = req.query;
-
         if (!courseId) {
             ResponseUtil.sendMissingData(res);
         } else if (!isUUID(courseId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
             try {
-                const response = await LessonService.getLessonsByCourse(
-                    courseId,
-                    pageNum,
-                    limitNum,
-                );
+                const response = await LessonService.getLessonsByCourse(courseId);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
@@ -73,24 +46,35 @@ export class LessonController {
         }
     }
 
-    public static async getLessonsByGrade(req: Request, res: Response, next: NextFunction) {
-        const { grade } = req.params;
-        const { page, limit } = req.query;
-
-        if (!grade) {
+    public static async getLessonsByTopic(req: Request, res: Response, next: NextFunction) {
+        const { topicId } = req.params;
+        if (!topicId) {
             ResponseUtil.sendMissingData(res);
-        } else if (Number(grade) < 1 || Number(grade) > 5) {
+        } else if (!isUUID(topicId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
+            let role = Role.STUDENT;
+            if (Number(req.headers['role']) in Role) {
+                role = Number(req.headers['role']);
+            }
             try {
-                const response = await LessonService.getLessonsByGrade(
-                    Number(grade),
-                    pageNum,
-                    limitNum,
-                );
+                const response = await LessonService.getLessonsByTopic(topicId, role);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async getLessonById(req: Request, res: Response, next: NextFunction) {
+        const { lessonId } = req.params;
+        if (!lessonId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(lessonId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await LessonService.getLessonById(lessonId);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
@@ -109,7 +93,7 @@ export class LessonController {
             try {
                 const maxOrderRes = await LessonService.getMaxOrderInTopic(topicId);
                 const topicRes = await TopicService.getTopicById(topicId);
-                const response = await LessonService.addLesson({
+                const response = await LessonService.saveLesson({
                     name: lessonName,
                     orderInTopic: maxOrderRes.data + 1,
                     topic: topicRes.data,
@@ -121,17 +105,21 @@ export class LessonController {
         }
     }
 
-    public static async updateStatus(req: Request, res: Response, next: NextFunction) {
+    public static async updateLesson(req: Request, res: Response, next: NextFunction) {
         const { lessonId } = req.params;
-        const { status } = req.body;
+        const { lessonName, status } = req.body;
 
-        if (!lessonId || status === undefined) {
+        if (!lessonId || (!lessonName && status === undefined)) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(lessonId) || !(status in Status)) {
+        } else if (!isUUID(lessonId) || (status !== undefined && !(status in Status))) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const response = await LessonService.updateStatus(lessonId, Number(status));
+                const response = await LessonService.saveLesson({
+                    id: lessonId,
+                    name: lessonName,
+                    status,
+                });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

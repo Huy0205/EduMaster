@@ -10,6 +10,7 @@ import {
 import { Lesson } from './lesson';
 import { PracticeProgress } from './practiceProgress';
 import { PracticeQuestion } from './practiceQuestion';
+import { Status } from '../enums';
 
 @Entity()
 export class Practice {
@@ -26,6 +27,13 @@ export class Practice {
         default: 10,
     })
     bonusPoint: number;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.INACTIVE,
+    })
+    status: Status;
 
     @ManyToOne(() => Lesson, (lesson) => lesson.practices)
     lesson: Lesson;

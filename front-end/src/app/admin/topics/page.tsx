@@ -1,20 +1,19 @@
 'use client';
+import { useState } from 'react';
 import { Delete, Edit } from '@mui/icons-material';
+import { toast } from 'react-toastify';
 
 import { useCourses, useGrades } from '~/hooks';
 import { useFilterData } from '~/context';
 import { TopicService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import AdminFormDialog from '../components/FormDialog';
-import { useState } from 'react';
-import { toast } from 'react-toastify';
 import AdminConfirmDialog from '../components/ConfirmDialog';
 
 function AdminTopicsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<'add' | 'update'>('add');
     const [currentData, setCurrentData] = useState<any>(null);
-    const [reLoadTable, setReLoadTable] = useState(false);
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [topicToDelete, setTopicToDelete] = useState<any>(null);
 
@@ -26,6 +25,12 @@ function AdminTopicsPage() {
         if (filters.courseId) return await TopicService.getTopicsByCourse(filters.courseId, 0);
         if (filters.grade) return await TopicService.getTopicByGrade(filters.grade);
         return await TopicService.getAllTopics();
+    };
+
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn; 
     };
 
     const handleOpenFormDialog = (mode: 'add' | 'update', data?: any) => {
@@ -46,8 +51,10 @@ function AdminTopicsPage() {
             });
             const { data: newTopic, message } = addRes.data;
             if (newTopic) {
-                setReLoadTable(!reLoadTable);
-                toast.success('Thêm chủ đề thành công');
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Thêm chương mục thành công');
             } else {
                 toast.error('Có lỗi xảy ra:', message);
             }
@@ -57,8 +64,10 @@ function AdminTopicsPage() {
             });
             const { data: updatedTopic, message } = updateRes.data;
             if (updatedTopic) {
-                setReLoadTable(!reLoadTable);
-                toast.success('Cập nhật chủ đề thành công');
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Cập nhật chương mục thành công');
             } else {
                 toast.error('Có lỗi xảy ra:', message);
             }
@@ -72,11 +81,14 @@ function AdminTopicsPage() {
     };
 
     const handleDelete = async (id: string) => {
+        console.log('Delete topic:', id);
         const deletedRes = await TopicService.updateTopic(id, { status: -1 });
         const { data: deletedTopic, message } = deletedRes.data;
         if (deletedTopic) {
-            setReLoadTable(!reLoadTable);
-            toast.success('Xóa chủ đề thành công');
+            if (typeof triggerReload === 'function') {
+                triggerReload(true);
+            }
+            toast.success('Xóa chương mục thành công');
         } else {
             toast.error('Có lỗi xảy ra:', message);
         }
@@ -102,7 +114,7 @@ function AdminTopicsPage() {
         columns: [
             {
                 key: 'name',
-                label: 'Tên chủ đề',
+                label: 'Tên chương mục',
                 width: 'auto',
                 align: 'left',
             },
@@ -132,7 +144,6 @@ function AdminTopicsPage() {
     const addBtn = {
         onClick: () => handleOpenFormDialog('add'),
         disabled: !filterData.courseId,
-        currentPath: '/admin/topics',
     };
 
     const formDialogConfig = {
@@ -146,10 +157,10 @@ function AdminTopicsPage() {
 
     const confirmDialogConfig = {
         open: isConfirmDialogOpen,
-        title: 'Xác nhận xóa',
+        title: 'Xác nhận xóa chương mục',
         content: topicToDelete?.name,
         onClose: () => setIsConfirmDialogOpen(false),
-        onConfirm: () => handleDelete(currentData.id),
+        onConfirm: () => handleDelete(topicToDelete.id),
     };
 
     return (
@@ -160,7 +171,7 @@ function AdminTopicsPage() {
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
-                reLoadTable={reLoadTable}
+                onReloadTable={handleReloadSetup}
             />
             <AdminFormDialog {...formDialogConfig} />
             <AdminConfirmDialog {...confirmDialogConfig} />
