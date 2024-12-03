@@ -1,6 +1,6 @@
 interface AdminManagementWrapperProps {
     fetchData: (filterData: any, page?: number, limit?: number) => Promise<any>;
-    updateStatus: (id: string, status: 0 | 1) => Promise<any>;
+    updateData: (id: string, data: any) => Promise<any>;
     filterConfig: {
         key: string;
         placeholder: string;
@@ -9,15 +9,26 @@ interface AdminManagementWrapperProps {
         tooltipTitle?: string;
     }[];
     tableConfig: {
-        header: string[];
-        columnsData: string[];
+        columns: {
+            key: string;
+            label: string;
+            width: string;
+            align: 'center' | 'left' | 'right';
+        }[];
         actions?: {
             label: string;
             icon: React.ComponentType;
+            color: string;
             onClick: (item: any) => void;
         }[];
-        addLink?: string;
     };
+    addBtn: {
+        link?: string;
+        onClick?: () => void;
+        disabled?: boolean;
+        currentPath?: string;
+    };
+    reLoadTable: boolean;
 }
 
 interface AdminFilterProps {
@@ -77,4 +88,17 @@ interface BorderWrapperProps {
     title: string;
     classes?: string;
     children: React.ReactNode;
+}
+
+interface AddButtonProps {
+    link?: string;
+    onClick?: () => void;
+}
+
+interface ConfirmDialogProps {
+    open: boolean;
+    title: string;
+    content: string;
+    onClose: () => void;
+    onConfirm: () => void;
 }

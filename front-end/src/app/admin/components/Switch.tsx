@@ -1,6 +1,6 @@
 function Switch({ visible, onToggle }: SwitchProps) {
     return (
-        <div className="flex items-center">
+        <div className="flex justify-center items-center">
             <div
                 className={`relative w-[68px] h-[22px] flex rounded-sm bg-red-300 cursor-pointer text-white font-semibold text-xs`}
                 onClick={() => onToggle(!visible)}

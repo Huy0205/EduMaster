@@ -10,7 +10,7 @@ function useTopics(courseId: string) {
             setTopics([]);
             const fetchTopics = async () => {
                 if (!courseId) return;
-                const result = await TopicService.getTopicsByCourse(courseId, 0, 1, 100);
+                const result = await TopicService.getTopicsByCourse(courseId, 0);
                 const { data, message } = result.data;
                 if (data) {
                     setTopics(data.list);

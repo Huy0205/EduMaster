@@ -7,7 +7,6 @@ function useCourses(grade: number, reload: boolean = false) {
 
     useEffect(() => {
         if (grade) {
-            console.log('grade', grade);
             setCourses([]);
             const fetchCourses = async () => {
                 if (grade === 0) {

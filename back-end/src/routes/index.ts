@@ -31,6 +31,6 @@ router.use('/avatar-frame-user', avatarFrameUserRouter);
 router.use('/practice', practiceRouter);
 router.use('/result', resultRouter);
 router.use('/enrollment', enrollmentRouter);
-router.use('practice-progress', practiceProgressRouter);
+router.use('/practice-progress', practiceProgressRouter);
 
 export default router;

@@ -1,6 +1,8 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import AdminHeader from './components/Header';
 import AdminSidebar from './components/Sidebar';
@@ -20,14 +22,14 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
 
     return (
         <FilterDataProvider>
-            <div className="flex flex-row">
+            <div className="flex flex-row bg-foreground">
                 <div className="w-[220px] h-screen">
                     <AdminSidebar />
                 </div>
                 <div className="flex flex-1 flex-col">
                     <AdminHeader />
-                    <div className="flex flex-col flex-1 bg-foreground pt-[1px]">
-                        <div className="h-[47px] mt-1 px-3 flex justify-between items-center bg-white">
+                    <div className=" flex-1 pt-[1px]">
+                        <div className="h-[47px] mt-[3px] px-3 flex justify-between items-center bg-white">
                             {/* Breadcrumb */}
                             <div className="text-base text-gray-600">
                                 Home <KeyboardArrowRight /> Người dùng
@@ -47,11 +49,22 @@ function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
                                 </button>
                             </div>
                         </div>
-                        <div className="flex flex-1 justify-center mt-3 ml-3 bg-white">
+                        <div className="h-[calc(100%-62px)] flex justify-center mt-[12px] ml-[12px] bg-white">
                             {children}
                         </div>
                     </div>
                 </div>
+                <ToastContainer
+                    position="bottom-center"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </div>
         </FilterDataProvider>
     );
