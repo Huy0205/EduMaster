@@ -55,7 +55,7 @@ const Kiemtra = () => {
                 try {
                     const response = await getApiNoneToken(`topic/course/${selectedSubject.id}`);
                     const topicsData = response.data;
-                    setTopics(topicsData.data.list);
+                    setTopics(topicsData.data);
                 } catch (error) {
                     console.error('Error fetching topics:', error);
                 }

@@ -156,10 +156,10 @@ const OnTap = () => {
           const topicsData = response.data;
           console.log(topicsData)
           const topicsWithReviews = await Promise.all(
-            topicsData.data.list.map(async (topic) => {
+            topicsData.data.map(async (topic) => {
               const reviewResponse = await getApiNoneToken(`lesson/topic/${topic.id}`);
               const reviewData = reviewResponse.data;
-              return { ...topic, reviews: reviewData.data.list };
+              return { ...topic, reviews: reviewData.data };
             })
           );
 
