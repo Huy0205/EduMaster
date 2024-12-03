@@ -1,32 +1,30 @@
 import axios from '~/util/axios.customize';
 
 export class TopicService {
-    public static getAllTopics(page?: number, limit?: number) {
-        return axios.get('topic/list', { params: { page, limit } });
+    public static getAllTopics() {
+        return axios.get('topic/list');
     }
 
-    public static getTopicByGrade(grade: number, page?: number, limit?: number) {
-        return axios.get(`topic/grade/${grade}`, { params: { page, limit } });
+    public static getTopicByGrade(grade: number) {
+        return axios.get(`topic/grade/${grade}`);
     }
 
-    public static getTopicsByCourse(
-        courseId: string,
-        role?: number,
-        page?: number,
-        limit?: number,
-    ) {
+    public static getTopicsByCourse(courseId: string, role?: 0 | 1) {
         const headers = role !== undefined ? { role } : {};
         return axios.get(`topic/course/${courseId}`, {
             headers,
-            params: { page, limit },
         });
     }
 
-    public static addTopic(courseId: string, topicName: string) {
-        return axios.post('topic/add', { topicName, courseId });
+    public static getTopicById(topicId: string) {
+        return axios.get(`topic/${topicId}`);
     }
 
-    public static updateStatus(topicId: string, status: -1 | 0 | 1) {
-        return axios.put(`topic/update-status/${topicId}`, { status });
+    public static addTopic(data: { topicName: string; courseId: string }) {
+        return axios.post('topic/add', data);
+    }
+
+    public static updateTopic(topicId: string, data: { topicName?: string; status?: -1 | 0 | 1 }) {
+        return axios.put(`topic/update/${topicId}`, data);
     }
 }

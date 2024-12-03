@@ -23,6 +23,9 @@ const config: Config = {
                 9: '9 9 0%',
                 10: '10 10 0%',
             },
+            height: {
+                btn: '32px',
+            },
         },
     },
     plugins: [],

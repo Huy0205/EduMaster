@@ -18,4 +18,10 @@ theoryRouter.get('/topic/:topicId', TheoryController.getTheoriesByTopic);
 // GET http://localhost:8080/api/v1/theory/lesson/:lessonId
 theoryRouter.get('/lesson/:lessonId', TheoryController.getTheoriesByLesson);
 
+// POST http://localhost:8080/api/v1/theory/add
+theoryRouter.post('/add', TheoryController.addTheory);
+
+// PUT http://localhost:8080/api/v1/theory/update/:theoryId
+theoryRouter.put('/update/:theoryId', TheoryController.updateTheory);
+
 export default theoryRouter;

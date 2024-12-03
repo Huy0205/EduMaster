@@ -1,80 +1,25 @@
 import { db } from '~/configs';
 import { Theory } from '~/app/models';
+import { Role, Status } from '../enums';
+import { In } from 'typeorm';
 
 const TheoryRepository = db.AppDataSource.getRepository(Theory);
 
-interface AdminTheory {
-    id: string;
-    title: string;
-    url: string;
-    description: string;
-    orderInLesson: number;
-    lesson: {
-        name: string;
-        orderInTopic: number;
-        topic: {
-            name: string;
-            orderInCourse: number;
-            course: {
-                name: string;
-                grade: number;
-            };
-        };
-    };
-}
-
-const columnSelectAdmin = {
-    id: true,
-    title: true,
-    url: true,
-    description: true,
-    orderInLesson: true,
-    lesson: {
-        name: true,
-        orderInTopic: true,
-        topic: {
-            name: true,
-            orderInCourse: true,
-            course: {
-                name: true,
-                grade: true,
-            },
-        },
-    },
-};
-
 export class TheoryService {
-    private static convertData(data: AdminTheory[]) {
-        const result = data.map((item: AdminTheory) => {
-            const theory = {
-                id: item.id,
-                title: item.title,
-                url: item.url,
-                description: item.description,
-                lessonName: item.lesson.name,
-                topicName: item.lesson.topic.name,
-                courseName: item.lesson.topic.course.name,
-                grade: item.lesson.topic.course.grade,
-            };
-            return theory;
-        });
-        return result;
-    }
-
     /**
-     * Get all theories including id, title, url, description, lesson name, topic name, course name, grade
+     * Get all theories
      * ordered by grade, course name, topic order, lesson order, theory order
-     * paginated by page and limit
      * only for admin
      * @param page
      * @param limit
      * @returns
      */
-    public static async getAllTheories(page: number, limit: number) {
+    public static async getAllTheories() {
         try {
-            const [theories, total] = await TheoryRepository.findAndCount({
-                relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
-                select: columnSelectAdmin,
+            const theories = await TheoryRepository.find({
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 order: {
                     lesson: {
                         topic: {
@@ -88,17 +33,12 @@ export class TheoryService {
                     },
                     orderInLesson: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get all theories success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: theories,
-                },
+                data: theories,
             };
         } catch (error) {
             console.log('Error getting all theories', error);
@@ -107,20 +47,17 @@ export class TheoryService {
     }
 
     /**
-     * Get theories by grade including id, title, url, description, lesson name, topic name, course name, grade
+     * Get theories by grade
      * ordered by topic order, lesson order, theory order
-     * paginated by page and limit
      * only for admin
      * @param grade
      * @param page
      * @param limit
      * @returns
      */
-    public static async getTheoriesByGrade(grade: number, page: number, limit: number) {
+    public static async getTheoriesByGrade(grade: number) {
         try {
-            const [theories, total] = await TheoryRepository.findAndCount({
-                relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
-                select: columnSelectAdmin,
+            const theories = await TheoryRepository.find({
                 where: {
                     lesson: {
                         topic: {
@@ -129,6 +66,7 @@ export class TheoryService {
                             },
                         },
                     },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
                 order: {
                     lesson: {
@@ -139,17 +77,12 @@ export class TheoryService {
                     },
                     orderInLesson: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get theories by grade success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(theories),
-                },
+                data: theories,
             };
         } catch (error) {
             console.log('Error getting theories by grade', error);
@@ -158,7 +91,7 @@ export class TheoryService {
     }
 
     /**
-     * Get theories by course including id, title, url, description, lesson name, topic name, course name, grade
+     * Get theories by course
      * ordered by topic order, lesson order, theory order
      * paginated by page and limit
      * only for admin
@@ -167,11 +100,9 @@ export class TheoryService {
      * @param limit
      * @returns
      */
-    public static async getTheoriesByCourse(courseId: string, page: number, limit: number) {
+    public static async getTheoriesByCourse(courseId: string) {
         try {
-            const [theories, total] = await TheoryRepository.findAndCount({
-                relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
-                select: columnSelectAdmin,
+            const theories = await TheoryRepository.find({
                 where: {
                     lesson: {
                         topic: {
@@ -180,6 +111,7 @@ export class TheoryService {
                             },
                         },
                     },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
                 order: {
                     lesson: {
@@ -190,17 +122,12 @@ export class TheoryService {
                     },
                     orderInLesson: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get theories by course success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(theories),
-                },
+                data: theories,
             };
         } catch (error) {
             console.log('Error getting theories by course', error);
@@ -209,7 +136,7 @@ export class TheoryService {
     }
 
     /**
-     * Get theories by topic including id, title, url, description, lesson name, topic name, course name, grade
+     * Get theories by topic
      * ordered by lesson order, theory order
      * paginated by page and limit
      * only for admin
@@ -218,35 +145,29 @@ export class TheoryService {
      * @param limit
      * @returns
      */
-    public static async getTheoriesByTopic(topicId: string, page: number, limit: number) {
+    public static async getTheoriesByTopic(topicId: string) {
         try {
-            const [theories, total] = await TheoryRepository.findAndCount({
+            const theories = await TheoryRepository.find({
                 where: {
                     lesson: {
                         topic: {
                             id: topicId,
                         },
                     },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
-                relations: ['lesson', 'lesson.topic', 'lesson.topic.course'],
-                select: columnSelectAdmin,
                 order: {
                     lesson: {
                         orderInTopic: 'ASC',
                     },
                     orderInLesson: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
             return {
                 code: 200,
                 message: 'Get theories by topic success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: this.convertData(theories),
-                },
+                data: theories,
             };
         } catch (error) {
             console.log('Error getting theories by topic', error);
@@ -255,26 +176,62 @@ export class TheoryService {
     }
 
     /**
-     * Get theories by review
+     * Get theories by lesson
+     * ordered by theory order
      * @param reviewId
      * @returns
      */
-    public static async getTheoriesByLesson(lessonId: string) {
+    public static async getTheoriesByLesson(lessonId: string, role: Role) {
         try {
             const response = await TheoryRepository.find({
                 where: {
                     lesson: {
                         id: lessonId,
                     },
+                    status:
+                        role === Role.ADMIN ? In([Status.ACTIVE, Status.INACTIVE]) : Status.ACTIVE,
+                },
+                order: {
+                    orderInLesson: 'ASC',
                 },
             });
             return {
                 code: 200,
-                message: 'Get theories by course success',
+                message: 'Get theories by lesson success',
                 data: response,
             };
         } catch (error) {
-            console.log('Error getting theories by course', error);
+            console.log('Error getting theories by lesson', error);
+            throw error;
+        }
+    }
+
+    public static async getMaxOrderInLesson(lessonId: string) {
+        try {
+            const maxOrder = await TheoryRepository.maximum('orderInLesson', {
+                lesson: { id: lessonId },
+            });
+            return {
+                code: 200,
+                message: 'Get max order in lesson success',
+                data: maxOrder,
+            };
+        } catch (error) {
+            console.log('Error getting max order in lesson', error);
+            throw error;
+        }
+    }
+
+    public static async saveTheory(theory: Partial<Theory>) {
+        try {
+            const savedTheory = await TheoryRepository.save(theory);
+            return {
+                code: 200,
+                message: 'Save theory success',
+                data: savedTheory,
+            };
+        } catch (error) {
+            console.log('Error saving theory', error);
             throw error;
         }
     }

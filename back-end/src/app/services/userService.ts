@@ -177,7 +177,7 @@ export class UserService {
     static async verifyOTP(email: string, otp: string) {
         try {
             const otpInCache = cache.get(email);
-            if (otpInCache === otp) {
+            if (otpInCache == otp) {
                 return {
                     code: 200,
                     message: 'OTP is correct',

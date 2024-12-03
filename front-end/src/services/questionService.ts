@@ -1,41 +1,33 @@
 import axios from '~/util/axios.customize';
 
 export class QuestionService {
-    public static getAllQuestions(isQuizQuestion: boolean, page?: number, limit?: number) {
-        return axios.get('question/list', { params: { isQuizQuestion, page, limit } });
+    public static getAllQuestions(isQuizQuestion: boolean) {
+        return axios.get('question/list', { params: { isQuizQuestion } });
     }
 
-    public static getQuestionsByGrade(
-        isQuizQuestion: boolean,
-        grade: number,
-        page?: number,
-        limit?: number,
-    ) {
-        return axios.get(`question/grade/${grade}`, { params: { isQuizQuestion, page, limit } });
+    public static getQuestionsByGrade(isQuizQuestion: boolean, grade: number) {
+        return axios.get(`question/grade/${grade}`, { params: { isQuizQuestion } });
     }
 
-    public static getQuestionsByCourse(
-        isQuizQuestion: boolean,
-        courseId: string,
-        page?: number,
-        limit?: number,
-    ) {
+    public static getQuestionsByCourse(isQuizQuestion: boolean, courseId: string) {
         return axios.get(`question/course/${courseId}`, {
-            params: { isQuizQuestion, page, limit },
+            params: { isQuizQuestion },
         });
     }
 
-    public static getQuestionsByTopic(
-        isQuizQuestion: boolean,
-        topicId: string,
-        page?: number,
-        limit?: number,
-    ) {
-        return axios.get(`question/topic/${topicId}`, { params: { isQuizQuestion, page, limit } });
+    public static getQuestionsByTopic(isQuizQuestion: boolean, topicId: string) {
+        return axios.get(`question/topic/${topicId}`, { params: { isQuizQuestion } });
     }
 
-    public static getQuestionsByLesson(lessonId: string, page?: number, limit?: number) {
-        return axios.get(`question/lesson/${lessonId}`, { params: { page, limit } });
+    public static getQuestionsByLesson(lessonId: string, role?: 0 | 1) {
+        const headers = role !== undefined ? { role } : {};
+        return axios.get(`question/lesson/${lessonId}`, {
+            headers,
+        });
+    }
+
+    public static getQuestionById(questionId: string) {
+        return axios.get(`question/${questionId}`);
     }
 
     public static addQuestion(data: {
@@ -57,12 +49,9 @@ export class QuestionService {
             type?: 1 | 2 | 3;
             feedback?: string;
             lessonId?: string;
+            status?: -1 | 0 | 1;
         },
     ) {
         return axios.put(`question/update/${id}`, data);
-    }
-
-    public static updateStatus(id: string, status: -1 | 0 | 1) {
-        return axios.put(`question/update/${id}`, { status });
     }
 }

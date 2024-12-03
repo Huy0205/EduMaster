@@ -1,5 +1,5 @@
 'use client';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
@@ -12,9 +12,11 @@ function AdminQuizzesPage() {
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
 
-    const fetchData = async (filters: any, page?: number, limit?: number) => {
-        if (filters.grade) return await QuizService.getQuizByGrade(filters.grade, page, limit);
-        return await QuizService.getAllQuizzes(page, limit);
+    const fetchData = async (filters: any) => {
+        if (filters.topicId) return await QuizService.getQuizByTopic(filters.topicId, 0);
+        if (filters.courseId) return await QuizService.getQuizByCourse(filters.courseId);
+        if (filters.grade) return await QuizService.getQuizByGrade(filters.grade);
+        return await QuizService.getAllQuizzes();
     };
 
     const filterConfig = [
@@ -40,21 +42,57 @@ function AdminQuizzesPage() {
     ];
 
     const tableConfig = {
-        header: [
-            'STT',
-            'Tên đề kiểm tra',
-            'Thời gian',
-            'Điểm thưởng',
-            'Chương mục',
-            'Môn học',
-            'Lớp',
+        columns: [
+            {
+                key: 'name',
+                label: 'Tên thực hành',
+                width: 'auto',
+                align: 'left',
+            },
+            {
+                key: 'time',
+                label: 'Thời gian',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'bonusPoint',
+                label: 'Điểm thưởng',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'status',
+                label: 'Trạng thái',
+                width: '200px',
+                align: 'center',
+            },
         ],
-        columnsData: ['name', 'time', 'bonusPoint', 'topicName', 'courseName', 'grade'],
         actions: [
-            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
-            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+            {
+                label: 'Sửa',
+                icon: Edit,
+                color: 'blue',
+                onClick: (item: any) => console.log('Edit', item),
+            },
+            {
+                label: 'Xóa',
+                icon: Delete,
+                color: 'red',
+                onClick: (item: any) => console.log('Delete', item),
+            },
+            {
+                label: 'Xem chi tiết',
+                icon: ViewList,
+                color: 'green',
+                onClick: (item: any) => console.log('Detail', item),
+            },
         ],
-        addLink: '/admin/practices/add',
+    };
+
+    const addBtn = {
+        link: '/admin/quizzes/add',
+        disabled: !filterData.topicId,
     };
 
     return (
@@ -62,6 +100,7 @@ function AdminQuizzesPage() {
             fetchData={fetchData}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
+            addBtn={addBtn}
         />
     );
 }

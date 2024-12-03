@@ -1,41 +1,46 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useFilterData } from '~/context';
-import { useCourses, useGrades, useTopics } from '~/hooks';
 import AdminAddQuestion from '~/app/admin/components/AddQuestion';
-import { AnswerService, QuestionService } from '~/services';
+import { AnswerService, CourseService, QuestionService, TopicService } from '~/services';
+import { useEffect, useState } from 'react';
 
 function AdminAddQuizQuestionPage() {
     const router = useRouter();
     const { filterData, resetFilterData } = useFilterData();
+    const [courseName, setCourseName] = useState('');
+    const [topicName, setTopicName] = useState('');
 
-    const grades = useGrades();
-    const courses = useCourses(filterData.grade);
-    const topics = useTopics(filterData.courseId);
+    useEffect(() => {
+        if (!filterData.topicId) {
+            router.push('/admin/questions/quiz');
+        } else {
+            const fetchData = async () => {
+                const course = await CourseService.getCourseById(filterData.courseId);
+                const topic = await TopicService.getTopicById(filterData.topicId);
+                setCourseName(course.data.data.name);
+                setTopicName(topic.data.data.name);
+            };
+            fetchData();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterData.topicId]);
 
     const items = [
         {
-            type: 'select',
             key: 'grade',
             label: 'Lớp',
-            selected: filterData.grade,
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
+            value: `Lớp ${filterData.grade}`,
         },
         {
-            type: 'select',
             key: 'courseId',
             label: 'Môn học',
-            selected: filterData.courseId,
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
+            value: courseName,
         },
         {
-            type: 'select',
             key: 'topicId',
             label: 'Chương mục',
-            selected: filterData.topicId,
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
+            value: topicName,
         },
     ];
 

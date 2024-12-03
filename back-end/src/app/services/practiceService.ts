@@ -1,13 +1,17 @@
 import { db } from '~/configs';
 import { Practice } from '~/app/models';
+import { In } from 'typeorm';
+import { Role, Status } from '../enums';
 
 const PracticeRepository = db.AppDataSource.getRepository(Practice);
 
 export class PracticeService {
-    public static async getAllPractices(page: number, limit: number) {
+    public static async getAllPractices() {
         try {
-            const [practices, total] = await PracticeRepository.findAndCount({
-                relations: ['lesson'],
+            const practices = await PracticeRepository.find({
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
                 order: {
                     lesson: {
                         topic: {
@@ -21,30 +25,114 @@ export class PracticeService {
                     },
                     orderInLesson: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
-            });
-            const result = practices.map((practice) => {
-                return {
-                    id: practice.id,
-                    name: practice.name,
-                    bonusPoint: practice.bonusPoint,
-                    lessonName: practice.lesson.name,
-                    topicName: practice.lesson.topic.name,
-                    courseName: practice.lesson.topic.course.name,
-                    grade: practice.lesson.topic.course.grade,
-                };
             });
             return {
                 code: 200,
                 message: 'Get all practices successfully',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: result,
-                },
+                data: practices,
             };
         } catch (error) {
             console.error('Error getting all practices', error);
+            throw error;
+        }
+    }
+
+    public static async getPracticesByGrade(grade: number) {
+        try {
+            const practices = await PracticeRepository.find({
+                where: {
+                    lesson: {
+                        topic: {
+                            course: {
+                                grade,
+                            },
+                        },
+                    },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+                order: {
+                    lesson: {
+                        topic: {
+                            course: {
+                                name: 'ASC',
+                            },
+                            orderInCourse: 'ASC',
+                        },
+                        orderInTopic: 'ASC',
+                    },
+                    orderInLesson: 'ASC',
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get practices by grade successfully',
+                data: practices,
+            };
+        } catch (error) {
+            console.error('Error getting practices by grade', error);
+            throw error;
+        }
+    }
+
+    public static async getPracticesByCourse(courseId: string) {
+        try {
+            const practices = await PracticeRepository.find({
+                where: {
+                    lesson: {
+                        topic: {
+                            course: {
+                                id: courseId,
+                            },
+                        },
+                    },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+                order: {
+                    lesson: {
+                        topic: {
+                            orderInCourse: 'ASC',
+                        },
+                        orderInTopic: 'ASC',
+                    },
+                    orderInLesson: 'ASC',
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get practices by course successfully',
+                data: practices,
+            };
+        } catch (error) {
+            console.error('Error getting practices by course', error);
+            throw error;
+        }
+    }
+
+    public static async getPracticesByTopic(topicId: string) {
+        try {
+            const practices = await PracticeRepository.find({
+                where: {
+                    lesson: {
+                        topic: {
+                            id: topicId,
+                        },
+                    },
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+                order: {
+                    lesson: {
+                        orderInTopic: 'ASC',
+                    },
+                    orderInLesson: 'ASC',
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get practices by topic successfully',
+                data: practices,
+            };
+        } catch (error) {
+            console.error('Error getting practices by topic', error);
             throw error;
         }
     }
@@ -54,13 +142,15 @@ export class PracticeService {
      * @param lessonId
      * @returns
      */
-    public static async getPracticesByLesson(lessonId: string) {
+    public static async getPracticesByLesson(lessonId: string, role: Role) {
         try {
             const practices = await PracticeRepository.find({
                 where: {
                     lesson: {
                         id: lessonId,
                     },
+                    status:
+                        role === Role.ADMIN ? In([Status.ACTIVE, Status.INACTIVE]) : Status.ACTIVE,
                 },
                 order: {
                     orderInLesson: 'ASC',

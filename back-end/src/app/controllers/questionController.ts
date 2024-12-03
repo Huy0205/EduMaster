@@ -6,16 +6,9 @@ import { QuestionType } from '../enums';
 
 export class QuestionController {
     public static async getAllQuestions(req: Request, res: Response, next: NextFunction) {
-        const { isQuizQuestion, page, limit } = req.query;
-        const pageNum = Number(page) > 0 ? Number(page) : 1;
-        const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
+        const { isQuizQuestion } = req.query;
         try {
-            const response = await QuestionService.getAllQuestions(
-                isQuizQuestion === 'true',
-                pageNum,
-                limitNum,
-            );
+            const response = await QuestionService.getAllQuestions(isQuizQuestion === 'true');
             ResponseUtil.sendResponse(res, response);
         } catch (error) {
             console.log('Error getting all questions', error);
@@ -30,15 +23,11 @@ export class QuestionController {
         } else if (Number(grade) < 1 || Number(grade) > 5) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const { isQuizQuestion, page, limit } = req.query;
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
+            const { isQuizQuestion } = req.query;
             try {
                 const response = await QuestionService.getQuestionsByGrade(
                     isQuizQuestion === 'true',
                     Number(grade),
-                    pageNum,
-                    limitNum,
                 );
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
@@ -55,16 +44,11 @@ export class QuestionController {
         } else if (!isUUID(courseId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const { isQuizQuestion, page, limit } = req.query;
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
+            const { isQuizQuestion } = req.query;
             try {
                 const response = await QuestionService.getQuestionsByCourse(
                     isQuizQuestion === 'true',
                     courseId,
-                    pageNum,
-                    limitNum,
                 );
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
@@ -81,15 +65,11 @@ export class QuestionController {
         } else if (!isUUID(topicId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const { page, limit } = req.query;
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
+            const { isQuizQuestion } = req.query;
             try {
                 const response = await QuestionService.getQuestionsByTopic(
+                    isQuizQuestion === 'true',
                     topicId,
-                    pageNum,
-                    limitNum,
                 );
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
@@ -108,14 +88,7 @@ export class QuestionController {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const { page, limit } = req.query;
-                const pageNum = Number(page) > 0 ? Number(page) : 1;
-                const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-                const response = await QuestionService.getQuestionsByLesson(
-                    lessonId,
-                    pageNum,
-                    limitNum,
-                );
+                const response = await QuestionService.getQuestionsByLesson(lessonId);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error getting questions by lesson', error);
@@ -160,9 +133,25 @@ export class QuestionController {
         }
     }
 
+    public static async getQuestionById(req: Request, res: Response, next: NextFunction) {
+        const { questionId } = req.params;
+        if (!questionId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(questionId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await QuestionService.getQuestionById(questionId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                console.log('Error getting question by id', error);
+                next(error);
+            }
+        }
+    }
+
     public static async addQuestion(req: Request, res: Response, next: NextFunction) {
         const { content, image, type, feedback, lessonId, topicId } = req.body;
-        console.log(content, image, type, feedback, lessonId, topicId);
         if ((!content && !image) || !type || !topicId) {
             ResponseUtil.sendMissingData(res);
         } else if (!isUUID(topicId) || !(type in QuestionType) || (lessonId && !isUUID(lessonId))) {
@@ -175,7 +164,7 @@ export class QuestionController {
                     const lessonRes = await LessonService.getLessonById(lessonId);
                     lessonData = lessonRes.data;
                 }
-                const response = await QuestionService.addQuestion({
+                const response = await QuestionService.saveQuestion({
                     content,
                     image,
                     type,
@@ -193,15 +182,11 @@ export class QuestionController {
 
     public static async updateQuestion(req: Request, res: Response, next: NextFunction) {
         const { questionId } = req.params;
-        const { content, image, type, feedback, lessonId } = req.body;
+        const { content, image, feedback, lessonId } = req.body;
 
-        if (!questionId) {
+        if (!questionId || (!content && !image && !feedback && !lessonId)) {
             ResponseUtil.sendMissingData(res);
-        } else if (
-            !isUUID(questionId) ||
-            (type && !(type in QuestionType)) ||
-            (lessonId && !isUUID(lessonId))
-        ) {
+        } else if (!isUUID(questionId) || (lessonId && !isUUID(lessonId))) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
@@ -210,10 +195,10 @@ export class QuestionController {
                     const lessonRes = await LessonService.getLessonById(lessonId);
                     lessonData = lessonRes.data;
                 }
-                const response = await QuestionService.updateQuestion(questionId, {
+                const response = await QuestionService.saveQuestion({
+                    id: questionId,
                     content,
                     image,
-                    type,
                     feedback,
                     lesson: lessonData,
                 });

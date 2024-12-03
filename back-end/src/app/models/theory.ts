@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { TheoryType } from './theoryType';
 import { Lesson } from './lesson';
+import { Status } from '../enums';
 
 @Entity()
 export class Theory {
@@ -31,6 +32,13 @@ export class Theory {
 
     @Column({ default: false })
     isViewed: boolean;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.INACTIVE,
+    })
+    status: Status;
 
     @ManyToOne(() => Lesson, (lesson) => lesson.theories)
     lesson: Lesson;

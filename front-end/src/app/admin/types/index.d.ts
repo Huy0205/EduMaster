@@ -1,6 +1,6 @@
 interface AdminManagementWrapperProps {
     fetchData: (filterData: any, page?: number, limit?: number) => Promise<any>;
-    updateStatus: (id: string, status: 0 | 1) => Promise<any>;
+    updateData?: (id: string, data: any) => Promise<any>;
     filterConfig: {
         key: string;
         placeholder: string;
@@ -9,15 +9,25 @@ interface AdminManagementWrapperProps {
         tooltipTitle?: string;
     }[];
     tableConfig: {
-        header: string[];
-        columnsData: string[];
+        columns: {
+            key: string;
+            label: string;
+            width: string;
+            align: 'center' | 'left' | 'right' | string;
+        }[];
         actions?: {
             label: string;
             icon: React.ComponentType;
+            color: string;
             onClick: (item: any) => void;
         }[];
-        addLink?: string;
     };
+    addBtn: {
+        link?: string;
+        onClick?: () => void;
+        disabled?: boolean;
+    };
+    onReloadTable?: (setReloadFn: (reload: boolean) => void) => void;
 }
 
 interface AdminFilterProps {
@@ -29,20 +39,6 @@ interface AdminFilterProps {
         tooltipTitle?: string;
     }[];
     onFilterChange: () => void;
-}
-
-interface AdminTableProps {
-    header: string[];
-    data: any[];
-    columnsData: string[];
-    actions?: {
-        label: string;
-        icon: React.ComponentType;
-        onClick: (item: any) => void;
-    }[];
-    page: number;
-    limit: number;
-    onStatusChange: (id: string, rowIndex: number, newState: 0 | 1) => void;
 }
 
 interface TooltipProps {
@@ -63,12 +59,9 @@ interface TopicFormData {
 
 interface AdminAddQuestionProps {
     items: {
-        type: string;
         key: string;
         label: string;
-        selected: string | number;
-        options?: { value: string | number; label: string }[];
-        disabled?: boolean;
+        value: string;
     }[];
     onSave: (data: any) => void;
 }
@@ -77,4 +70,36 @@ interface BorderWrapperProps {
     title: string;
     classes?: string;
     children: React.ReactNode;
+}
+
+interface AddButtonProps {
+    link?: string;
+    onClick?: () => void;
+}
+
+interface ConfirmDialogProps {
+    open: boolean;
+    title: string;
+    content: string;
+    onClose: () => void;
+    onConfirm: () => void;
+}
+
+interface Action {
+    label: string;
+    icon: React.ElementType;
+    color: any;
+    onClick: (item: any) => void;
+}
+
+interface AdminTableProps {
+    columns: {
+        key: string;
+        label: string;
+        width: string;
+        align: 'center' | 'left' | 'right' | string;
+    }[];
+    data: any[];
+    actions?: Action[];
+    onStatusChange: (id: string, rowIndex: number, newStatus: 0 | 1) => void;
 }

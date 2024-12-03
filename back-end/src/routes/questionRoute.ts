@@ -24,6 +24,9 @@ questionRouter.get('/practice/:practiceId', QuestionController.getQuestionByPrac
 // GET: localhost:8080/api/v1/question/quiz/:quizId
 questionRouter.get('/quiz/:quizId', QuestionController.getQuestionsByQuiz);
 
+// GET: localhost:8080/api/v1/question/:questionId
+questionRouter.get('/:questionId', QuestionController.getQuestionById);
+
 // POST: localhost:8080/api/v1/question/add
 questionRouter.post('/add', QuestionController.addQuestion);
 

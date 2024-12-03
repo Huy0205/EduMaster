@@ -10,6 +10,7 @@ import {
 import { Topic } from './topic';
 import { QuizQuestion } from './quizQuestion';
 import { Result } from './result';
+import { Status } from '../enums';
 
 @Entity()
 export class Quiz {
@@ -27,6 +28,13 @@ export class Quiz {
 
     @Column()
     orderInTopic: number;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.INACTIVE,
+    })
+    status: Status;
 
     @ManyToOne(() => Topic, (topic) => topic.quizzes)
     topic: Topic;

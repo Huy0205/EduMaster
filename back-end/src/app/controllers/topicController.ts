@@ -6,19 +6,15 @@ import { Role, Status } from '../enums';
 
 export class TopicController {
     public static async getAllTopics(req: Request, res: Response, next: NextFunction) {
-        const { page, limit } = req.query;
-        const pageNum = Number(page) > 0 ? Number(page) : 1;
-        const limitNum = Number(limit) > 0 ? Number(limit) : 10;
-
         try {
-            const response = await TopicService.getAllTopics(pageNum, limitNum);
+            const response = await TopicService.getAllTopics();
             ResponseUtil.sendResponse(res, response);
         } catch (error) {
             next(error);
         }
     }
 
-    static async getTopicByGrade(req: Request, res: Response, next: NextFunction) {
+    public static async getTopicByGrade(req: Request, res: Response, next: NextFunction) {
         const { grade } = req.params;
 
         if (!grade) {
@@ -26,15 +22,8 @@ export class TopicController {
         } else if (Number(grade) < 1 || Number(grade) > 5) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const { page, limit } = req.query;
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
             try {
-                const response = await TopicService.getTopicByGrade(
-                    Number(grade),
-                    pageNum,
-                    limitNum,
-                );
+                const response = await TopicService.getTopicByGrade(Number(grade));
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
@@ -42,27 +31,19 @@ export class TopicController {
         }
     }
 
-    static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
+    public static async getTopicsByCourse(req: Request, res: Response, next: NextFunction) {
         const { courseId } = req.params;
         if (!courseId) {
             ResponseUtil.sendMissingData(res);
         } else if (!isUUID(courseId)) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            let role = Role.ADMIN;
+            let role = Role.STUDENT;
             if (Number(req.headers['role']) in Role) {
                 role = Number(req.headers['role']);
             }
-            const { page, limit } = req.query;
-            const pageNum = Number(page) > 0 ? Number(page) : 1;
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10;
             try {
-                const response = await TopicService.getTopicsByCourse(
-                    courseId,
-                    role,
-                    pageNum,
-                    limitNum,
-                );
+                const response = await TopicService.getTopicsByCourse(courseId, role);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
@@ -96,7 +77,7 @@ export class TopicController {
             try {
                 const maxOrderRes = await TopicService.getMaxOrderInCourse(courseId);
                 const courseRes = await CourseService.getCourseById(courseId);
-                const response = await TopicService.addTopic({
+                const response = await TopicService.saveTopic({
                     name: topicName,
                     orderInCourse: maxOrderRes.data + 1,
                     course: courseRes.data,
@@ -108,20 +89,23 @@ export class TopicController {
         }
     }
 
-    public static async updateStatus(req: Request, res: Response, next: NextFunction) {
+    public static async updateTopic(req: Request, res: Response, next: NextFunction) {
         const { topicId } = req.params;
-        const { status } = req.body;
-        if (!topicId || status === undefined) {
+        const { topicName, status } = req.body;
+
+        if (!topicId || (!topicName && status === undefined)) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(topicId) || !(status in Status)) {
-            console.log('invalid data');
+        } else if (!isUUID(topicId) || (status !== undefined && !(status in Status))) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const response = await TopicService.updateStatus(topicId, status);
+                const response = await TopicService.saveTopic({
+                    id: topicId,
+                    name: topicName,
+                    status,
+                });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
-                console.log('error', error);
                 next(error);
             }
         }

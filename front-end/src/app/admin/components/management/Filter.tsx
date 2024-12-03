@@ -9,7 +9,7 @@ function AdminFilter({ filters, onFilterChange }: AdminFilterProps) {
     };
 
     return (
-        <div className="flex items-center space-x-4">
+        <div className="flex gap-2 items-center text-sm">
             <h2>Bộ lọc tìm kiếm:</h2>
             {filters.map(({ key, options, disabled, placeholder, tooltipTitle }) => (
                 <Tooltip
@@ -18,7 +18,7 @@ function AdminFilter({ filters, onFilterChange }: AdminFilterProps) {
                     arrow
                 >
                     <select
-                        className="border border-gray-300 p-2 rounded"
+                        className="h-btn px-1 border border-gray-300 rounded"
                         onChange={(e) => handleChange(key, e.target.value)}
                         disabled={disabled}
                     >
@@ -35,7 +35,7 @@ function AdminFilter({ filters, onFilterChange }: AdminFilterProps) {
                 </Tooltip>
             ))}
             <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="h-btn bg-blue-500 text-white px-3 rounded"
                 onClick={onFilterChange}
             >
                 Lọc

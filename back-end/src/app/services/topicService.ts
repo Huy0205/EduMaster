@@ -5,41 +5,7 @@ import { In } from 'typeorm';
 
 const TopicRepository = db.AppDataSource.getRepository(Topic);
 
-interface AdminData {
-    id: string;
-    name: string;
-    orderInCourse: number;
-    status: Status;
-    course: {
-        id: string;
-        name: string;
-        grade: number;
-    };
-}
-
 export class TopicService {
-    /**
-     * Convert data to format for admin
-     * @param data
-     * @returns
-     */
-    private static convertData(data: AdminData[], role?: number) {
-        const result = data.map((item: AdminData) => {
-            const topic = {
-                id: item.id,
-                name: item.name,
-                order: item.orderInCourse,
-            };
-            if (role === 0) {
-                topic['courseId'] = item.course.id;
-                topic['courseName'] = item.course.name;
-                topic['grade'] = item.course.grade;
-            }
-            return topic;
-        });
-        return result;
-    }
-
     /**
      * Get all topics, order by course grade and name, topic order
      * paginated
@@ -48,20 +14,9 @@ export class TopicService {
      * @param limit
      * @returns
      */
-    public static async getAllTopics(page: number, limit: number) {
+    public static async getAllTopics() {
         try {
-            const [topics, total] = await TopicRepository.findAndCount({
-                relations: ['course'],
-                select: {
-                    id: true,
-                    name: true,
-                    orderInCourse: true,
-                    status: true,
-                    course: {
-                        name: true,
-                        grade: true,
-                    },
-                },
+            const topics = await TopicRepository.find({
                 where: {
                     status: In([Status.ACTIVE, Status.INACTIVE]),
                 },
@@ -72,26 +27,11 @@ export class TopicService {
                     },
                     orderInCourse: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
-            });
-            const result = topics.map((item) => {
-                const topic = {
-                    id: item.id,
-                    name: item.name,
-                    courseName: item.course.name,
-                    grade: item.course.grade,
-                    status: item.status,
-                };
-                return topic;
             });
             return {
                 code: 200,
                 message: 'Get all topics success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: result,
-                },
+                data: topics,
             };
         } catch (error) {
             console.log('Error getting all topics', error);
@@ -108,20 +48,9 @@ export class TopicService {
      * @param limit
      * @returns
      */
-    public static async getTopicByGrade(grade: number, page: number, limit: number) {
+    public static async getTopicByGrade(grade: number) {
         try {
             const topics = await TopicRepository.find({
-                relations: ['course'],
-                select: {
-                    id: true,
-                    name: true,
-                    orderInCourse: true,
-                    status: true,
-                    course: {
-                        name: true,
-                        grade: true,
-                    },
-                },
                 where: {
                     course: {
                         grade,
@@ -135,27 +64,12 @@ export class TopicService {
                     },
                     orderInCourse: 'ASC',
                 },
-                skip: (page - 1) * limit,
-                take: limit,
             });
 
-            const result = topics.map((item) => {
-                const topic = {
-                    id: item.id,
-                    name: item.name,
-                    courseName: item.course.name,
-                    grade: item.course.grade,
-                    status: item.status,
-                };
-                return topic;
-            });
             return {
                 code: 200,
                 message: 'Get topics by grade success',
-                data: {
-                    totalPage: Math.ceil(topics.length / limit),
-                    list: result,
-                },
+                data: topics,
             };
         } catch (error) {
             console.log('Error getting topics by grade', error);
@@ -163,31 +77,9 @@ export class TopicService {
         }
     }
 
-    public static async getTopicsByCourse(
-        courseId: string,
-        role: number,
-        page: number,
-        limit: number,
-    ) {
+    public static async getTopicsByCourse(courseId: string, role: number) {
         try {
-            const [topics, total] = await TopicRepository.findAndCount({
-                relations: role === Role.ADMIN ? ['course'] : [],
-                select:
-                    role === 0
-                        ? {
-                              id: true,
-                              name: true,
-                              orderInCourse: true,
-                              course: {
-                                  name: true,
-                                  grade: true,
-                              },
-                          }
-                        : {
-                              id: true,
-                              name: true,
-                              orderInCourse: true,
-                          },
+            const topics = await TopicRepository.find({
                 where: {
                     course: {
                         id: courseId,
@@ -195,43 +87,12 @@ export class TopicService {
                     status:
                         role === Role.ADMIN ? In([Status.ACTIVE, Status.INACTIVE]) : Status.ACTIVE,
                 },
-                order:
-                    role === Role.ADMIN
-                        ? {
-                              course: {
-                                  grade: 'ASC',
-                                  name: 'ASC',
-                              },
-                              orderInCourse: 'ASC',
-                          }
-                        : {
-                              orderInCourse: 'ASC',
-                          },
-                skip: (page - 1) * limit,
-                take: limit,
-            });
-            const result = topics.map((item) => {
-                const topic = {
-                    id: item.id,
-                    name: item.name,
-                };
-                if (role === Role.ADMIN) {
-                    topic['courseId'] = item.course.id;
-                    topic['courseName'] = item.course.name;
-                    topic['grade'] = item.course.grade;
-                    topic['status'] = item.status;
-                } else {
-                    topic['orderInCourse'] = item.orderInCourse;
-                }
-                return topic;
+                order: { orderInCourse: 'ASC' },
             });
             return {
                 code: 200,
                 message: 'Get topics by course success',
-                data: {
-                    totalPage: Math.ceil(total / limit),
-                    list: result,
-                },
+                data: topics,
             };
         } catch (error) {
             console.log('Error getting topics', error);
@@ -283,30 +144,16 @@ export class TopicService {
      * @param topic
      * @returns
      */
-    public static async addTopic(topic: Partial<Topic>) {
-        console.log('Adding topic', topic);
+    public static async saveTopic(topic: Partial<Topic>) {
         try {
-            const newTopic = await TopicRepository.save(topic);
+            const savedTopic = await TopicRepository.save(topic);
             return {
                 code: 200,
-                message: 'Add topic success',
-                data: newTopic,
+                message: 'Save topic success',
+                data: savedTopic,
             };
         } catch (error) {
-            console.log('Error adding topic', error);
-            throw error;
-        }
-    }
-
-    public static async updateStatus(topicId: string, status: Status) {
-        try {
-            await TopicRepository.update(topicId, { status });
-            return {
-                code: 200,
-                message: 'Update topic status success',
-            };
-        } catch (error) {
-            console.log('Error updating topic status', error);
+            console.log('Error saving topic', error);
             throw error;
         }
     }

@@ -18,7 +18,7 @@ topicRouter.get('/:id', TopicController.getTopicById);
 // POST: localhost:8080/api/v1/topic/add
 topicRouter.post('/add', TopicController.addTopic);
 
-// PUT: localhost:8080/api/v1/topic/update-status/:topicId
-topicRouter.put('/update-status/:topicId', TopicController.updateStatus);
+// PUT: localhost:8080/api/v1/topic/update/:topicId
+topicRouter.put('/update/:topicId', TopicController.updateTopic);
 
 export default topicRouter;

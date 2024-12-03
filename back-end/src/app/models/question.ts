@@ -41,7 +41,7 @@ export class Question {
     @Column({
         type: 'enum',
         enum: Status,
-        default: Status.INACTIVE,
+        default: Status.ACTIVE,
     })
     status: Status;
 

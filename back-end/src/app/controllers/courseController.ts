@@ -29,6 +29,21 @@ export class CourseController {
         }
     }
 
+    static async getCourseById(req: Request, res: Response, next: NextFunction) {
+        const { courseId } = req.params;
+
+        if (!courseId) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await CourseService.getCourseById(courseId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
     static async getGradeDistinct(req: Request, res: Response, next: NextFunction) {
         try {
             const response = await CourseService.getGradeDistinct();

@@ -1,5 +1,5 @@
 'use client';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/hooks';
 import { useFilterData } from '~/context';
@@ -12,13 +12,13 @@ function AdminQuizQuestionsPage() {
     const courses = useCourses(filterData.grade);
     const topics = useTopics(filterData.courseId);
 
-    const fetchData = async (filters: any,page?: number, limit?: number) => {
+    const fetchData = async (filters: any) => {
         if (filters.topicId)
-            return await QuestionService.getQuestionsByTopic(true, filters.topicId,page, limit);
+            return await QuestionService.getQuestionsByTopic(true, filters.topicId);
         if (filters.courseId)
-            return await QuestionService.getQuestionsByCourse(true, filters.courseId,page, limit);
-        if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade,page, limit);
-        return await QuestionService.getAllQuestions(true,page, limit);
+            return await QuestionService.getQuestionsByCourse(true, filters.courseId);
+        if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade);
+        return await QuestionService.getAllQuestions(true);
     };
 
     const filterConfig = [
@@ -44,21 +44,53 @@ function AdminQuizQuestionsPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Nội dung', 'Chương mục', 'Môn học', 'Lớp', 'Trạng thái'],
-        columnsData: ['content', 'topicName', 'courseName', 'grade', 'status'],
-        actions: [
-            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
-            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+        columns: [
+            {
+                key: 'content',
+                label: 'Nội dung',
+                width: 'auto',
+                align: 'left',
+            },
+            {
+                key: 'type',
+                label: 'Loại',
+                width: '200px',
+                align: 'left',
+            },
         ],
-        addLink: '/admin/questions/quiz/add',
+        actions: [
+            {
+                label: 'Sửa',
+                icon: Edit,
+                color: 'blue',
+                onClick: (item: any) => console.log('Edit', item),
+            },
+            {
+                label: 'Xóa',
+                icon: Delete,
+                color: 'red',
+                onClick: (item: any) => console.log('Delete', item),
+            },
+            {
+                label: 'Xem chi tiết',
+                icon: ViewList,
+                color: 'green',
+                onClick: (item: any) => console.log('Detail', item),
+            },
+        ],
+    };
+
+    const addBtn = {
+        link: '/admin/questions/quiz/add',
+        disabled: !filterData.topicId,
     };
 
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
-            updateStatus={QuestionService.updateStatus}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
+            addBtn={addBtn}
         />
     );
 }
