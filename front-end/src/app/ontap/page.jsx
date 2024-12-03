@@ -3,8 +3,8 @@ import Header from '~/components/Header';
 import React, { useState, useEffect } from 'react';
 import Navbar from '~/components/Navbar';
 import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
-import { useRouter,useSearchParams } from 'next/navigation';
-
+import { useRouter, useSearchParams } from 'next/navigation';
+import axios from 'axios';
 const Topic = ({ topicId, title, reviews, onSelectReview, selectedReviewId, setSelectedReviewId, isTopicOpen, setIsTopicOpen }) => {
 
   const toggleTopicOpen = () => {
@@ -12,7 +12,7 @@ const Topic = ({ topicId, title, reviews, onSelectReview, selectedReviewId, setS
   };
   const handleSelectReview = (reviewId) => {
     setSelectedReviewId(reviewId);
-    onSelectReview(reviewId);
+    onSelectReview(reviewId, topicId);
   };
 
   return (
@@ -68,6 +68,7 @@ const OnTap = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [topicStates, setTopicStates] = useState({});
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialIsFirstLoad = searchParams.get('initialIsFirstLoad') === 'false';
@@ -89,7 +90,7 @@ const OnTap = () => {
       if (savedSelectedReviewId) setSelectedReviewId(JSON.parse(savedSelectedReviewId));
       if (savedQuestionPages) setQuestionPages(JSON.parse(savedQuestionPages));
       setTopicStates(savedTopicStates);
-      console.log(savedSelectedSubject);
+      console.log(localStorage.getItem('selectedSubject'));
     } else {
       // Nếu là lần tải lại trang, reset các state
       setSelectedSubject(null);
@@ -132,14 +133,22 @@ const OnTap = () => {
     const fetchTopics = async () => {
       if (selectedSubject) {
         try {
-          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}`);
+          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}?page=1&limit=100`,
+            // {
+            //   method: 'GET',
+            // headers: {
+            //   'Content-Type': 'application/json',
+            //   role: 1,
+            // }
+            // }
+          );
           const topicsData = await response.json();
-
+          console.log(topicsData)
           const topicsWithReviews = await Promise.all(
-            topicsData.data.map(async (topic) => {
-              const reviewResponse = await fetch(`http://localhost:8080/api/v1/review/topic/${topic.id}`);
+            topicsData.data.list.map(async (topic) => {
+              const reviewResponse = await fetch(`http://localhost:8080/api/v1/lesson/topic/${topic.id}`);
               const reviewData = await reviewResponse.json();
-              return { ...topic, reviews: reviewData.data };
+              return { ...topic, reviews: reviewData.data.list };
             })
           );
 
@@ -151,17 +160,20 @@ const OnTap = () => {
     };
     fetchTopics();
   }, [selectedSubject]);
-
   const setIsTopicOpen = (topicId, isOpen) => {
     setTopicStates((prevState) => {
       const updatedStates = { ...prevState, [topicId]: isOpen };
       localStorage.setItem('topicStates', JSON.stringify(updatedStates));
+      if (isOpen) {
+        setSelectedTopicId(topicId);
+        localStorage.setItem('selectedTopicId', topicId);
+      }
       return updatedStates;
     });
   };
   const fetchLectures = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/lecture/review/${reviewId}`);
+      const response = await fetch(`http://localhost:8080/api/v1/theory/lesson/${reviewId}`);
       const data = await response.json();
       setSelectedLectures(data.data);
     } catch (error) {
@@ -171,23 +183,10 @@ const OnTap = () => {
 
   const fetchQuestions = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/question/review/${reviewId}`);
+      const response = await fetch(`http://localhost:8080/api/v1/practice/lesson/${reviewId}`);
       const data = await response.json();
-      const questions = data.data.questions;
-      let pages = [];
-      if (questions.length <= 5) {
-        pages.push(questions);
-      } else {
-        let page1 = questions.slice(0, 5);
-        let page2 = questions.slice(5);
-        if (page2.length < 5) {
-          pages.push([...page1, ...page2]);
-        } else {
-          pages.push(page1);
-          pages.push(page2);
-        }
-      }
-      setQuestionPages(pages);
+      console.log(data)
+      setQuestionPages(data.data)
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
@@ -197,18 +196,30 @@ const OnTap = () => {
     setOpenSnackbar(false);
   };
 
-  const handlePracticeQuestion = (reviewId, questionId) => {
-    if (questionId === null || (Array.isArray(questionId) && questionId.length === 0)) {
-      setOpenSnackbar(true);
-    } else {
-      const questionIdString = encodeURIComponent(JSON.stringify(questionId));
-      router.push(`/ontap/thuchanh?reviewId=${reviewId}&questionId=${questionIdString}`);
-    }
-  };
+  const handlePracticeQuestion = async (reviewId, page, topicId) => {
+    const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc từ state
 
-  const handleViewLecture = (reviewId, lecture) => {
+  
+    // try {
+      
+    //   await axios.post('http://localhost:8080/api/v1/practice-progress/add', {
+    //     userId: userId,
+    //     practiceId: page.id,
+    //     lastQuestionIndex: 0, 
+    //   });
+  
+      // Sau khi thành công, chuyển hướng sang trang thực hành
+      router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}`);
+    // } catch (error) {
+    //   console.error('Error adding practice progress:', error);
+    //   alert('Đã xảy ra lỗi khi bắt đầu bài thực hành. Vui lòng thử lại.');
+    // }
+  };
+  
+
+  const handleViewLecture = (reviewId, lecture, topicId) => {
     localStorage.setItem('isFirstLoad', 'false');
-    const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${lecture.id}&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(lecture.url)}`;
+    const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${lecture.id}&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(lecture.url)}&topicId=${topicId}`;
     router.push(url);
   };
 
@@ -218,8 +229,9 @@ const OnTap = () => {
       <Navbar />
 
       {/* Course and Grade Selection Section */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2, position: 'relative', zIndex: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', p: 2 }}>
+        {/* Các nút "Toán" và "Tiếng Việt" */}
+        <Box sx={{ display: 'flex', gap: 2 }}>
           {courses.map((course, index) => (
             <Button
               key={index}
@@ -233,9 +245,17 @@ const OnTap = () => {
                 bgcolor: selectedSubject === course ? 'primary.main' : 'white',
               }}
             >
-              <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Box
+                sx={{
+                  mb: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
                 <img
-                  src={`/img/${course.name === 'Toán' ? 'icon_math_on.png' : 'icon_vietnamese_literature_on.png'}`}
+                  src={`/img/${course.name === 'Toán' ? 'icon_math_on.png' : 'icon_vietnamese_literature_on.png'
+                    }`}
                   alt={`${course.name} Icon`}
                   style={{ width: 40, height: 40 }}
                 />
@@ -245,24 +265,32 @@ const OnTap = () => {
           ))}
         </Box>
 
-        <Select
-          value={selectedGrade}
-          onChange={(e) => setSelectedGrade(parseInt(e.target.value))}
-          sx={{ width: 100, position: 'relative', zIndex: 1 }}
-        >
-          <MenuItem value={1}>Lớp 1</MenuItem>
-          <MenuItem value={2}>Lớp 2</MenuItem>
-          <MenuItem value={3}>Lớp 3</MenuItem>
-        </Select>
+        {/* Select "Lớp" đặt cùng hàng */}
+        <Box>
+          <Select
+            value={selectedGrade}
+            onChange={(e) => setSelectedGrade(parseInt(e.target.value))}
+            sx={{
+              width: 150,
+              height: 40,
+              ml: 20, // Tạo khoảng cách giữa các nút và phần chọn lớp
+            }}
+          >
+            <MenuItem value={1}>Lớp 1</MenuItem>
+            <MenuItem value={2}>Lớp 2</MenuItem>
+            <MenuItem value={3}>Lớp 3</MenuItem>
+          </Select>
+        </Box>
       </Box>
 
       <Box sx={{ display: 'flex', mt: 2 }}>
         {/* Topics Sidebar */}
         <Paper sx={{
-          width: '25%', p: 2, height: 'calc(100vh - 200px)', overflowY: 'auto',
+          width: '25%', p: 2, height: 'calc(90vh - 200px)', overflowY: 'auto',
           backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
           backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
           backgroundPosition: 'center', // Căn giữa hình nền
+          marginLeft: 1
         }} elevation={3}>
           {topics.map((topic, index) => (
             <Topic
@@ -270,7 +298,7 @@ const OnTap = () => {
               topicId={topic.id}
               title={topic.name}
               reviews={topic.reviews}
-              onSelectReview={(reviewId) => { fetchLectures(reviewId); fetchQuestions(reviewId); }}
+              onSelectReview={(reviewId, topicId) => { fetchLectures(reviewId); fetchQuestions(reviewId); console.log(`Selected Topic ID: ${topicId}`); }}
               selectedReviewId={selectedReviewId}
               setSelectedReviewId={setSelectedReviewId}
               isTopicOpen={topicStates[topic.id] || false}
@@ -280,7 +308,7 @@ const OnTap = () => {
         </Paper>
 
         {/* Main Content */}
-        <Box component="main" flex={1} p={4} display="grid" gridTemplateColumns="1fr 1fr" gap={4}>
+        <Box component="main" flex={1} marginLeft={4} display="grid" gridTemplateColumns="1fr 1fr" gap={4}>
           {/* Theory Video Section */}
           <Paper className="p-4" sx={{
           }}>
@@ -324,7 +352,7 @@ const OnTap = () => {
                       variant="contained"
                       color="success"
                       sx={{ mt: 1, textTransform: 'none', fontWeight: 'bold' }}
-                      onClick={() => handleViewLecture(selectedReviewId, lecture)}
+                      onClick={() => handleViewLecture(selectedReviewId, lecture, selectedTopicId)}
                     >
                       Xem ngay
                     </Button>
@@ -337,25 +365,27 @@ const OnTap = () => {
           </Paper>
 
           {/* Practice Question Section */}
-          <Paper className="p-4">
+          <Paper className="p-4" sx={{marginRight:1}}>
             <Typography variant="h5" className="font-bold mb-4">Thực hành</Typography>
 
             {questionPages.length > 0 ? (
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
-                {questionPages.map((page, index) => (
-                  <Paper key={index} sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                {questionPages.map((page) => (
+                  <Paper key={page.id} sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
                     <Box
                       component="img"
                       src="/img/question.jpg"
                       alt="Question Image"
                       sx={{ width: '100%', height: '220px', borderRadius: 1 }}
                     />
-                    <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>Bài {index + 1}</Typography>
+                    <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>
+                      {page.name}
+                    </Typography>
                     <Button
                       variant="contained"
                       color="primary"
                       sx={{ mt: 2, textTransform: 'none', fontWeight: 'bold' }}
-                      onClick={() => handlePracticeQuestion(selectedReviewId, page)}
+                      onClick={() => handlePracticeQuestion(selectedReviewId, page, selectedTopicId)}
                     >
                       Thực hành ngay
                     </Button>
