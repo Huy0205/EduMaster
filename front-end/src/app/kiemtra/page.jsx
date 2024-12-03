@@ -4,6 +4,7 @@ import { Box, Paper, Button, Typography, Select, MenuItem } from '@mui/material'
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import { useRouter } from 'next/navigation';
+import { getApiNoneToken } from '~/api/page';
 const Topic = ({ title, isActive, onClick }) => {
     return (
         <Paper elevation={2} sx={{ mb: 2, p: 1 }}>
@@ -34,8 +35,8 @@ const Kiemtra = () => {
     useEffect(() => {
         const fetchCourses = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/v1/course/grade/${selectedGrade}`);
-                const data = await response.json();
+                const response = await getApiNoneToken(`course/grade/${selectedGrade}`);
+                const data = response.data;
                 setCourses(data.data);
                 if (data.data.length > 0) {
                     setSelectedSubject(data.data[0]);
@@ -52,8 +53,8 @@ const Kiemtra = () => {
         const fetchTopics = async () => {
             if (selectedSubject) {
                 try {
-                    const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}`);
-                    const topicsData = await response.json();
+                    const response = await getApiNoneToken(`topic/course/${selectedSubject.id}`);
+                    const topicsData = response.data;
                     setTopics(topicsData.data.list);
                 } catch (error) {
                     console.error('Error fetching topics:', error);
@@ -67,8 +68,8 @@ const Kiemtra = () => {
     const handleTopicClick = async (topicId) => {
         setSelectedTopicId(topicId);
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/quiz/topic/${topicId}`);
-            const quizzesData = await response.json();
+            const response = await getApiNoneToken(`quiz/topic/${topicId}`);
+            const quizzesData = response.data;
             setQuizzes(quizzesData.data);
         } catch (error) {
             console.error('Error fetching quizzes:', error);

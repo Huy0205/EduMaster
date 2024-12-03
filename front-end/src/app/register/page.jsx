@@ -1,10 +1,22 @@
-'use client'
-import React, { useState } from 'react'
+'use client';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { postApiNoneToken } from '~/api/page';
+import Header from '../../components/Header';
+import {
+  Box,
+  Button,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+} from '@mui/material';
 import { FcGoogle } from 'react-icons/fc'
-import { FaSpinner } from 'react-icons/fa'
-import { useRouter } from 'next/navigation'
-import { postApiNoneToken } from '~/api/page'
-
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -12,195 +24,293 @@ const RegistrationPage = () => {
     fullName: '',
     phoneNumber: '',
     currentGrade: '',
-  })
-
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpMessage, setOtpMessage] = useState(''); // Thông báo khi gửi OTP
+  const router = useRouter();
 
   const handleChange = (e) => {
-    const { name, value } = e.target 
-    setFormData({ ...formData, [name]: value })
-    validateField(name, value)
-  }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    validateField(name, value);
+  };
 
   const validateField = (name, value) => {
-    let newErrors = { ...errors }
+    let newErrors = { ...errors };
     switch (name) {
-      case 'fullName': 
-        if (!value.trim()) {
-          newErrors.fullName = 'Tên sai'
-        } else {
-          delete newErrors.fullName
-        }
-        break
+      case 'fullName':
+        newErrors.fullName = value.trim() ? '' : 'Tên không được để trống';
+        break;
       case 'email':
-        if (!/\S+@\S+\.\S+/.test(value)) {
-          newErrors.email = 'Email sai cấu trúc'
-        } else {
-          delete newErrors.email
-        }
-        break
-      case 'phoneNumber': 
-        if (!/^\+?[0-9]\d{1,9}$/.test(value)) {
-          newErrors.phoneNumber = 'Số điện thoại không đúng'
-        } else {
-          delete newErrors.phoneNumber
-        }
-        break
+        newErrors.email = /\S+@\S+\.\S+/.test(value) ? '' : 'Email không hợp lệ';
+        break;
+      case 'phoneNumber':
+        newErrors.phoneNumber = /^\+?[0-9]\d{1,9}$/.test(value)
+          ? ''
+          : 'Số điện thoại không hợp lệ';
+        break;
       case 'currentGrade':
-        if (!value) {
-          newErrors.currentGrade = 'Bắt buộc chọn'
-        } else {
-          delete newErrors.currentGrade
-        }
-        break
+        newErrors.currentGrade = value ? '' : 'Vui lòng chọn lớp';
+        break;
       case 'password':
-        if (!value.trim()) {
-          newErrors.password = 'Vui lòng nhập mật khẩu'
-        } else {
-          delete newErrors.password
-        }
-        break
+        newErrors.password = value.trim() ? '' : 'Mật khẩu không được để trống';
+        break;
       default:
-        break
+        break;
     }
-    setErrors(newErrors)
-  }
+    setErrors(newErrors);
+  };
+  const handleRegister = async () => {
+    // Validate dữ liệu
+    Object.keys(formData).forEach((key) => validateField(key, formData[key]));
+    if (Object.values(errors).some((err) => err)) {
+      console.log('Vui lòng sửa lỗi trước khi tiếp tục!', errors);
+      return;
+    }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    Object.keys(formData).forEach((key) => validateField(key, formData[key]))
-    if (Object.keys(errors).length === 0) {
-      try {
-        const res = await postApiNoneToken("user/register", formData)
-        if (res.data) {
-          router.push('/login')
-        }
-      } catch (error) {
-        console.log(error)
+    try {
+      const res = await postApiNoneToken('user/register', formData);
+      if (res.data) {
+        console.log('Đăng ký thành công!');
+        router.push('/login'); // Chuyển sang trang đăng nhập
       }
-    } else {
-      console.log('Lỗi + ', formData)
+    } catch (error) {
+      console.error('Lỗi đăng ký:', error);
     }
-  }
+  };
+  const handleOpenOtpDialog = () => {
+    setOtpDialogOpen(true);
+  };
 
-  const handleGoogleSignup = () => {
-    setLoading(true)
-    setTimeout(() => {
-      setLoading(false)
-      console.log('Google sign up clicked')
-    }, 2000)
-  }
+  const handleSendOtp = async () => {
+    try {
+      setLoading(true);
+      await postApiNoneToken('user/send-otp-by-mail', { email: formData.email });
+      setOtpMessage('OTP đã được gửi đến email của bạn!'); // Hiển thị thông báo
+      setLoading(false);
+    } catch (error) {
+      setOtpMessage('Gửi OTP thất bại! Vui lòng thử lại.');
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) {
+      setOtpMessage('Vui lòng nhập mã OTP!'); // Hiển thị lỗi khi OTP trống
+      return;
+    }
+    try {
+      const res = await postApiNoneToken('user/verify-otp', {
+        email: formData.email,
+        otp,
+      });
+      console.log(res)
+      if (res.data && res.data.message === 'OTP is correct') {
+        console.log('OTP xác thực thành công');
+        setOtpMessage('Xác thực OTP thành công!'); // Hiển thị thông báo thành công
+        await handleRegister(); // Tiến hành đăng ký
+      } else {
+        setOtpMessage('Xác thực OTP thất bại!'); // Hiển thị lỗi khi OTP không hợp lệ
+      }
+    } catch (error) {
+      console.error('Lỗi xác thực OTP:', error);
+      setOtpMessage('Xác thực OTP thất bại! Vui lòng thử lại.');
+    }
+  };
+
+  const handleSubmit = async () => {
+    Object.keys(formData).forEach((key) => validateField(key, formData[key]));
+    if (Object.values(errors).some((err) => err)) {
+      console.log('Vui lòng sửa lỗi trước khi tiếp tục!');
+      return;
+    }
+    handleOpenOtpDialog(); // Mở dialog nhập OTP
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">Tạo tài khoản</h2>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <Header />
 
+      {/* Form container */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(to right, #3b82f6, #9333ea)',
+          py: 8,
+          px: 4,
+        }}
+      >
+        <Box
+          sx={{
+            maxWidth: 500,
+            width: '100%',
+            bgcolor: 'white',
+            p: 4,
+            borderRadius: 2,
+            boxShadow: 3,
+          }}
+        >
+          <Typography
+            variant="h4"
+            align="center"
+            fontWeight="bold"
+            color="text.primary"
+            mb={2}
+          >
+            Tạo tài khoản
+          </Typography>
+
+          <form>
             {['fullName', 'email', 'phoneNumber', 'currentGrade', 'password'].map((field) => (
-              <div key={field}>
-                <label
-                  htmlFor={field}
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  {field === 'fullName'
-                    ? 'Tên'
-                    : field === 'email'
-                    ? 'Email'
-                    : field === 'phoneNumber'
-                    ? 'Số điện thoại'
-                    : field === 'currentGrade'
-                    ? 'Lớp'
-                    : 'Mật khẩu'}
-                </label>
-                <div className="mt-1">
-                  {field === 'currentGrade' ? (
-                    <select
-                      id={field}
-                      name={field}
-                      required
-                      className={`block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                      value={formData[field]}
-                      onChange={handleChange}
-                      aria-invalid={errors[field] ? 'true' : 'false'}
-                      aria-describedby={errors[field] ? `${field}-error` : undefined}
-                    >
-                      <option value="">Chọn lớp</option>
-                      {[1, 2, 3, 4, 5].map((currentGrade) => (
-                        <option key={currentGrade} value={currentGrade}>
-                          Lớp {currentGrade}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      id={field}
-                      name={field}
-                      type={field === 'email' ? 'email' : field === 'phoneNumber' ? 'tel' : field === 'password' ? 'password' : 'text'}
-                      required
-                      className={`appearance-none block w-full px-3 py-2 border ${errors[field] ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                      value={formData[field]}
-                      onChange={handleChange}
-                      aria-invalid={errors[field] ? 'true' : 'false'}
-                      aria-describedby={errors[field] ? `${field}-error` : undefined}
-                    />
-                  )}
-                </div>
-                {errors[field] && (
-                  <p className="mt-2 text-sm text-red-600" id={`${field}-error`}>
-                    {errors[field]}
-                  </p>
+              <Box key={field} mb={2}>
+                {field === 'currentGrade' ? (
+                  <Select
+                    id={field}
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleChange}
+                    fullWidth
+                    displayEmpty
+                    required
+                  >
+                    <MenuItem value="">
+                      <em>Chọn lớp</em>
+                    </MenuItem>
+                    {[1, 2, 3, 4, 5].map((grade) => (
+                      <MenuItem key={grade} value={grade}>
+                        Lớp {grade}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                ) : (
+                  <TextField
+                    id={field}
+                    name={field}
+                    type={field === 'password' ? 'password' : 'text'}
+                    label={
+                      field === 'fullName'
+                        ? 'Tên'
+                        : field === 'email'
+                          ? 'Email'
+                          : field === 'phoneNumber'
+                            ? 'Số điện thoại'
+                            : 'Mật khẩu'
+                    }
+                    variant="outlined"
+                    fullWidth
+                    required
+                    value={formData[field]}
+                    onChange={handleChange}
+                    error={Boolean(errors[field])}
+                    helperText={errors[field]}
+                  />
                 )}
-              </div>
+              </Box>
             ))}
 
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out"
-              >
-                Đăng ký
-              </button>
-            </div>
+            <Button
+              type="button"
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              sx={{ py: 1.5 }}
+            >
+              Đăng ký
+            </Button>
           </form>
+          {/* <Box mt={4}>
+            <Divider>
+              <Typography variant="body2" color="textSecondary">
+                Hoặc
+              </Typography>
+            </Divider>
+          </Box> */}
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Hoặc</span>
-              </div>
-            </div>
+          {/* Google Signup */}
+          {/* <Button
+            fullWidth
+            variant="outlined"
+            startIcon={loading ? <FaSpinner className="animate-spin" /> : <FcGoogle />}
+            onClick={handleGoogleSignup}
+            sx={{ mt: 2, py: 1.5 }}
+          >
+            Đăng ký với tài khoản Google
+          </Button> */}
 
-            <div className="mt-6">
-              <button
-                onClick={handleGoogleSignup}
-                className="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                {loading ? (
-                  <FaSpinner className="animate-spin h-5 w-5 mr-3" />
-                ) : (
-                  <FcGoogle className="h-5 w-5 mr-2" />
-                )}
-                Đăng ký với tài khoản Google
-              </button>
-            </div>
-            <div className="flex items-center justify-center mt-4">
-              <span className="mr-2">Bạn đã có tài khoản?</span>
-              <button className="text-cyan-400" onClick={() => router.push('/login')}>
-                Đăng nhập
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+          {/* Đăng nhập */}
+          <Box
+            mt={4}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Typography variant="body2">Bạn đã có tài khoản?</Typography>
+            <Button
+              sx={{ ml: 1 }}
+              onClick={() => {
+                router.push("/login");
+              }}
+            >
+              Đăng nhập
+            </Button>
+          </Box>
+        </Box>
+      </Box>
 
-export default RegistrationPage
+      {/* OTP Dialog */}
+      <Dialog open={otpDialogOpen} onClose={() => setOtpDialogOpen(false)}>
+        <DialogTitle>Xác thực OTP</DialogTitle>
+        <DialogContent>
+          <Typography>Email: {formData.email}</Typography>
+          <Button
+            variant="outlined"
+            onClick={handleSendOtp}
+            sx={{ my: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Đang gửi...' : 'Gửi OTP'}
+          </Button>
+          {otpMessage && (
+            <Typography
+              sx={{
+                color: otpMessage.includes('thành công') ? 'green' : 'red',
+                mt: 1,
+                fontSize: '0.875rem',
+              }}
+            >
+              {otpMessage}
+            </Typography>
+          )}
+          <TextField
+            fullWidth
+            label="Mã OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            variant="outlined"
+            margin="normal"
+            error={!otp.trim() && otpMessage === 'Vui lòng nhập mã OTP!'}
+            helperText={!otp.trim() && otpMessage === 'Vui lòng nhập mã OTP!' ? otpMessage : ''}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOtpDialogOpen(false)} color="secondary">
+            Hủy
+          </Button>
+          <Button onClick={handleVerifyOtp} color="primary">
+            Xác thực
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default RegistrationPage;

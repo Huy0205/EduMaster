@@ -8,6 +8,7 @@ import Navbar from '~/components/Navbar';
 import ReactPlayer from 'react-player';  // Import ReactPlayer
 import { useState, useEffect } from 'react';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+import { getApiNoneToken } from '~/api/page';
 import axios from 'axios';
 const LyThuyet = ({initialTopicName }) => {
   const router = useRouter();
@@ -29,8 +30,8 @@ const LyThuyet = ({initialTopicName }) => {
   }, []);
   const fetchQuestions = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/practice/lesson/${reviewId}`);
-      const data = await response.json();
+      const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
+      const data = response.data;
       if (Array.isArray(data.data) && data.data.length > 0) {
         // Lấy mảng đầu tiên
         const firstQuestion = data.data[0];
@@ -50,8 +51,8 @@ const LyThuyet = ({initialTopicName }) => {
   };
   const fetchTopicName = async (topicId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/topic/${topicId}`); // API lấy thông tin topic
-      const data = await response.json();
+      const response = await getApiNoneToken(`topic/${topicId}`);; // API lấy thông tin topic
+      const data = response.data;
       if (data && data.data) {
         setTopicName(data.data.name);
         console.log(data.data.name);

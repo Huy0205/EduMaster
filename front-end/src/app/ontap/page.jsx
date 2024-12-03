@@ -5,6 +5,7 @@ import Navbar from '~/components/Navbar';
 import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { getApiNoneToken, postApiNoneToken } from '~/api/page';
 const Topic = ({ topicId, title, reviews, onSelectReview, selectedReviewId, setSelectedReviewId, isTopicOpen, setIsTopicOpen }) => {
 
   const toggleTopicOpen = () => {
@@ -72,7 +73,18 @@ const OnTap = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialIsFirstLoad = searchParams.get('initialIsFirstLoad') === 'false';
+  useEffect(() => {
+    console.log(`Lớp được chọn: ${selectedGrade}`);
 
+    // Reset tất cả các state liên quan đến dữ liệu cũ
+    setSelectedSubject(null);
+    setSelectedLectures([]);
+    setQuestionPages([]);
+    setTopics([]);
+    setSelectedReviewId(null);
+    setTopicStates({});
+    setSelectedTopicId(null);
+  }, [selectedGrade]);
   useEffect(() => {
     if (initialIsFirstLoad) {
       // Nếu là lần quay lại trang thì không reset
@@ -116,11 +128,10 @@ const OnTap = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/course/grade/${selectedGrade}`);
-        const data = await response.json();
-        setCourses(data.data);
-        if (data.data.length > 0) {
-          setSelectedSubject(data.data[0]);
+        const response = await getApiNoneToken(`course/grade/${selectedGrade}`);
+        setCourses(response.data.data);
+        if (response.data.data.length > 0) {
+          setSelectedSubject(response.data.data[0]);
         }
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -133,7 +144,7 @@ const OnTap = () => {
     const fetchTopics = async () => {
       if (selectedSubject) {
         try {
-          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}?page=1&limit=100`,
+          const response = await getApiNoneToken(`topic/course/${selectedSubject.id}?page=1&limit=100`,
             // {
             //   method: 'GET',
             // headers: {
@@ -142,12 +153,12 @@ const OnTap = () => {
             // }
             // }
           );
-          const topicsData = await response.json();
+          const topicsData = response.data;
           console.log(topicsData)
           const topicsWithReviews = await Promise.all(
             topicsData.data.list.map(async (topic) => {
-              const reviewResponse = await fetch(`http://localhost:8080/api/v1/lesson/topic/${topic.id}`);
-              const reviewData = await reviewResponse.json();
+              const reviewResponse = await getApiNoneToken(`lesson/topic/${topic.id}`);
+              const reviewData = reviewResponse.data;
               return { ...topic, reviews: reviewData.data.list };
             })
           );
@@ -173,8 +184,8 @@ const OnTap = () => {
   };
   const fetchLectures = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/theory/lesson/${reviewId}`);
-      const data = await response.json();
+      const response = await getApiNoneToken(`theory/lesson/${reviewId}`);
+      const data = response.data;
       setSelectedLectures(data.data);
     } catch (error) {
       console.error('Error fetching lectures:', error);
@@ -183,8 +194,8 @@ const OnTap = () => {
 
   const fetchQuestions = async (reviewId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/practice/lesson/${reviewId}`);
-      const data = await response.json();
+      const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
+      const data = response.data;
       console.log(data)
       setQuestionPages(data.data)
     } catch (error) {
@@ -197,25 +208,34 @@ const OnTap = () => {
   };
 
   const handlePracticeQuestion = async (reviewId, page, topicId) => {
-    const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc từ state
+    const userId = localStorage.getItem('userId');
 
-  
-    // try {
-      
-    //   await axios.post('http://localhost:8080/api/v1/practice-progress/add', {
-    //     userId: userId,
-    //     practiceId: page.id,
-    //     lastQuestionIndex: 0, 
-    //   });
-  
-      // Sau khi thành công, chuyển hướng sang trang thực hành
-      router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}`);
-    // } catch (error) {
-    //   console.error('Error adding practice progress:', error);
-    //   alert('Đã xảy ra lỗi khi bắt đầu bài thực hành. Vui lòng thử lại.');
-    // }
+    try {
+      // Kiểm tra tiến trình hiện tại của người dùng
+      const response = await getApiNoneToken(`practice-progress/user/${userId}/practice/${page.id}`);
+      const progress = response.data.data;
+
+      if (progress) {
+        // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
+        console.log('Tiến trình đã tồn tại:', progress);
+        router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}`);
+      } else {
+        // Nếu chưa có tiến trình, tạo mới
+        console.log('Chưa có tiến trình, tạo mới...');
+        await postApiNoneToken('practice-progress/add', {
+          userId: userId,
+          practiceId: page.id,
+          lastQuestionIndex: 0,
+        });
+
+        // Chuyển hướng tới trang thực hành
+        router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}`);
+      }
+    } catch (error) {
+      console.error('Error handling practice progress:', error);
+    }
   };
-  
+
 
   const handleViewLecture = (reviewId, lecture, topicId) => {
     localStorage.setItem('isFirstLoad', 'false');
@@ -365,7 +385,7 @@ const OnTap = () => {
           </Paper>
 
           {/* Practice Question Section */}
-          <Paper className="p-4" sx={{marginRight:1}}>
+          <Paper className="p-4" sx={{ marginRight: 1 }}>
             <Typography variant="h5" className="font-bold mb-4">Thực hành</Typography>
 
             {questionPages.length > 0 ? (

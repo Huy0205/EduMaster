@@ -5,6 +5,7 @@ import axios from "axios";
 import Navbar from "~/components/Navbar";
 import Header from "~/components/Header";
 import { Snackbar, Alert } from "@mui/material";
+import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
 const UserAvatarPage = () => {
   const [userId, setUserId] = useState(null);
   const [avatar, setAvatar] = useState("");
@@ -40,19 +41,19 @@ const UserAvatarPage = () => {
         setLoading(true);
 
         // Gọi API lấy thông tin người dùng
-        const userResponse = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
+        const userResponse = await getApiNoneToken(`user/${userId}`);
         const userData = userResponse.data.data;
         setAvatar(userData.avatar || "");
         setName(userData.fullName || "");
         setPoint(userData.totalPoint || 0);
 
         // Gọi API lấy danh sách avatar frames
-        const framesResponse = await axios.get("http://localhost:8080/api/v1/avatar-frame/list");
+        const framesResponse = await getApiNoneToken("avatar-frame/list");
         const framesData = framesResponse.data.data;
         setFrames(framesData);
 
         // Gọi API kiểm tra avatar frame đang sử dụng
-        const frameUserResponse = await axios.get(`http://localhost:8080/api/v1/avatar-frame-user/user/${userId}`);
+        const frameUserResponse = await getApiNoneToken(`avatar-frame-user/user/${userId}`);
         const frameUserData = frameUserResponse.data.data;
         setFrameUserMapping(frameUserData); // Lưu dữ liệu từ API
 
@@ -81,7 +82,7 @@ const UserAvatarPage = () => {
 
     try {
       // Gọi API mở khóa
-      const response = await axios.post("http://localhost:8080/api/v1/avatar-frame-user/add", {
+      const response = await postApiNoneToken("avatar-frame-user/add", {
         userId: userId,
         avatarFrameId: id,
         isActive: false, // Khi mở khóa, mặc định không active
@@ -93,7 +94,7 @@ const UserAvatarPage = () => {
         setPoint(updatedPoint);
   
         // Gọi API để cập nhật điểm của user
-        await axios.put(`http://localhost:8080/api/v1/user/update/${userId}`, {
+         await putApiNoneToken(`user/update/${userId}`, {
           totalPoint: updatedPoint,
         });
         
@@ -119,7 +120,7 @@ const UserAvatarPage = () => {
   const handleUse = async (id) => {
     try {
       // Gọi API cập nhật trạng thái active
-      const response = await axios.put("http://localhost:8080/api/v1/avatar-frame-user/update-is-active-true", {
+      const response = await putApiNoneToken("avatar-frame-user/update-is-active-true", {
         userId: userId,
         avatarFrameId: id,
       });

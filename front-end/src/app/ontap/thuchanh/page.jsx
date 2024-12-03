@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import React, { useState, useEffect } from 'react';
 import { Button, Typography, TextField, Checkbox, Box, Radio } from '@mui/material';
 import Navbar from '~/components/Navbar';
@@ -6,10 +6,11 @@ import Header from '~/components/Header';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
-
+import { getApiNoneToken,postApiNoneToken  } from '~/api/page';
 export default function Home() {
   const searchParams = useSearchParams();
   const pargesId = searchParams.get('pargesId');
+  const userId = searchParams.get('userId');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
@@ -21,11 +22,10 @@ export default function Home() {
   const chapterName = "Chương 1";
   const lessonName = "Bài 1: Vị Trí";
   const exerciseName = "";
-
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/question/practice/${pargesId}`);
+        const response = await getApiNoneToken(`question/practice/${pargesId}`);
         setQuestionsData(response.data.data); // Lấy dữ liệu từ API
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -36,6 +36,21 @@ export default function Home() {
       fetchQuestions();
     }
   }, [pargesId]);
+  useEffect(() => {
+    const fetchLastQuestionIndex = async () => {
+      try {
+        const response = await getApiNoneToken(`practice-progress/user/${userId}/practice/${pargesId}`);
+        const lastIndex = response.data.data.lastQuestionIndex || 0; // Nếu không có lastQuestionIndex, mặc định là 0
+        setCurrentQuestion(lastIndex);
+      } catch (error) {
+        console.error('Error fetching lastQuestionIndex:', error);
+      }
+    };
+
+    if (userId && pargesId) {
+      fetchLastQuestionIndex();
+    }
+  }, [userId, pargesId]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -63,11 +78,32 @@ export default function Home() {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     router.push('/ontap');
+    let pointsToAdd = 10;
+    if (score < questionsData.length / 2) {
+      // Sai quá 50% => không được cộng điểm
+      return;
+    } else if (score === questionsData.length) {
+      // Đúng 100% => x2 điểm
+      pointsToAdd = pointsToAdd*2; // Giả định: mỗi bài ôn tập bình thường cộng 10 điểm
+    }   
+    try {
+      // Gửi API cập nhật điểm
+      const res = await getApiNoneToken(`user/${userId}`);
+      const currentPoints = res.data.data.points || 0; // Lấy điểm hiện tại từ API
+      const updatedPoints = currentPoints + pointsToAdd;
+      
+      await putApiNoneToken(`user/update/${userId}`, {
+        totalPoint: updatedPoints, // Cộng điểm vào điểm hiện tại
+      });
+    } catch (error) {
+      console.error('Lỗi khi cập nhật điểm:', error);
+    }
   };
 
   if (currentQuestion >= questionsData.length) {
+
     return (
       <Box className="min-h-screen flex flex-col items-center" sx={{
         backgroundImage: 'url(/img/bg-question.jpg)',
@@ -157,6 +193,8 @@ export default function Home() {
             questionlist={currentQuestion}
             onNext={handleNextQuestion}
             onSubmitAnswer={handleAnswerSubmission}
+            userId={userId}
+            pargesId={pargesId}
           />
         ) : (
           <Typography>Loading...</Typography>
@@ -166,14 +204,13 @@ export default function Home() {
   );
 }
 
-function Question({ question, onNext, onSubmitAnswer, questionlist }) {
+function Question({ question, onNext, onSubmitAnswer, questionlist,userId,pargesId }) {
   const [selectedAnswer, setSelectedAnswer] = useState([]);
   const [userAnswer, setUserAnswer] = useState('');
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [correctAudio, setCorrectAudio] = useState(null);
   const [failAudio, setFailAudio] = useState(null);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCorrectAudio(new Audio('/amthanh/Traloidung.mp3'));
@@ -214,11 +251,21 @@ function Question({ question, onNext, onSubmitAnswer, questionlist }) {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setSelectedAnswer([]);
     setUserAnswer('');
     setIsAnswered(false);
     setIsCorrect(false);
+    try {
+      await postApiNoneToken('practice-progress/add', {
+        userId: userId,
+        practiceId: pargesId,
+        lastQuestionIndex: questionlist+1, 
+      });
+      console.log(`Cập nhật lastQuestionIndex: ${questionlist+1}`);
+    } catch (error) {
+      console.error('Lỗi khi cập nhật lastQuestionIndex:', error);
+    }
     onNext();
   };
   const renderImage = (image) => {
@@ -312,13 +359,13 @@ function Question({ question, onNext, onSubmitAnswer, questionlist }) {
               width: '100%',
               textAlign: 'center',
             }}>
-              <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2, fontSize: 32 }}>
+              <Typography color={isCorrect ? 'green' : 'red'} sx={{ mt: 2, fontSize: 26 }}>
                 {isCorrect ? (
                   'Câu trả lời chính xác!'
                 ) : (
                   <>
-                    Sai rồi! Câu trả lời chính là:{" "}
-                    <Typography component="span" color="green" sx={{ fontSize: 32 }}>
+                   Câu trả lời đúng là:{" "}
+                    <Typography component="span" color="green" sx={{ fontSize: 26 }}>
                       {question.answers
                         .filter(answer => answer.isCorrect)
                         .map(answer => answer.content)
