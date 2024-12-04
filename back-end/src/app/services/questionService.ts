@@ -172,7 +172,7 @@ export class QuestionService {
      */
     public static async getQuestionsByLesson(lessonId: string) {
         try {
-            const questions = await questionRepository.findAndCount({
+            const questions = await questionRepository.find({
                 where: {
                     lesson: { id: lessonId },
                     status: In([Status.ACTIVE]),

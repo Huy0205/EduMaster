@@ -22,8 +22,8 @@ const menuItems = [
         icon: <Help />,
         label: 'Câu hỏi',
         children: [
-            { icon: <Help />, label: 'Thực hành', href: '/admin/questions/practice' },
-            { icon: <Help />, label: 'Kiểm tra', href: '/admin/questions/quiz' },
+            { label: 'Thực hành', href: '/admin/questions/practice' },
+            { label: 'Kiểm tra', href: '/admin/questions/quiz' },
         ],
     },
     { icon: <Assessment />, label: 'Đề thực hành', href: '/admin/practices' },
@@ -94,7 +94,6 @@ function AdminMenu() {
                                                 handleSelectItem(child.href.split('/')[3])
                                             }
                                         >
-                                            {child.icon}
                                             <span className="text-md">{child.label}</span>
                                         </Link>
                                     </li>

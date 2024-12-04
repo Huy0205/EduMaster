@@ -21,19 +21,62 @@ function AdminUsersPage() {
     ];
 
     const tableConfig = {
-        header: ['STT', 'Họ và tên', 'Email', 'Số điện thoại', 'Lớp', 'Điểm'],
-        columnsData: ['fullName', 'email', 'phoneNumber', 'currentGrade', 'totalPoint'],
+        columns: [
+            {
+                key: 'fullName',
+                label: 'Họ và tên',
+                width: 'auto',
+                align: 'left',
+            },
+            {
+                key: 'email',
+                label: 'Email',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'phoneNumber',
+                label: 'Số điện thoại',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'currentGrade',
+                label: 'Lớp',
+                width: '200px',
+                align: 'center',
+            },
+            {
+                key: 'totalPoint',
+                label: 'Điểm',
+                width: '200px',
+                align: 'center',
+            },
+        ],
         actions: [
-            { label: 'Sửa', icon: Edit, onClick: (item: any) => console.log('Edit', item) },
-            { label: 'Xóa', icon: Delete, onClick: (item: any) => console.log('Delete', item) },
+            {
+                label: 'Sửa',
+                icon: Edit,
+                color: 'blue',
+                onClick: (item: any) => console.log('Edit', item),
+            },
+            {
+                label: 'Xóa',
+                icon: Delete,
+                color: 'red',
+                onClick: (item: any) => console.log('Delete', item),
+            },
         ],
     };
+
+    const addBtn = {};
 
     return (
         <AdminManagementWrapper
             fetchData={fetchData}
             filterConfig={filterConfig}
             tableConfig={tableConfig}
+            addBtn={addBtn}
         />
     );
 }
