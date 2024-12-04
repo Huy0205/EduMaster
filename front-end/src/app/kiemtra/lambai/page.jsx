@@ -17,6 +17,7 @@ import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Header from '~/components/Header';
+import { getApiNoneToken, postApiNoneToken } from '~/api/page';
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questionsData, setQuestionsData] = useState([]);
@@ -32,7 +33,7 @@ const Quiz = () => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/question/quiz/${quizId}`);
+        const response = await getApiNoneToken(`question/quiz/${quizId}`);
         setQuestionsData(response.data.data); // Lưu dữ liệu câu hỏi từ API
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -121,7 +122,7 @@ const Quiz = () => {
 
       // Gửi dữ liệu đến API
       console.log('Payload gửi đi:', payload);
-      await axios.post('http://localhost:8080/api/v1/result/add', payload);
+      await postApiNoneToken('result/add', payload);
       alert('Bài làm đã được nộp thành công!');
       router.push('/kiemtra'); // Điều hướng về trang /kiemtra
     } catch (error) {

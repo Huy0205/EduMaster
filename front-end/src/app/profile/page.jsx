@@ -2,9 +2,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaUser, FaEnvelope, FaPhone, FaGraduationCap } from "react-icons/fa";
 import Header from '../../components/Header';
-import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert } from '@mui/material';
+import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import axios from "axios";
 import Navbar from '~/components/Navbar';
+import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
 const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
@@ -14,7 +15,10 @@ const ProfilePage = () => {
   const [userId, setUserId] = useState(null); // Khởi tạo state cho userId
   const [isEditing, setIsEditing] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -25,7 +29,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
+        const response = await getApiNoneToken(`user/${userId}`);
         const userData = response.data.data;
         setName(userData.fullName || "");
         setEmail(userData.email || "");
@@ -78,13 +82,36 @@ const ProfilePage = () => {
       avatar: avatar
     };
     try {
-      await axios.put(`http://localhost:8080/api/v1/user/update/${userId}`, updatedUserData);
+      await putApiNoneToken(`user/update/${userId}`, updatedUserData);
       console.log(`Update user with id: ${userId} success`);
       setIsEditing(false);
       setFeedbackMessage("Thông tin người dùng đã được cập nhật thành công!");
     } catch (error) {
       console.error(`Error updating user with id ${userId}:`, error);
       setFeedbackMessage("Cập nhật không thành công.");
+    }
+  };
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmNewPassword) {
+      setFeedbackMessage("Mật khẩu mới và mật khẩu xác nhận không khớp!");
+      return;
+    }
+    try {
+      const response = await postApiNoneToken(`user/change-password`, {
+        userId,
+        oldPassword,
+        newPassword,
+      });
+      if (response.status === 200) {
+        setFeedbackMessage("Đổi mật khẩu thành công!");
+        setPasswordModalOpen(false);
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setFeedbackMessage("Đổi mật khẩu không thành công.");
     }
   };
 
@@ -99,18 +126,18 @@ const ProfilePage = () => {
       <Navbar />
       <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3, marginTop: 10 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}>
-        <img
-            src="/iframe/img/s3_3.png" 
+          <img
+            src="/iframe/img/s3_3.png"
             alt="User frame"
             style={{
               position: 'absolute',
-              width: 180, 
+              width: 180,
               height: 180,
-              top: '50%', 
+              top: '50%',
               left: '50%',
-              transform: 'translate(-50%, -50%)', 
-              zIndex: 2, 
-              pointerEvents: 'none', 
+              transform: 'translate(-50%, -50%)',
+              zIndex: 2,
+              pointerEvents: 'none',
             }}
           />
           <IconButton onClick={handleAvatarClick}>
@@ -195,6 +222,9 @@ const ProfilePage = () => {
               Chỉnh sửa
             </Button>
           )}
+          <Button variant="outlined" color="primary" onClick={() => setPasswordModalOpen(true)}>
+            Đổi mật khẩu
+          </Button>
         </Box>
         {feedbackMessage && (
           <Alert severity="info" sx={{ mt: 3 }}>
@@ -202,6 +232,43 @@ const ProfilePage = () => {
           </Alert>
         )}
       </Box>
+      <Dialog open={passwordModalOpen} onClose={() => setPasswordModalOpen(false)}>
+        <DialogTitle>Đổi mật khẩu</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Mật khẩu cũ"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+          />
+          <TextField
+            label="Mật khẩu mới"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <TextField
+            label="Nhập lại mật khẩu mới"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPasswordModalOpen(false)} color="secondary">
+            Hủy
+          </Button>
+          <Button onClick={handlePasswordChange} color="primary">
+            Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

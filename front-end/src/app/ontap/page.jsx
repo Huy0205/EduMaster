@@ -5,23 +5,15 @@ import Navbar from '~/components/Navbar';
 import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
-const Topic = ({
-    topicId,
-    title,
-    reviews,
-    onSelectReview,
-    selectedReviewId,
-    setSelectedReviewId,
-    isTopicOpen,
-    setIsTopicOpen,
-}) => {
-    const toggleTopicOpen = () => {
-        setIsTopicOpen(topicId, !isTopicOpen);
-    };
-    const handleSelectReview = (reviewId) => {
-        setSelectedReviewId(reviewId);
-        onSelectReview(reviewId, topicId);
-    };
+const Topic = ({ topicId, title, reviews, onSelectReview, selectedReviewId, setSelectedReviewId, isTopicOpen, setIsTopicOpen }) => {
+
+  const toggleTopicOpen = () => {
+    setIsTopicOpen(topicId, !isTopicOpen);
+  };
+  const handleSelectReview = (reviewId) => {
+    setSelectedReviewId(reviewId);
+    onSelectReview(reviewId, topicId);
+  };
 
     return (
         <Paper
@@ -73,51 +65,51 @@ const Topic = ({
 };
 
 const OnTap = () => {
-    const [selectedSubject, setSelectedSubject] = useState(null);
-    const [selectedGrade, setSelectedGrade] = useState(1);
-    const [selectedLectures, setSelectedLectures] = useState([]);
-    const [questionPages, setQuestionPages] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [topics, setTopics] = useState([]);
-    const [selectedReviewId, setSelectedReviewId] = useState(null);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [topicStates, setTopicStates] = useState({});
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
-    const [selectedTopicId, setSelectedTopicId] = useState(null);
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const initialIsFirstLoad = searchParams.get('initialIsFirstLoad') === 'false';
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedGrade, setSelectedGrade] = useState(1);
+  const [selectedLectures, setSelectedLectures] = useState([]);
+  const [questionPages, setQuestionPages] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [selectedReviewId, setSelectedReviewId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [topicStates, setTopicStates] = useState({});
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialIsFirstLoad = searchParams.get('initialIsFirstLoad') === 'false';
 
-    useEffect(() => {
-        if (initialIsFirstLoad) {
-            // Nếu là lần quay lại trang thì không reset
-            const savedSelectedSubject = localStorage.getItem('selectedSubject');
-            const savedSelectedGrade = localStorage.getItem('selectedGrade');
-            const savedSelectedLectures = localStorage.getItem('selectedLectures');
-            const savedTopics = localStorage.getItem('topics');
-            const savedSelectedReviewId = localStorage.getItem('selectedReviewId');
-            const savedQuestionPages = localStorage.getItem('questionPages');
-            const savedTopicStates = JSON.parse(localStorage.getItem('topicStates')) || {};
-            if (savedSelectedSubject) setSelectedSubject(JSON.parse(savedSelectedSubject));
-            if (savedSelectedGrade) setSelectedGrade(Number(savedSelectedGrade));
-            if (savedSelectedLectures) setSelectedLectures(JSON.parse(savedSelectedLectures));
-            if (savedTopics) setTopics(JSON.parse(savedTopics));
-            if (savedSelectedReviewId) setSelectedReviewId(JSON.parse(savedSelectedReviewId));
-            if (savedQuestionPages) setQuestionPages(JSON.parse(savedQuestionPages));
-            setTopicStates(savedTopicStates);
-            console.log(localStorage.getItem('selectedSubject'));
-        } else {
-            // Nếu là lần tải lại trang, reset các state
-            setSelectedSubject(null);
-            setSelectedGrade(1);
-            setSelectedLectures([]);
-            setQuestionPages([]);
-            setTopics([]);
-            setSelectedReviewId(null);
-            setTopicStates({});
-            setIsFirstLoad(false);
-        }
-    }, []);
+  useEffect(() => {
+    if (initialIsFirstLoad) {
+      // Nếu là lần quay lại trang thì không reset
+      const savedSelectedSubject = localStorage.getItem('selectedSubject');
+      const savedSelectedGrade = localStorage.getItem('selectedGrade');
+      const savedSelectedLectures = localStorage.getItem('selectedLectures');
+      const savedTopics = localStorage.getItem('topics');
+      const savedSelectedReviewId = localStorage.getItem('selectedReviewId');
+      const savedQuestionPages = localStorage.getItem('questionPages');
+      const savedTopicStates = JSON.parse(localStorage.getItem('topicStates')) || {};
+      if (savedSelectedSubject) setSelectedSubject(JSON.parse(savedSelectedSubject));
+      if (savedSelectedGrade) setSelectedGrade(Number(savedSelectedGrade));
+      if (savedSelectedLectures) setSelectedLectures(JSON.parse(savedSelectedLectures));
+      if (savedTopics) setTopics(JSON.parse(savedTopics));
+      if (savedSelectedReviewId) setSelectedReviewId(JSON.parse(savedSelectedReviewId));
+      if (savedQuestionPages) setQuestionPages(JSON.parse(savedQuestionPages));
+      setTopicStates(savedTopicStates);
+      console.log(localStorage.getItem('selectedSubject'));
+    } else {
+      // Nếu là lần tải lại trang, reset các state
+      setSelectedSubject(null);
+      setSelectedGrade(1);
+      setSelectedLectures([]);
+      setQuestionPages([]);
+      setTopics([]);
+      setSelectedReviewId(null);
+      setTopicStates({});
+      setIsFirstLoad(false);
+    }
+  }, []);
 
     useEffect(() => {
         if (selectedSubject)
@@ -132,114 +124,109 @@ const OnTap = () => {
             localStorage.setItem('questionPages', JSON.stringify(questionPages));
     }, [selectedSubject, selectedGrade, selectedLectures, topics, selectedReviewId, questionPages]);
 
-    useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                const response = await fetch(
-                    `http://localhost:8080/api/v1/course/grade/${selectedGrade}`,
-                );
-                const data = await response.json();
-                setCourses(data.data);
-                if (data.data.length > 0) {
-                    setSelectedSubject(data.data[0]);
-                }
-            } catch (error) {
-                console.error('Error fetching courses:', error);
-            }
-        };
-        fetchCourses();
-    }, [selectedGrade]);
-
-    useEffect(() => {
-        const fetchTopics = async () => {
-            if (selectedSubject) {
-                try {
-                    const response = await fetch(
-                        `http://localhost:8080/api/v1/topic/course/${selectedSubject.id}`,
-                        // {
-                        //   method: 'GET',
-                        // headers: {
-                        //   'Content-Type': 'application/json',
-                        //   role: 1,
-                        // }
-                        // }
-                    );
-                    const topicsData = await response.json();
-                    console.log(topicsData);
-                    const topicsWithReviews = await Promise.all(
-                        topicsData.data.map(async (topic) => {
-                            const reviewResponse = await fetch(
-                                `http://localhost:8080/api/v1/lesson/topic/${topic.id}`,
-                            );
-                            const reviewData = await reviewResponse.json();
-                            return { ...topic, reviews: reviewData.data };
-                        }),
-                    );
-
-                    setTopics(topicsWithReviews);
-                } catch (error) {
-                    console.error('Error fetching topics:', error);
-                }
-            }
-        };
-        fetchTopics();
-    }, [selectedSubject]);
-    const setIsTopicOpen = (topicId, isOpen) => {
-        setTopicStates((prevState) => {
-            const updatedStates = { ...prevState, [topicId]: isOpen };
-            localStorage.setItem('topicStates', JSON.stringify(updatedStates));
-            if (isOpen) {
-                setSelectedTopicId(topicId);
-                localStorage.setItem('selectedTopicId', topicId);
-            }
-            return updatedStates;
-        });
-    };
-    const fetchLectures = async (reviewId) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/v1/theory/lesson/${reviewId}`);
-            const data = await response.json();
-            setSelectedLectures(data.data);
-        } catch (error) {
-            console.error('Error fetching lectures:', error);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/v1/course/grade/${selectedGrade}`);
+        const data = await response.json();
+        setCourses(data.data);
+        if (data.data.length > 0) {
+          setSelectedSubject(data.data[0]);
         }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
     };
+    fetchCourses();
+  }, [selectedGrade]);
 
-    const fetchQuestions = async (reviewId) => {
+  useEffect(() => {
+    const fetchTopics = async () => {
+      if (selectedSubject) {
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/v1/practice/lesson/${reviewId}`,
-            );
-            const data = await response.json();
-            console.log(data);
-            setQuestionPages(data.data);
+          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}?page=1&limit=100`,
+            // {
+            //   method: 'GET',
+            // headers: {
+            //   'Content-Type': 'application/json',
+            //   role: 1,
+            // }
+            // }
+          );
+          const topicsData = await response.json();
+          console.log(topicsData)
+          const topicsWithReviews = await Promise.all(
+            topicsData.data.list.map(async (topic) => {
+              const reviewResponse = await fetch(`http://localhost:8080/api/v1/lesson/topic/${topic.id}`);
+              const reviewData = await reviewResponse.json();
+              return { ...topic, reviews: reviewData.data.list };
+            })
+          );
+
+          setTopics(topicsWithReviews);
         } catch (error) {
-            console.error('Error fetching questions:', error);
+          console.error('Error fetching topics:', error);
         }
+      }
     };
+    fetchTopics();
+  }, [selectedSubject]);
+  const setIsTopicOpen = (topicId, isOpen) => {
+    setTopicStates((prevState) => {
+      const updatedStates = { ...prevState, [topicId]: isOpen };
+      localStorage.setItem('topicStates', JSON.stringify(updatedStates));
+      if (isOpen) {
+        setSelectedTopicId(topicId);
+        localStorage.setItem('selectedTopicId', topicId);
+      }
+      return updatedStates;
+    });
+  };
+  const fetchLectures = async (reviewId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/theory/lesson/${reviewId}`);
+      const data = await response.json();
+      setSelectedLectures(data.data);
+    } catch (error) {
+      console.error('Error fetching lectures:', error);
+    }
+  };
+
+  const fetchQuestions = async (reviewId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/practice/lesson/${reviewId}`);
+      const data = await response.json();
+      console.log(data)
+      setQuestionPages(data.data)
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  };
 
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
     };
 
-    const handlePracticeQuestion = async (reviewId, page, topicId) => {
-        const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc từ state
+  const handlePracticeQuestion = async (reviewId, page, topicId) => {
+    const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage hoặc từ state
 
-        // try {
-
-        //   await axios.post('http://localhost:8080/api/v1/practice-progress/add', {
-        //     userId: userId,
-        //     practiceId: page.id,
-        //     lastQuestionIndex: 0,
-        //   });
-
-        // Sau khi thành công, chuyển hướng sang trang thực hành
-        router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}`);
-        // } catch (error) {
-        //   console.error('Error adding practice progress:', error);
-        //   alert('Đã xảy ra lỗi khi bắt đầu bài thực hành. Vui lòng thử lại.');
-        // }
-    };
+  
+    // try {
+      
+    //   await axios.post('http://localhost:8080/api/v1/practice-progress/add', {
+    //     userId: userId,
+    //     practiceId: page.id,
+    //     lastQuestionIndex: 0, 
+    //   });
+  
+      // Sau khi thành công, chuyển hướng sang trang thực hành
+      router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}`);
+    // } catch (error) {
+    //   console.error('Error adding practice progress:', error);
+    //   alert('Đã xảy ra lỗi khi bắt đầu bài thực hành. Vui lòng thử lại.');
+    // }
+  };
+  
 
     const handleViewLecture = (reviewId, lecture, topicId) => {
         localStorage.setItem('isFirstLoad', 'false');
@@ -432,17 +419,9 @@ const OnTap = () => {
                         )}
                     </Paper>
 
-                    {/* Practice Question Section */}
-                    <Paper
-                        className="p-4"
-                        sx={{ marginRight: 1 }}
-                    >
-                        <Typography
-                            variant="h5"
-                            className="font-bold mb-4"
-                        >
-                            Thực hành
-                        </Typography>
+          {/* Practice Question Section */}
+          <Paper className="p-4" sx={{marginRight:1}}>
+            <Typography variant="h5" className="font-bold mb-4">Thực hành</Typography>
 
                         {questionPages.length > 0 ? (
                             <Box
