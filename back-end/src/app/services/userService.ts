@@ -362,4 +362,34 @@ export class UserService {
             throw error;
         }
     }
+
+    public static async checkPasswordByEmail(email: string, password: string) {
+        try {
+            const user = await UserRepository.findOne({
+                where: {
+                    email,
+                },
+            });
+            if (!user) {
+                return {
+                    code: 404,
+                    message: 'Email is not exist',
+                };
+            }
+            const isPasswordMatch = await BcryptUtil.comparePassword(password, user.password);
+            if (!isPasswordMatch) {
+                return {
+                    code: 400,
+                    message: 'Password is incorrect',
+                };
+            }
+            return {
+                code: 200,
+                message: 'Password is correct',
+            };
+        } catch (error) {
+            console.log('Error checking password by email', error);
+            throw error;
+        }
+    }
 }
