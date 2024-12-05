@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box } from '@mui/material';
-import axios from 'axios';
+import { getApiNoneToken} from '~/api/page';
 
 const Header = () => {
   const { loggedIn, setLoggedIn } = useAuth();
@@ -39,7 +39,7 @@ const Header = () => {
     const fetchUserData = async () => {
       if (userId) {
         try {
-          const userResponse = await axios.get(`http://localhost:8080/api/v1/user/${userId}`);
+          const userResponse = await getApiNoneToken(`/user/${userId}`);
           const userData = userResponse.data.data;
           setName(userData.fullName || ""); // Cập nhật tên người dùng
           setAvatarUrl(userData.avatar || ""); // Cập nhật URL ảnh đại diện
@@ -47,7 +47,7 @@ const Header = () => {
           setPoint(userData.totalPoint || 0);
 
           // Gọi API để lấy avatar frame đang active
-          const frameResponse = await axios.get(`http://localhost:8080/api/v1/avatar-frame-user/user/${userId}`);
+          const frameResponse = await getApiNoneToken(`/avatar-frame-user/user/${userId}`);
           const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
           
           if (activeFrame) {

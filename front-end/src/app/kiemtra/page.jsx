@@ -1,36 +1,27 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, {  useEffect } from 'react';
 import { Box, Paper, Button, Typography, Select, MenuItem } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import { useRouter } from 'next/navigation';
 import { getApiNoneToken } from '~/api/page';
-const Topic = ({ title, isActive, onClick }) => {
-    return (
-        <Paper elevation={2} sx={{ mb: 2, p: 1 }}>
-            <Button
-                onClick={onClick}
-                fullWidth
-                sx={{
-                    justifyContent: 'space-between',
-                    textAlign: 'left',
-                    backgroundColor: isActive ? '#e3f2fd' : 'white',
-                    color: isActive ? '#1e88e5' : 'black',
-                }}
-            >
-                <Typography variant="subtitle1">{title}</Typography>
-            </Button>
-        </Paper>
-    );
-};
-
+import Topic from '~/components/kiemtra/topic';
+import { useKiemtraContext } from '~/context/KiemtraContext';
 const Kiemtra = () => {
-    const [selectedSubject, setSelectedSubject] = useState('Toán');
-    const [selectedGrade, setSelectedGrade] = useState(1);
-    const [courses, setCourses] = useState([]);
-    const [topics, setTopics] = useState([]);
-    const [selectedTopicId, setSelectedTopicId] = useState(null);
-    const [quizzes, setQuizzes] = useState([]);
+    const {
+        selectedSubject,
+        setSelectedSubject,
+        selectedGrade,
+        setSelectedGrade,
+        courses,
+        setCourses,
+        topics,
+        setTopics,
+        selectedTopicId,
+        setSelectedTopicId,
+        quizzes,
+        setQuizzes,
+    } = useKiemtraContext();
     const router = useRouter();
     useEffect(() => {
         const fetchCourses = async () => {
@@ -180,7 +171,7 @@ const Kiemtra = () => {
                                             flexDirection: 'column',
                                             alignItems: 'center',
                                             textAlign: 'center',
-                                            borderRadius: 2,                                           
+                                            borderRadius: 2,
                                         }}
                                         elevation={3}
                                     >
@@ -190,7 +181,7 @@ const Kiemtra = () => {
                                             alt="Quiz Image"
                                             sx={{ width: '100%', height: '190px', borderRadius: 1 }}
                                         />
-                                        <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>
+                                        <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 'bold' }}>
                                             {quiz.name}
                                         </Typography>
                                         <Button
