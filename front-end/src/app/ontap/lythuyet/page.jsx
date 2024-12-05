@@ -9,8 +9,7 @@ import ReactPlayer from 'react-player';  // Import ReactPlayer
 import { useState, useEffect } from 'react';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { getApiNoneToken } from '~/api/page';
-import axios from 'axios';
-const LyThuyet = ({initialTopicName }) => {
+const LyThuyet = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reviewId = searchParams.get('reviewId');
@@ -22,7 +21,6 @@ const LyThuyet = ({initialTopicName }) => {
   const [topicname,setTopicName] = useState();
   const [namesubject,setNameSubject] = useState();
   const [grade,setGrade] = useState();
-  const [lesson,setLesson] = useState();
   const [questionPages, setQuestionPages] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {

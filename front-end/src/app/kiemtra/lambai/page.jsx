@@ -12,12 +12,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  IconButton,
 } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import Header from '~/components/Header';
 import { getApiNoneToken, postApiNoneToken } from '~/api/page';
+import HomeIcon from '@mui/icons-material/Home';
+import FlagIcon from '@mui/icons-material/Flag';
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questionsData, setQuestionsData] = useState([]);
@@ -25,8 +26,9 @@ const Quiz = () => {
   const [timeLeft, setTimeLeft] = useState(2400); // 5 phút
   const [showAlert, setShowAlert] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmExit, setConfirmExit] = useState(false); // Biến để xác nhận thoát
   const searchParams = useSearchParams();
-  const quizId = searchParams.get('quizId'); // Lấy quizId từ URL query
+  const quizId = searchParams.get('quizId');
   const router = useRouter();
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
 
@@ -82,16 +84,17 @@ const Quiz = () => {
   const handleDialogClose = () => {
     setDialogOpen(false);
   };
+
   const toggleFlag = (questionId) => {
     setFlaggedQuestions((prev) =>
       prev.includes(questionId)
-        ? prev.filter((id) => id !== questionId) // Nếu đã cắm cờ, thì bỏ cờ
-        : [...prev, questionId] // Nếu chưa cắm cờ, thì thêm vào
+        ? prev.filter((id) => id !== questionId)
+        : [...prev, questionId]
     );
   };
+
   const handleSubmitResult = async () => {
     try {
-      // Tính số câu đúng và điểm
       const correctCount = questionsData.reduce((count, question) => {
         const userAnswer = answers[question.id];
         if (question.type === 1 || question.type === 2) {
@@ -112,7 +115,6 @@ const Quiz = () => {
       const score = Math.round(correctCount * 0.5);
       const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
 
-      // Payload gửi đến API
       const payload = {
         userId,
         quizId,
@@ -120,7 +122,6 @@ const Quiz = () => {
         correctCount,
       };
 
-      // Gửi dữ liệu đến API
       console.log('Payload gửi đi:', payload);
       await postApiNoneToken('result/add', payload);
       alert('Bài làm đã được nộp thành công!');
@@ -180,30 +181,58 @@ const Quiz = () => {
     return null;
   };
 
+  const handleHomeClick = () => {
+    setConfirmExit(true);
+  };
+
+  const handleExitConfirm = (confirm) => {
+    if (confirm) {
+      router.push('/kiemtra'); // Quay về trang kiểm tra nếu đồng ý thoát
+    }
+    setConfirmExit(false);
+  };
+
   return (
-    <Box display="flex" height="95vh" bgcolor="#f5f5f5">
+    <Box display="flex" height="90vh" bgcolor="#f5f5f5" >
       {/* Main Content */}
-      <Box flex={2} display="flex" flexDirection="column" justifyContent="center" padding={3} bgcolor="#ffffff" borderRadius={2} gap={10}>
+      <Box flex={2} display="flex" flexDirection="column" padding={3} bgcolor="#ffffff" borderRadius={2} gap={5}>
+        {/* Layout trên: Home button + Time */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ borderBottom: '2px solid #ccc' }}>
+          <IconButton onClick={handleHomeClick}>
+            <HomeIcon sx={{ fontSize: 32 }} />
+          </IconButton>
+          <Typography variant="h5" sx={{ color: 'black', fontSize: 32 }}>
+            Thời gian còn lại: <span style={{ color: 'red' }}>{formatTime()}</span>
+          </Typography>
+          <Box />
+        </Box>
+
         {questionsData.length > 0 ? (
           <>
-            <Typography variant="h5" sx={{ color: 'black', fontSize: 32 }} >
-              Câu {currentQuestion + 1} : {questionsData[currentQuestion].content}
-            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center" padding={2}>
+              <Typography variant="h5" sx={{ color: 'black', fontSize: 32, flex: 1 }}>
+                Câu {currentQuestion + 1}: {questionsData[currentQuestion].content}
+              </Typography>
+              <IconButton
+                onClick={() => toggleFlag(questionsData[currentQuestion].id)}
+                sx={{ color: flaggedQuestions.includes(questionsData[currentQuestion].id) ? 'red' : 'black' }}
+              >
+                <FlagIcon sx={{ fontSize: 32 }} />
+              </IconButton>
+            </Box>
             {questionsData[currentQuestion].image && (
               <Box display="flex" justifyContent="center">
-                {/* Trường hợp 2: Hiển thị ảnh */}
                 {questionsData[currentQuestion].image.startsWith("http") ? (
                   <img
                     src={questionsData[currentQuestion].image}
                     alt="Question"
                     style={{
                       maxWidth: '100%',
-                      maxHeight: '250px',
+                      maxHeight: '200px',
                       objectFit: 'contain',
                     }}
                   />
                 ) : (
-                  // Trường hợp 3: Hiển thị chữ sau "text_" hoặc "Text_"
                   questionsData[currentQuestion].image.toLowerCase().startsWith("text_") && (
                     <Typography
                       variant="h6"
@@ -211,7 +240,7 @@ const Quiz = () => {
                         fontWeight: 'bold',
                         color: 'black',
                         textAlign: 'center',
-                        fontSize:32,
+                        fontSize: 32,
                       }}
                     >
                       {questionsData[currentQuestion].image.slice(5)}
@@ -220,7 +249,7 @@ const Quiz = () => {
                 )}
               </Box>
             )}
-            <Box > {renderQuestion(questionsData[currentQuestion])}</Box>
+            <Box>{renderQuestion(questionsData[currentQuestion])}</Box>
             {showAlert && (
               <Alert severity="warning" sx={{ mt: 2 }}>
                 Bạn còn câu chưa trả lời.
@@ -250,17 +279,13 @@ const Quiz = () => {
 
       {/* Navigation Panel */}
       <Box flex={1} padding={3} ml={4} bgcolor="#ffffff" borderRadius={2}>
-        <Typography mt={4} sx={{ textAlign: 'center', color: 'black', fontSize: 32 }}>
-          Thời gian còn lại:
-          <span style={{ color: 'red' }}>{formatTime()}</span>
-        </Typography>
-        <Typography variant="h6" sx={{ color: 'black' }} gutterBottom>
+        <Typography variant="h6" sx={{ color: 'black',fontSize:32 }} gutterBottom>
           Danh sách câu hỏi
         </Typography>
         <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={1}>
           {questionsData.map((q, index) => {
             const isFlagged = flaggedQuestions.includes(q.id);
-            const isAnswered = !!answers[q.id]; // Kiểm tra nếu câu hỏi đã được trả lời
+            const isAnswered = !!answers[q.id];
             const isCurrent = currentQuestion === index;
 
             return (
@@ -272,10 +297,10 @@ const Quiz = () => {
                   border: isCurrent ? '2px solid gold' : '1px solid #ccc',
                   fontWeight: isCurrent ? 'bold' : 'normal',
                   backgroundColor: isFlagged
-                    ? 'red' // Màu đỏ nếu cắm cờ
+                    ? 'red'
                     : isAnswered
-                      ? 'green' // Màu xanh nếu đã trả lời
-                      : 'inherit', // Mặc định
+                      ? 'green'
+                      : 'inherit',
                   color: isFlagged ? 'white' : 'inherit',
                 }}
               >
@@ -284,19 +309,8 @@ const Quiz = () => {
             );
           })}
         </Box>
-        <Box display="flex" justifyContent="space-between" mt={2}>
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => toggleFlag(questionsData[currentQuestion].id)}
-            sx={{ flex: 1, marginRight: 2 }}
-          >
-            {questionsData[currentQuestion]
-              ? flaggedQuestions.includes(questionsData[currentQuestion].id)
-                ? 'Bỏ cắm cờ'
-                : 'Cắm cờ'
-              : '...'}
-          </Button>
+
+        <Box display="flex" justifyContent="center" mt={2}>
           <Button
             variant="contained"
             color="secondary"
@@ -337,6 +351,22 @@ const Quiz = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Xác nhận thoát */}
+      {confirmExit && (
+        <Dialog open={confirmExit} onClose={() => setConfirmExit(false)}>
+          <DialogTitle>Xác nhận</DialogTitle>
+          <DialogContent>
+            <Typography>Bạn có chắc chắn muốn thoát bài kiểm tra?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => handleExitConfirm(false)}>Hủy</Button>
+            <Button onClick={() => handleExitConfirm(true)} color="secondary">
+              Đồng ý
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 };

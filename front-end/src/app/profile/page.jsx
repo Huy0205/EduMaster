@@ -76,8 +76,6 @@ const ProfilePage = () => {
     const updatedUserData = {
       id: userId,
       fullName: name,
-      email: email,
-      phoneNumber: phone,
       currentGrade: grade,
       avatar: avatar
     };
@@ -97,10 +95,8 @@ const ProfilePage = () => {
       return;
     }
     try {
-      const response = await postApiNoneToken(`user/change-password`, {
-        userId,
-        oldPassword,
-        newPassword,
+      const response = await putApiNoneToken(`user/update/${userId}`, {
+        password,
       });
       if (response.status === 200) {
         setFeedbackMessage("Đổi mật khẩu thành công!");
@@ -178,7 +174,7 @@ const ProfilePage = () => {
             onChange={(e) => setEmail(e.target.value)}
             InputProps={{
               startAdornment: <FaEnvelope className="mr-2" />,
-              readOnly: !isEditing,
+              disabled: true,
             }}
           />
           <TextField
@@ -189,7 +185,7 @@ const ProfilePage = () => {
             onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
             InputProps={{
               startAdornment: <FaPhone className="mr-2" />,
-              readOnly: !isEditing,
+              disabled: true,
             }}
           />
           <TextField
