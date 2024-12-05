@@ -3,9 +3,10 @@ import { validate as isUUID } from 'uuid';
 import { UserService } from '~/app/services';
 import { User } from '~/app/models';
 import { ResponseUtil } from '~/utils';
+import { Status } from '../enums';
 
 export class UserController {
-    static async login(req: Request, res: Response, next: NextFunction) {
+    public static async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body;
         console.log(email, password);
 
@@ -21,7 +22,7 @@ export class UserController {
         }
     }
 
-    static async register(req: Request, res: Response, next: NextFunction) {
+    public static async register(req: Request, res: Response, next: NextFunction) {
         const { email, password, fullName, phoneNumber, avatar, currentGrade } = req.body;
 
         if (!email || !password || !fullName || !phoneNumber || !currentGrade) {
@@ -44,7 +45,7 @@ export class UserController {
         }
     }
 
-    static async sendOTPByMail(req: Request, res: Response, next: NextFunction) {
+    public static async sendOTPByMail(req: Request, res: Response, next: NextFunction) {
         const { email } = req.body;
 
         if (!email) {
@@ -59,7 +60,7 @@ export class UserController {
         }
     }
 
-    static async verifyOTP(req: Request, res: Response, next: NextFunction) {
+    public static async verifyOTP(req: Request, res: Response, next: NextFunction) {
         const { email, otp } = req.body;
 
         if (!email || !otp) {
@@ -74,39 +75,24 @@ export class UserController {
         }
     }
 
-    static async getUsersByRole(req: Request, res: Response, next: NextFunction) {
+    public static async getUsersByRole(req: Request, res: Response, next: NextFunction) {
         const { role } = req.params;
-        const { page, limit } = req.query;
-        let { sortBy, order } = req.query;
 
-        try {
-            // Kiểm tra và chuyển đổi các tham số
-            const pageNum = Number(page) > 0 ? Number(page) : 1; // Gán 1 nếu page không hợp lệ
-            const limitNum = Number(limit) > 0 ? Number(limit) : 10; // Gán 10 nếu limit không hợp lệ
-            sortBy = typeof sortBy === 'string' ? sortBy : 'fullName'; // Gán 'fullName' nếu sortBy không hợp lệ
-            order = order === 'ASC' || order === 'DESC' ? order : 'ASC'; // Gán 'ASC' nếu order không hợp lệ
-
-            // Kiểm tra role
-            if (!role) {
-                ResponseUtil.sendMissingData(res);
-            } else if (Number(role) < 0 || Number(role) > 1) {
-                ResponseUtil.sendInvalidData(res);
-            } else {
-                const response = await UserService.getUsersByRole(
-                    Number(role),
-                    pageNum,
-                    limitNum,
-                    sortBy,
-                    order as 'ASC' | 'DESC',
-                );
+        if (!role) {
+            ResponseUtil.sendMissingData(res);
+        } else if (Number(role) < 0 || Number(role) > 1) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await UserService.getUsersByRole(Number(role));
                 ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
             }
-        } catch (error) {
-            next(error);
         }
     }
 
-    static async getUserById(req: Request, res: Response, next: NextFunction) {
+    public static async getUserById(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
         if (!id) {
             ResponseUtil.sendMissingData(res);
@@ -122,7 +108,7 @@ export class UserController {
         }
     }
 
-    static async getUsersByGrade(req: Request, res: Response, next: NextFunction) {
+    public static async getUsersByGrade(req: Request, res: Response, next: NextFunction) {
         const { grade } = req.params;
         if (!grade) {
             ResponseUtil.sendMissingData(res);
@@ -138,7 +124,7 @@ export class UserController {
         }
     }
 
-    static async authUser(req: Request, res: Response, next: NextFunction) {
+    public static async authUser(req: Request, res: Response, next: NextFunction) {
         const { email } = req['currentUser'];
         if (!email) {
             ResponseUtil.sendMissingData(res);
@@ -152,24 +138,42 @@ export class UserController {
         }
     }
 
-    static async updateUserById(req: Request, res: Response, next: NextFunction) {
+    public static async updateUser(req: Request, res: Response, next: NextFunction) {
         const { id } = req.params;
-        const { fullName, phoneNumber, avatar, currentGrade, totalPoint } = req.body;
+        const { password, fullName, phoneNumber, avatar, currentGrade, totalPoint, status } =
+            req.body;
 
-        if (!id) {
+        if (
+            !id ||
+            (!password &&
+                !fullName &&
+                !phoneNumber &&
+                !avatar &&
+                !currentGrade &&
+                !totalPoint &&
+                !status)
+        ) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(id)) {
+        } else if (
+            !isUUID(id) ||
+            (currentGrade && (currentGrade < 1 || currentGrade > 5)) ||
+            (totalPoint && Number(totalPoint) < 0) ||
+            (status && !(status in Status))
+        ) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
                 const data: Partial<User> = {
+                    id,
+                    password,
                     fullName,
                     phoneNumber,
                     avatar,
                     currentGrade,
                     totalPoint,
+                    status,
                 };
-                const response = await UserService.updateUserById(id, data);
+                const response = await UserService.saveUser(data);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

@@ -29,7 +29,7 @@ userRouter.post('/login', UserController.login);
 userRouter.post('/register', UserController.register);
 
 // PUT: localhost:8080/api/v1/user/update/:id
-userRouter.put('/update/:id', UserController.updateUserById);
+userRouter.put('/update/:id', UserController.updateUser);
 
 // DELETE: localhost:8080/api/v1/user/:id
 userRouter.delete('/:id', UserController.deleteUserById);

@@ -1,6 +1,6 @@
 import { db } from '~/configs';
 import { User } from '~/app/models';
-import { Role } from '~/app/enums';
+import { Role, Status } from '~/app/enums';
 import * as cache from 'memory-cache';
 import nodeMailer from 'nodemailer';
 import { BcryptUtil, TokenUtil } from '~/utils';
@@ -11,7 +11,7 @@ export class UserService {
     /*
      * Login by email and password
      */
-    static async login(email: string, password: string) {
+    public static async login(email: string, password: string) {
         try {
             const user = await UserRepository.findOne({
                 where: {
@@ -57,7 +57,7 @@ export class UserService {
     /*
      * Register a new Student
      */
-    static async register(
+    public static async register(
         email: string,
         password: string,
         fullName: string,
@@ -119,7 +119,7 @@ export class UserService {
      * @param email
      * @returns
      */
-    static async sendOTPByMail(email: string) {
+    public static async sendOTPByMail(email: string) {
         try {
             const user = await UserRepository.findOne({
                 where: {
@@ -174,7 +174,7 @@ export class UserService {
      * @param otp
      * @returns
      */
-    static async verifyOTP(email: string, otp: string) {
+    public static async verifyOTP(email: string, otp: string) {
         try {
             const otpInCache = cache.get(email);
             if (otpInCache == otp) {
@@ -202,34 +202,21 @@ export class UserService {
     /*
      * Get all users by role with pagination and sorting
      */
-    static async getUsersByRole(
-        role: Role,
-        page: number,
-        limit: number,
-        sortBy: string,
-        order: 'ASC' | 'DESC',
-    ) {
+    public static async getUsersByRole(role: Role) {
         try {
-            const [users, total] = await UserRepository.findAndCount({
+            const users = await UserRepository.find({
                 where: {
                     role,
+                    status: Status.ACTIVE,
                 },
                 order: {
-                    [sortBy]: order,
+                    createdAt: 'DESC',
                 },
-                take: limit,
-                skip: (page - 1) * limit,
             });
-
-            const totalPage = Math.ceil(total / limit);
             return {
                 code: 200,
                 message: 'Get users by role success',
-                data: {
-                    totalPage,
-                    currentPage: page,
-                    list: users,
-                },
+                data: users,
             };
         } catch (error) {
             console.log('Error getting users by role', error);
@@ -240,7 +227,7 @@ export class UserService {
     /*
      * Get user by id
      */
-    static async getUserById(id: string) {
+    public static async getUserById(id: string) {
         try {
             const user = await UserRepository.findOne({
                 where: {
@@ -267,7 +254,7 @@ export class UserService {
     /*
      * Get user by email
      */
-    static async getUserByEmail(email: string) {
+    public static async getUserByEmail(email: string) {
         try {
             const user = await UserRepository.findOne({
                 where: {
@@ -296,7 +283,7 @@ export class UserService {
      * @param grade
      * @returns
      */
-    static async getUsersByGrade(grade: number) {
+    public static async getUsersByGrade(grade: number) {
         try {
             const users = await UserRepository.find({
                 where: {
@@ -315,29 +302,21 @@ export class UserService {
         }
     }
 
-    /*
-     * Update user by id
+    /**
+     * Save user
+     * @param user
+     * @returns
      */
-    static async updateUserById(id: string, data: Partial<User>) {
+    public static async saveUser(user: Partial<User>) {
         try {
-            const user = await UserRepository.findOne({
-                where: {
-                    id,
-                },
-            });
-            if (!user) {
-                return {
-                    code: 404,
-                    message: 'User is not exist',
-                };
-            }
-            await UserRepository.update(id, data);
+            const newUser = await UserRepository.save(user);
             return {
                 code: 200,
-                message: 'Update user success',
+                message: 'Save user success',
+                data: newUser,
             };
         } catch (error) {
-            console.log('Error updating user', error);
+            console.log('Error saving user', error);
             throw error;
         }
     }
@@ -345,19 +324,8 @@ export class UserService {
     /*
      * Delete user by id
      */
-    static async deleteUserById(id: string) {
+    public static async deleteUserById(id: string) {
         try {
-            const user = await UserRepository.findOne({
-                where: {
-                    id,
-                },
-            });
-            if (!user) {
-                return {
-                    code: 404,
-                    message: 'User is not exist',
-                };
-            }
             await UserRepository.delete(id);
             return {
                 code: 200,
@@ -369,7 +337,7 @@ export class UserService {
         }
     }
 
-    static async checkAdminByEmail(email: string) {
+    public static async checkAdminByEmail(email: string) {
         try {
             const user = await UserRepository.findOne({
                 where: {

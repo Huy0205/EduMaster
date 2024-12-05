@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
     OneToMany,
 } from 'typeorm';
-import { Role } from '../enums';
+import { Role, Status } from '../enums';
 import { Enrollment } from './enrollment';
 import { PracticeProgress } from './practiceProgress';
 import { Result } from './result';
@@ -49,6 +49,14 @@ export class User {
         enumName: 'role',
     })
     role: Role;
+
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE,
+        enumName: 'status',
+    })
+    status: Status;
 
     @OneToMany(() => Enrollment, (enrollment) => enrollment.user)
     enrollments: Enrollment[];
