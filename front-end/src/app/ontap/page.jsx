@@ -144,7 +144,7 @@ const OnTap = () => {
     const fetchTopics = async () => {
       if (selectedSubject) {
         try {
-          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}?page=1&limit=100`,
+          const response = await fetch(`http://localhost:8080/api/v1/topic/course/${selectedSubject.id}`,
             // {
             //   method: 'GET',
             // headers: {
@@ -156,10 +156,10 @@ const OnTap = () => {
           const topicsData = await response.json();
           console.log(topicsData)
           const topicsWithReviews = await Promise.all(
-            topicsData.data.list.map(async (topic) => {
+            topicsData.data.map(async (topic) => {
               const reviewResponse = await fetch(`http://localhost:8080/api/v1/lesson/topic/${topic.id}`);
               const reviewData = await reviewResponse.json();
-              return { ...topic, reviews: reviewData.data.list };
+              return { ...topic, reviews: reviewData.data };
             })
           );
 

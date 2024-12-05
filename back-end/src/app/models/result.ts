@@ -21,7 +21,7 @@ export class Result {
     @PrimaryColumn()
     quizId: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: 'float' })
     score: number;
 
     @Column({ nullable: true })

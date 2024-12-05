@@ -62,6 +62,10 @@ export class ResultController {
 
     public static async addResult(req: Request, res: Response, next: NextFunction) {
         const { score, correctCount, userId, quizId } = req.body;
+        console.log('score', score);
+        console.log('correctCount', correctCount);
+        console.log('type score', typeof score);
+        console.log('type correctCount', typeof correctCount);
         if (!score || !correctCount || !userId || !quizId) {
             ResponseUtil.sendMissingData(res);
         } else {
