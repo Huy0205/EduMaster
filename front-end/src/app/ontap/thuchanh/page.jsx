@@ -22,7 +22,7 @@ export default function Home() {
 
   const chapterName = "Chương 1";
   const lessonName = "Bài 1: Vị Trí";
-  const exerciseName = "";
+
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -41,7 +41,13 @@ export default function Home() {
     const fetchLastQuestionIndex = async () => {
       try {
         const response = await getApiNoneToken(`practice-progress/user/${userId}/practice/${pargesId}`);
-        const lastIndex = response.data.data.lastQuestionIndex || 0; // Nếu không có lastQuestionIndex, mặc định là 0
+        let lastIndex = response.data.data.lastQuestionIndex || 0; // Nếu không có lastQuestionIndex, mặc định là 0
+
+        // Nếu lastIndex bằng questionsData.length, chuyển về 0 (câu hỏi đầu tiên)
+        if (lastIndex >= questionsData.length) {
+          lastIndex = 0;
+        }
+
         setCurrentQuestion(lastIndex);
       } catch (error) {
         console.error('Error fetching lastQuestionIndex:', error);
@@ -51,7 +57,7 @@ export default function Home() {
     if (userId && pargesId) {
       fetchLastQuestionIndex();
     }
-  }, [userId, pargesId]);
+  }, [userId, pargesId, questionsData.length]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -80,21 +86,21 @@ export default function Home() {
   };
 
   const handleFinish = async () => {
-    router.push('/ontap');
+    router.push("/ontap");
     let pointsToAdd = 10;
     if (score < questionsData.length / 2) {
       // Sai quá 50% => không được cộng điểm
       return;
     } else if (score === questionsData.length) {
       // Đúng 100% => x2 điểm
-      pointsToAdd = pointsToAdd*2; // Giả định: mỗi bài ôn tập bình thường cộng 10 điểm
-    }   
+      pointsToAdd = pointsToAdd * 2; // Giả định: mỗi bài ôn tập bình thường cộng 10 điểm
+    }
     try {
       // Gửi API cập nhật điểm
       const res = await getApiNoneToken(`user/${userId}`);
       const currentPoints = res.data.data.points || 0; // Lấy điểm hiện tại từ API
       const updatedPoints = currentPoints + pointsToAdd;
-      
+
       await putApiNoneToken(`user/update/${userId}`, {
         totalPoint: updatedPoints, // Cộng điểm vào điểm hiện tại
       });
@@ -104,7 +110,6 @@ export default function Home() {
   };
 
   if (currentQuestion >= questionsData.length) {
-
     return (
       <Box className="min-h-screen flex flex-col items-center" sx={{
         backgroundImage: 'url(/img/bg-question.jpg)',
@@ -187,7 +192,7 @@ export default function Home() {
           <span className="text-red-600 font-bold text-lg">{incorrectAnswers}</span>
         </Box>
       </Box>
-      <Box className="flex flex-col items-center justify-center mt-8 p-4 " sx={{ maxWidth: 1000, width: '100%', height: 500}}>
+      <Box className="flex flex-col items-center justify-center mt-8 p-4 " sx={{ maxWidth: 1000, width: '100%', height: 500 }}>
         {questionsData.length > 0 ? (
           <Question
             question={questionsData[currentQuestion]}

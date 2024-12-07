@@ -88,7 +88,7 @@ const LyThuyet = () => {
   }, [reviewId,topicId]);
   const handleGoBackToOnTap = () => {
     // Khi quay lại trang Ôn tập, truyền giá trị false cho isFirstLoad
-    router.push(`/ontap?initialIsFirstLoad=false`);
+    router.push("/ontap");
   };
   return (
     <Box sx={{ paddingBottom: 2, minHeight: '100vh' }} className="bg-gradient-to-r from-amber-50 to-white">
