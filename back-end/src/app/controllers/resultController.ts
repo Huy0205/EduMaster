@@ -66,13 +66,13 @@ export class ResultController {
         console.log('correctCount', correctCount);
         console.log('type score', typeof score);
         console.log('type correctCount', typeof correctCount);
-        if (!score || !correctCount || !userId || !quizId) {
+        if (score === undefined  || correctCount === undefined || !userId || !quizId) {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const result = await ResultService.addResult({
-                    score,
-                    correctCount,
+                    score:Number(score),
+                    correctCount:Number(correctCount),
                     userId,
                     quizId,
                 });
