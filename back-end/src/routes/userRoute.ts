@@ -28,6 +28,9 @@ userRouter.post('/login', UserController.login);
 // POST: localhost:8080/api/v1/user/register
 userRouter.post('/register', UserController.register);
 
+// POST: localhost:8080/api/v1/user/check-password
+userRouter.post('/check-password', UserController.checkPasswordByEmail);
+
 // PUT: localhost:8080/api/v1/user/update/:id
 userRouter.put('/update/:id', UserController.updateUser);
 

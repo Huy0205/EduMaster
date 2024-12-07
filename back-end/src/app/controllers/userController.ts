@@ -196,4 +196,18 @@ export class UserController {
             }
         }
     }
+
+    public static async checkPasswordByEmail(req: Request, res: Response, next: NextFunction) {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await UserService.checkPasswordByEmail(email, password);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
 }
