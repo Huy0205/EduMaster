@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
 import { UserService } from '~/app/services';
-import { User } from '~/app/models';
-import { ResponseUtil } from '~/utils';
+import { BcryptUtil, ResponseUtil } from '~/utils';
 import { Status } from '../enums';
 
 export class UserController {
@@ -29,9 +28,10 @@ export class UserController {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
+                const hashPassword = await BcryptUtil.hashPassword(password);
                 const response = await UserService.register(
                     email,
-                    password,
+                    hashPassword,
                     fullName,
                     phoneNumber,
                     avatar ||
@@ -162,18 +162,18 @@ export class UserController {
         ) {
             ResponseUtil.sendInvalidData(res);
         } else {
+            const hashPassword = await BcryptUtil.hashPassword(password);
             try {
-                const data: Partial<User> = {
+                const response = await UserService.saveUser({
                     id,
-                    password,
+                    password: hashPassword,
                     fullName,
                     phoneNumber,
                     avatar,
                     currentGrade,
                     totalPoint,
                     status,
-                };
-                const response = await UserService.saveUser(data);
+                });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);

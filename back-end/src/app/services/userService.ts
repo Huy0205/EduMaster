@@ -93,10 +93,9 @@ export class UserService {
                 };
             }
 
-            const hashPassword = await BcryptUtil.hashPassword(password);
             const user = await UserRepository.save({
                 email,
-                password: hashPassword,
+                password,
                 fullName,
                 phoneNumber,
                 avatar,
