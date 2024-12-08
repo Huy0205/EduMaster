@@ -19,6 +19,7 @@ const ProfilePage = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -71,7 +72,13 @@ const ProfilePage = () => {
     }
     return input;
   };
-
+  const handleCan = () => {
+    setPasswordModalOpen(false)
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setPasswordError("");
+  }
   const handleSave = async () => {
     const updatedUserData = {
       id: userId,
@@ -91,23 +98,37 @@ const ProfilePage = () => {
   };
   const handlePasswordChange = async () => {
     if (newPassword !== confirmNewPassword) {
-      setFeedbackMessage("Mật khẩu mới và mật khẩu xác nhận không khớp!");
+      setPasswordError("Mật khẩu mới và mật khẩu xác nhận không khớp!");
       return;
     }
+
     try {
-      const response = await putApiNoneToken(`user/update/${userId}`, {
-        password,
+      // Kiểm tra mật khẩu cũ trước khi thay đổi
+      const checkPasswordResponse = await postApiNoneToken("user/check-password", {
+        email: email,
+        password: oldPassword, // oldPassword là mật khẩu cũ
       });
-      if (response.status === 200) {
-        setFeedbackMessage("Đổi mật khẩu thành công!");
-        setPasswordModalOpen(false);
-        setOldPassword("");
-        setNewPassword("");
-        setConfirmNewPassword("");
+
+      if (checkPasswordResponse.status === 200) {
+        // Mật khẩu cũ hợp lệ, tiến hành thay đổi mật khẩu
+        const response = await putApiNoneToken(`user/update/${userId}`, {
+          password: newPassword, // mật khẩu mới
+        });
+        console.log(password)
+        if (response.status === 200) {
+          setFeedbackMessage("Đổi mật khẩu thành công!");
+          setPasswordModalOpen(false);
+          setOldPassword("");
+          setNewPassword("");
+          setConfirmNewPassword("");
+          setPasswordError("");
+        }
+      } else {
+        setPasswordError("Mật khẩu cũ không chính xác!");
       }
     } catch (error) {
       console.error("Error changing password:", error);
-      setFeedbackMessage("Đổi mật khẩu không thành công.");
+      setPasswordError("Mật khẩu cũ không chính xác!");
     }
   };
 
@@ -255,9 +276,14 @@ const ProfilePage = () => {
             value={confirmNewPassword}
             onChange={(e) => setConfirmNewPassword(e.target.value)}
           />
+          {passwordError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {passwordError}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPasswordModalOpen(false)} color="secondary">
+          <Button onClick={handleCan} color="secondary">
             Hủy
           </Button>
           <Button onClick={handlePasswordChange} color="primary">

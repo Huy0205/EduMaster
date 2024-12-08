@@ -24,14 +24,12 @@ const Quiz = () => {
   const [questionsData, setQuestionsData] = useState([]);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(2400); // 5 phút
-  const [showAlert, setShowAlert] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false); // Biến để xác nhận thoát
   const searchParams = useSearchParams();
   const quizId = searchParams.get('quizId');
   const router = useRouter();
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
-
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -73,7 +71,6 @@ const Quiz = () => {
   };
 
   const handleAutoSubmit = () => {
-    alert('Hết giờ, bài làm sẽ được nộp!');
     handleSubmitResult();
   };
 
@@ -124,11 +121,15 @@ const Quiz = () => {
 
       console.log('Payload gửi đi:', payload);
       await postApiNoneToken('result/add', payload);
-      alert('Bài làm đã được nộp thành công!');
-      router.push('/kiemtra'); // Điều hướng về trang /kiemtra
+      const queryParams = new URLSearchParams({
+        quizId,
+        timeLeft: timeLeft.toString(),
+        score: score.toString(),
+      }).toString();
+      // Chuyển hướng sang trang kết quả với query string
+      router.push(`/kiemtra/ketqua?${queryParams}`);
     } catch (error) {
       console.error('Error submitting result:', error);
-      alert('Đã xảy ra lỗi khi nộp bài. Vui lòng thử lại.');
     }
   };
 
@@ -250,11 +251,6 @@ const Quiz = () => {
               </Box>
             )}
             <Box>{renderQuestion(questionsData[currentQuestion])}</Box>
-            {showAlert && (
-              <Alert severity="warning" sx={{ mt: 2 }}>
-                Bạn còn câu chưa trả lời.
-              </Alert>
-            )}
             <Box display="flex" justifyContent="space-between" marginTop="auto">
               {currentQuestion > 0 && (
                 <Button variant="contained" color="primary" onClick={() => setCurrentQuestion(currentQuestion - 1)}>

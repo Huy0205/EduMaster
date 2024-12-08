@@ -4,34 +4,40 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '~/components/Navbar';
 import Topic from '~/components/ontap/topic'
 import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getApiNoneToken, postApiNoneToken } from '~/api/page';
+import { useOntapContext } from '~/context/OntapContext';
 const OnTap = () => {
-    const [selectedSubject, setSelectedSubject] = useState(null);
-    const [selectedGrade, setSelectedGrade] = useState(1);
-    const [selectedLectures, setSelectedLectures] = useState([]);
-    const [questionPages, setQuestionPages] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [topics, setTopics] = useState([]);
-    const [selectedReviewId, setSelectedReviewId] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [topicStates, setTopicStates] = useState({});
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
-    const [selectedTopicId, setSelectedTopicId] = useState(null);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const initialIsFirstLoad = searchParams.get('initialIsFirstLoad') === 'false';
     const [isClient, setIsClient] = useState(false);
+    const {
+        selectedSubject,
+        setSelectedSubject,
+        selectedGrade,
+        setSelectedGrade,
+        selectedLectures,
+        setSelectedLectures,
+        questionPages,
+        setQuestionPages,
+        courses,
+        setCourses,
+        topics,
+        setTopics,
+        selectedReviewId,
+        setSelectedReviewId,
+        topicStates,
+        setTopicStates,
+        selectedTopicId,
+        setSelectedTopicId,
+    } = useOntapContext();
     useEffect(() => {
-
         setIsClient(true);
         console.log(isClient);
     }, []);
 
-    useEffect(() => {
-
-        console.log(`Lớp được chọn: ${selectedGrade}`);
-        // Reset tất cả các state liên quan đến dữ liệu cũ
+    const handleGradeChange = (e) => {
+        setSelectedGrade(parseInt(e.target.value))
         setSelectedSubject(null);
         setSelectedLectures([]);
         setQuestionPages([]);
@@ -39,48 +45,7 @@ const OnTap = () => {
         setSelectedReviewId(null);
         setTopicStates({});
         setSelectedTopicId(null);
-    }, [selectedGrade]);
-    useEffect(() => {
-        if (initialIsFirstLoad) {
-            // Nếu là lần quay lại trang thì không reset
-            const savedSelectedSubject = localStorage.getItem('selectedSubject');
-            const savedSelectedGrade = localStorage.getItem('selectedGrade');
-            const savedSelectedLectures = localStorage.getItem('selectedLectures');
-            const savedTopics = localStorage.getItem('topics');
-            const savedSelectedReviewId = localStorage.getItem('selectedReviewId');
-            const savedQuestionPages = localStorage.getItem('questionPages');
-            const savedTopicStates = JSON.parse(localStorage.getItem('topicStates')) || {};
-            if (savedSelectedSubject) setSelectedSubject(JSON.parse(savedSelectedSubject));
-            if (savedSelectedGrade) setSelectedGrade(Number(savedSelectedGrade));
-            if (savedSelectedLectures) setSelectedLectures(JSON.parse(savedSelectedLectures));
-            if (savedTopics) setTopics(JSON.parse(savedTopics));
-            if (savedSelectedReviewId) setSelectedReviewId(JSON.parse(savedSelectedReviewId));
-            if (savedQuestionPages) setQuestionPages(JSON.parse(savedQuestionPages));
-            setTopicStates(savedTopicStates);
-            console.log(localStorage.getItem('selectedSubject'));
-        } else {
-            // Nếu là lần tải lại trang, reset các state
-            setSelectedSubject(null);
-            setSelectedGrade(1);
-            setSelectedLectures([]);
-            setQuestionPages([]);
-            setTopics([]);
-            setSelectedReviewId(null);
-            setTopicStates({});
-            setIsFirstLoad(false);
-            console.log(isFirstLoad);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (selectedSubject) localStorage.setItem('selectedSubject', JSON.stringify(selectedSubject));
-        if (selectedGrade) localStorage.setItem('selectedGrade', selectedGrade.toString());
-        if (selectedLectures.length) localStorage.setItem('selectedLectures', JSON.stringify(selectedLectures));
-        if (topics.length) localStorage.setItem('topics', JSON.stringify(topics));
-        if (selectedReviewId) localStorage.setItem('selectedReviewId', JSON.stringify(selectedReviewId));
-        if (questionPages.length) localStorage.setItem('questionPages', JSON.stringify(questionPages));
-    }, [selectedSubject, selectedGrade, selectedLectures, topics, selectedReviewId, questionPages]);
-
+      };
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -129,11 +94,9 @@ const OnTap = () => {
     }, [selectedSubject]);
     const setIsTopicOpen = (topicId, isOpen) => {
         setTopicStates((prevState) => {
-            const updatedStates = { ...prevState, [topicId]: isOpen };
-            localStorage.setItem('topicStates', JSON.stringify(updatedStates));
+            const updatedStates = { ...prevState, [topicId]: isOpen };         
             if (isOpen) {
-                setSelectedTopicId(topicId);
-                localStorage.setItem('selectedTopicId', topicId);
+                setSelectedTopicId(topicId);              
             }
             return updatedStates;
         });
@@ -191,10 +154,7 @@ const OnTap = () => {
             console.error('Error handling practice progress:', error);
         }
     };
-
-
     const handleViewLecture = (reviewId, lecture, topicId) => {
-        localStorage.setItem('isFirstLoad', 'false');
         const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${lecture.id}&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(lecture.url)}&topicId=${topicId}`;
         router.push(url);
     };
@@ -245,7 +205,7 @@ const OnTap = () => {
                 <Box>
                     <Select
                         value={selectedGrade}
-                        onChange={(e) => setSelectedGrade(parseInt(e.target.value))}
+                        onChange={handleGradeChange}
                         sx={{
                             width: 150,
                             height: 40,
@@ -287,6 +247,8 @@ const OnTap = () => {
                 <Box component="main" flex={1} marginLeft={4} display="grid" gridTemplateColumns="1fr 1fr" gap={4}>
                     {/* Theory Video Section */}
                     <Paper className="p-4" sx={{
+                         overflowY: 'auto',
+                         height: 'calc(90vh - 200px)'
                     }}>
                         <Typography variant="h5" className="font-bold mb-4">Lý thuyết</Typography>
                         {selectedLectures.length > 0 ? (
@@ -341,7 +303,7 @@ const OnTap = () => {
                     </Paper>
 
                     {/* Practice Question Section */}
-                    <Paper className="p-4" sx={{ marginRight: 1 }}>
+                    <Paper className="p-4" sx={{ marginRight: 1, overflowY: 'auto',height: 'calc(90vh - 200px)' }}>
                         <Typography variant="h5" className="font-bold mb-4">Thực hành</Typography>
 
                         {questionPages.length > 0 ? (

@@ -23,6 +23,15 @@ const Kiemtra = () => {
         setQuizzes,
     } = useKiemtraContext();
     const router = useRouter();
+
+    const handleGradeChange = (e) => {
+        setSelectedGrade(parseInt(e.target.value))
+        setSelectedSubject();
+        setTopics([]);
+        setCourses([]);
+        setQuizzes([]);
+        setSelectedTopicId(null);
+      };
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -114,7 +123,7 @@ const Kiemtra = () => {
                 <Box>
                     <Select
                         value={selectedGrade}
-                        onChange={(e) => setSelectedGrade(parseInt(e.target.value))}
+                        onChange={handleGradeChange}
                         sx={{
                             width: 150,
                             height: 40,
@@ -123,7 +132,6 @@ const Kiemtra = () => {
                     >
                         <MenuItem value={1}>Lớp 1</MenuItem>
                         <MenuItem value={2}>Lớp 2</MenuItem>
-                        <MenuItem value={3}>Lớp 3</MenuItem>
                     </Select>
                 </Box>
             </Box>
@@ -153,7 +161,7 @@ const Kiemtra = () => {
                 {/* Main Content */}
                 <Box component="main" flex={1} marginRight={4} marginLeft={4} display="grid" gridTemplateColumns="1fr" gap={4}>
                     {/* Quizzes Section */}
-                    <Paper className="p-4">
+                    <Paper className="p-4" sx={{height: 'calc(91vh - 200px)', overflowY: 'auto'}}>
                         {quizzes.length > 0 ? (
                             <Box
                                 sx={{
