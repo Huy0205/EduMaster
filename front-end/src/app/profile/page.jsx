@@ -3,9 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { FaUser, FaEnvelope, FaPhone, FaGraduationCap } from "react-icons/fa";
 import Header from '../../components/Header';
 import { Box, Button, TextField, Typography, IconButton, Avatar, MenuItem, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import axios from "axios";
+import { useAuth } from '~/context/AuthContext';
 import Navbar from '~/components/Navbar';
 import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
+import { useRouter } from 'next/navigation';
 const ProfilePage = () => {
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
@@ -20,15 +21,22 @@ const ProfilePage = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [activeFrameUrl, setActiveFrameUrl] = useState("");
   const fileInputRef = useRef(null);
-
+  const { setLoggedIn } = useAuth();
+  const router = useRouter();
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId'); // Lấy userId từ localStorage
-    setUserId(storedUserId); // Cập nhật state cho userId
+    if (storedUserId) {
+      setUserId(storedUserId); // Cập nhật state cho userId nếu có
+    } // Cập nhật state cho userId
   }, []);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
+      if (!userId) {
+        return;
+      }
       try {
         const response = await getApiNoneToken(`user/${userId}`);
         const userData = response.data.data;
@@ -37,8 +45,19 @@ const ProfilePage = () => {
         setPhone(userData.phoneNumber || "");
         setGrade(userData.currentGrade || "");
         setAvatar(userData.avatar || "");
+        const frameResponse = await getApiNoneToken(`/avatar-frame-user/user/${userId}`);
+        const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
+
+        if (activeFrame) {
+          setActiveFrameUrl(activeFrame.url);
+          const frameDetailsResponse = await getApiNoneToken(`/avatar-frame/${activeFrame.avatarFrameId}`);
+          const frameUrl = frameDetailsResponse.data.data.url;
+          console.log(frameUrl)
+          setActiveFrameUrl(frameUrl);
+        }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
+        setActiveFrameUrl("");
       }
     };
 
@@ -84,7 +103,6 @@ const ProfilePage = () => {
       id: userId,
       fullName: name,
       currentGrade: grade,
-      avatar: avatar
     };
     try {
       await putApiNoneToken(`user/update/${userId}`, updatedUserData);
@@ -114,7 +132,6 @@ const ProfilePage = () => {
         const response = await putApiNoneToken(`user/update/${userId}`, {
           password: newPassword, // mật khẩu mới
         });
-        console.log(password)
         if (response.status === 200) {
           setFeedbackMessage("Đổi mật khẩu thành công!");
           setPasswordModalOpen(false);
@@ -122,6 +139,12 @@ const ProfilePage = () => {
           setNewPassword("");
           setConfirmNewPassword("");
           setPasswordError("");
+          setLoggedIn(false);
+          localStorage.removeItem('loggedIn');
+          localStorage.removeItem('userId');
+          console.log("Đang chuyển hướng về login");
+          router.push('/login');
+
         }
       } else {
         setPasswordError("Mật khẩu cũ không chính xác!");
@@ -143,20 +166,22 @@ const ProfilePage = () => {
       <Navbar />
       <Box sx={{ maxWidth: '600px', mx: 'auto', bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 3, marginTop: 10 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}>
-          <img
-            src="/iframe/img/s3_3.png"
-            alt="User frame"
-            style={{
-              position: 'absolute',
-              width: 180,
-              height: 180,
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 2,
-              pointerEvents: 'none',
-            }}
-          />
+          {activeFrameUrl ? (
+            <img
+              src={activeFrameUrl}
+              alt="User frame"
+              style={{
+                position: 'absolute',
+                width: 180,
+                height: 180,
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}
+            />
+          ) : null}
           <IconButton onClick={handleAvatarClick}>
             <Avatar
               alt="User avatar"

@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box } from '@mui/material';
-import { getApiNoneToken} from '~/api/page';
+import { getApiNoneToken } from '~/api/page';
 
 const Header = () => {
   const { loggedIn, setLoggedIn } = useAuth();
@@ -23,7 +23,7 @@ const Header = () => {
   const [userId, setUserId] = useState(null); // State để lưu userId
   const [grade, setGrade] = useState("");
   const [point, setPoint] = useState("");
-  const [activeFrameUrl, setActiveFrameUrl] = useState("/iframe/img/default.png");
+  const [activeFrameUrl, setActiveFrameUrl] = useState("");
 
   useEffect(() => {
     // Kiểm tra xem mã có đang chạy ở phía client hay không
@@ -41,23 +41,27 @@ const Header = () => {
         try {
           const userResponse = await getApiNoneToken(`/user/${userId}`);
           const userData = userResponse.data.data;
-          setName(userData.fullName || ""); // Cập nhật tên người dùng
-          setAvatarUrl(userData.avatar || ""); // Cập nhật URL ảnh đại diện
+          setName(userData.fullName || "");
+          setAvatarUrl(userData.avatar || "");
           setGrade(userData.currentGrade);
           setPoint(userData.totalPoint || 0);
 
-          // Gọi API để lấy avatar frame đang active
+
           const frameResponse = await getApiNoneToken(`/avatar-frame-user/user/${userId}`);
           const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
-          
+
           if (activeFrame) {
-            setActiveFrameUrl(activeFrame.url); // Cập nhật URL ảnh bao quanh avatar
+            setActiveFrameUrl(activeFrame.url);
+            const frameDetailsResponse = await getApiNoneToken(`/avatar-frame/${activeFrame.avatarFrameId}`);
+            const frameUrl = frameDetailsResponse.data.data.url;
+            console.log(frameUrl)
+            setActiveFrameUrl(frameUrl);
           }
         } catch (error) {
           console.error("Error fetching user data or active frame:", error);
-          setName("Người dùng không tìm thấy"); // Thiết lập tên mặc định hoặc thông báo
-          setAvatarUrl(""); // Có thể thiết lập một URL mặc định cho avatar nếu cần
-          setActiveFrameUrl("/iframe/img/default.png"); // URL mặc định nếu không có frame active
+          setName("Người dùng không tìm thấy");
+          setAvatarUrl("");
+          setActiveFrameUrl("");
         }
       }
     };
@@ -115,21 +119,23 @@ const Header = () => {
                 <IconButton onClick={handleAvatarClick} color="inherit" sx={{ p: 0 }}>
                   <Box sx={{ position: 'relative', width: 48, height: 48, display: 'flex', placeContent: 'center' }}>
                     {/* Ảnh bao quanh Avatar */}
-                    <Box
-                      component="img"
-                      src={"/iframe/img/s3_3.png"} // Sử dụng URL frame active
-                      alt="Overlay"
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: '50%', // Ảnh overlay hình tròn
-                        scale:"160%",
-                        zIndex: 2, // Đặt ảnh overlay dưới avatar
-                      }}
-                    />
+                    {activeFrameUrl && (
+                      <Box
+                        component="img"
+                        src={activeFrameUrl} // Sử dụng URL frame active
+                        alt="Overlay"
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '50%', // Ảnh overlay hình tròn
+                          scale: "160%",
+                          zIndex: 2, // Đặt ảnh overlay dưới avatar
+                        }}
+                      />
+                    )}
                     <Avatar
                       src={avatarUrl}
                       sx={{
