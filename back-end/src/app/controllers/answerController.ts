@@ -28,7 +28,7 @@ export class AnswerController {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
-                const response = await AnswerService.addAnswer(answers);
+                const response = await AnswerService.addAnswers(answers);
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 console.log('Error adding answers', error);

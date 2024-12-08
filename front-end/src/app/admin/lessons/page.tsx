@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { Delete, Edit } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import { useCourses, useGrades, useTopics } from '~/hooks';
-import { useFilterData } from '~/context';
+import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
+import { useFilterData } from '../contexts';
 import { LessonService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import AdminFormDialog from '../components/FormDialog';
 import AdminConfirmDialog from '../components/ConfirmDialog';
+import { createCourseFilter, createGradeFilter, createTopicFilter } from '../configs/filters';
 
 function AdminLessonsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -98,25 +99,9 @@ function AdminLessonsPage() {
     };
 
     const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-        {
-            key: 'topicId',
-            placeholder: 'Chọn chương mục',
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
-            tooltipTitle: 'Vui lòng chọn môn học trước',
-        },
+        createGradeFilter(grades),
+        createCourseFilter(courses, filterData.grade),
+        createTopicFilter(topics, filterData.courseId),
     ];
 
     const tableConfig = {
@@ -133,7 +118,7 @@ function AdminLessonsPage() {
                 width: '200px',
                 align: 'center',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
             {
                 label: 'Sửa',

@@ -3,12 +3,18 @@ import { useState } from 'react';
 import { Delete, Edit } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import { useCourses, useGrades, useLessons, useTopics } from '~/hooks';
-import { useFilterData } from '~/context';
+import { useCourses, useGrades, useLessons, useTopics } from '~/app/admin/hooks';
+import { useFilterData } from '../contexts';
 import { TheoryService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import AdminFormDialog from '../components/FormDialog';
 import AdminConfirmDialog from '../components/ConfirmDialog';
+import {
+    createCourseFilter,
+    createGradeFilter,
+    createLessonFilter,
+    createTopicFilter,
+} from '../configs/filters';
 
 function AdminTheoriesPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,7 +29,7 @@ function AdminTheoriesPage() {
     const topics = useTopics(filterData.courseId);
     const lessons = useLessons(filterData.topicId);
 
-    const fetchData = async (filters: any) => {
+    const fetchData = async (filters: FilterData) => {
         if (filters.lessonId) return await TheoryService.getTheoriesByLesson(filters.lessonId, 0);
         if (filters.topicId) return await TheoryService.getTheoriesByTopic(filters.topicId);
         if (filters.courseId) return await TheoryService.getTheoriesByCourse(filters.courseId);
@@ -89,6 +95,7 @@ function AdminTheoriesPage() {
     };
 
     const handleDelete = async (id: string) => {
+        console.log('Deleting theory:', id);
         const deletedRes = await TheoryService.updateTheory(id, { status: -1 });
         const { data: deletedTheory, message } = deletedRes.data;
         if (deletedTheory) {
@@ -103,32 +110,10 @@ function AdminTheoriesPage() {
     };
 
     const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-        {
-            key: 'topicId',
-            placeholder: 'Chọn chương mục',
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
-            tooltipTitle: 'Vui lòng chọn môn học trước',
-        },
-        {
-            key: 'lessonId',
-            placeholder: 'Chọn bài học',
-            options: lessons.map((lesson: any) => ({ value: lesson.id, label: lesson.name })),
-            disabled: !filterData.topicId,
-            tooltipTitle: 'Vui lòng chọn chương mục trước',
-        },
+        createGradeFilter(grades),
+        createCourseFilter(courses, filterData.grade),
+        createTopicFilter(topics, filterData.courseId),
+        createLessonFilter(lessons, filterData.topicId),
     ];
 
     const tableConfig = {
@@ -151,7 +136,7 @@ function AdminTheoriesPage() {
                 width: '200px',
                 align: 'center',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
             {
                 label: 'Sửa',
@@ -191,7 +176,7 @@ function AdminTheoriesPage() {
         title: 'Xác nhận xóa bài giảng',
         content: theoryToDelete?.title,
         onClose: () => setIsConfirmDialogOpen(false),
-        onConfirm: () => handleDelete(currentData.id),
+        onConfirm: () => handleDelete(theoryToDelete.id),
     };
 
     return (

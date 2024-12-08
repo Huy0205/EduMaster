@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useFilterData } from '~/context';
+import { useFilterData } from '../contexts';
 import { LessonService } from '~/services';
 
 function useLessons(topicId: string) {
@@ -10,6 +10,7 @@ function useLessons(topicId: string) {
 
     useEffect(() => {
         if (topicId) {
+            setFilterData({ lessonId: '' });
             const fetchLessons = async () => {
                 const result = await LessonService.getLessonsByTopic(topicId, 0);
                 const { data, message } = result.data;
@@ -22,7 +23,6 @@ function useLessons(topicId: string) {
             fetchLessons();
         } else {
             setLessons([]);
-            setFilterData({ lessonId: '' });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [topicId]);

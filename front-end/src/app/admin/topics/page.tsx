@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { Delete, Edit } from '@mui/icons-material';
 import { toast } from 'react-toastify';
 
-import { useCourses, useGrades } from '~/hooks';
-import { useFilterData } from '~/context';
+import { useCourses, useGrades } from '~/app/admin/hooks';
+import { useFilterData } from '../contexts';
 import { TopicService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import AdminFormDialog from '../components/FormDialog';
 import AdminConfirmDialog from '../components/ConfirmDialog';
+import { createCourseFilter, createGradeFilter } from '../configs/filters';
 
 function AdminTopicsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,7 +22,7 @@ function AdminTopicsPage() {
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
 
-    const fetchData = async (filters: any) => {
+    const fetchData = async (filters: FilterData) => {
         if (filters.courseId) return await TopicService.getTopicsByCourse(filters.courseId, 0);
         if (filters.grade) return await TopicService.getTopicByGrade(filters.grade);
         return await TopicService.getAllTopics();
@@ -30,7 +31,7 @@ function AdminTopicsPage() {
     let triggerReload: ((reload: boolean) => void) | undefined;
 
     const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
-        triggerReload = setReloadFn; 
+        triggerReload = setReloadFn;
     };
 
     const handleOpenFormDialog = (mode: 'add' | 'update', data?: any) => {
@@ -95,20 +96,7 @@ function AdminTopicsPage() {
         setIsConfirmDialogOpen(false);
     };
 
-    const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-    ];
+    const filterConfig = [createGradeFilter(grades), createCourseFilter(courses, filterData.grade)];
 
     const tableConfig = {
         columns: [
@@ -124,7 +112,7 @@ function AdminTopicsPage() {
                 width: '200px',
                 align: 'center',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
             {
                 label: 'Sửa',

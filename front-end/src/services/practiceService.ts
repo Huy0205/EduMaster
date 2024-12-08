@@ -9,15 +9,15 @@ export class PracticeService {
         return axios.get(`practice/grade/${grade}`);
     }
 
-    public static getPracticesByCourse(courseId: number) {
+    public static getPracticesByCourse(courseId: string) {
         return axios.get(`practice/course/${courseId}`);
     }
 
-    public static getPracticesByTopic(topicId: number) {
+    public static getPracticesByTopic(topicId: string) {
         return axios.get(`practice/topic/${topicId}`);
     }
 
-    public static getPracticesByLesson(lessonId: number, role?: 0 | 1) {
+    public static getPracticesByLesson(lessonId: string, role?: 0 | 1) {
         const headers = role !== undefined ? { role } : {};
         return axios.get(`practice/lesson/${lessonId}`, {
             headers,

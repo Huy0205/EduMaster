@@ -1,13 +1,25 @@
 'use client';
-import { Delete, Edit, ViewList } from '@mui/icons-material';
+import { useState } from 'react';
+import { Close, Delete, Edit, HelpOutline, ViewList } from '@mui/icons-material';
+import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 
-import { useCourses, useGrades, useTopics } from '~/hooks';
-import { useFilterData } from '~/context';
-import useLessons from '~/hooks/useLessons';
+import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
+import { useFilterData } from '~/app/admin/contexts';
+import useLessons from '~/app/admin/hooks/useLessons';
 import { QuestionService } from '~/services';
 import AdminManagementWrapper from '~/app/admin/components/management';
+import {
+    createCourseFilter,
+    createGradeFilter,
+    createLessonFilter,
+    createTopicFilter,
+} from '~/app/admin/configs/filters';
+import QuestionView from '../../components/questionView';
 
 function AdminPracticeQuestionsPage() {
+    const [showDetail, setShowDetail] = useState(false);
+    const [dataSelected, setDataSelected] = useState<any>(null);
+
     const { filterData } = useFilterData();
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
@@ -25,33 +37,16 @@ function AdminPracticeQuestionsPage() {
         return await QuestionService.getAllQuestions(false);
     };
 
+    const handleShowDetail = (data: any) => {
+        setDataSelected(data);
+        setShowDetail(true);
+    };
+
     const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-        {
-            key: 'topicId',
-            placeholder: 'Chọn chương mục',
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
-            tooltipTitle: 'Vui lòng chọn môn học trước',
-        },
-        {
-            key: 'lessonId',
-            placeholder: 'Chọn bài học',
-            options: lessons.map((lesson: any) => ({ value: lesson.id, label: lesson.name })),
-            disabled: !filterData.topicId,
-            tooltipTitle: 'Vui lòng chọn chương mục trước',
-        },
+        createGradeFilter(grades),
+        createCourseFilter(courses, filterData.grade),
+        createTopicFilter(topics, filterData.courseId),
+        createLessonFilter(lessons, filterData.topicId),
     ];
 
     const tableConfig = {
@@ -68,7 +63,7 @@ function AdminPracticeQuestionsPage() {
                 width: '200px',
                 align: 'left',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
             {
                 label: 'Sửa',
@@ -86,7 +81,7 @@ function AdminPracticeQuestionsPage() {
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => console.log('Detail', item),
+                onClick: (item: any) => handleShowDetail(item),
             },
         ],
     };
@@ -97,12 +92,43 @@ function AdminPracticeQuestionsPage() {
     };
 
     return (
-        <AdminManagementWrapper
-            fetchData={fetchData}
-            filterConfig={filterConfig}
-            tableConfig={tableConfig}
-            addBtn={addBtn}
-        />
+        <>
+            <AdminManagementWrapper
+                fetchData={fetchData}
+                filterConfig={filterConfig}
+                tableConfig={tableConfig}
+                addBtn={addBtn}
+            />
+            <Dialog
+                open={showDetail}
+                onClose={() => setShowDetail(false)}
+                // sx={{ '& .MuiDialog-paper': { width: '60%', maxWidth: 'none' } }}
+            >
+                <DialogTitle
+                    sx={{
+                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                        // padding: '16px 24px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div className="flex items-center gap-2">
+                        <HelpOutline />
+                        <h2>Chi tiết câu hỏi</h2>
+                    </div>
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => setShowDetail(false)}
+                    >
+                        <Close />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <QuestionView data={dataSelected} />
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }
 

@@ -34,7 +34,7 @@ export class AnswerService {
      * @param answers
      * @returns
      */
-    public static async addAnswer(answers: Answer[]) {
+    public static async addAnswers(answers: Answer[]) {
         try {
             const response = await AnswerRepository.save(answers);
             return {

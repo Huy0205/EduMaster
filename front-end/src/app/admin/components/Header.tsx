@@ -1,4 +1,5 @@
 import { Logout, Reply, WavingHand } from '@mui/icons-material';
+import Link from 'next/link';
 
 function AdminHeader() {
     return (
@@ -8,13 +9,13 @@ function AdminHeader() {
                 <span className="text-base text-gray-600 font-medium italic">Xin chào, Admin!</span>
             </div>
             <div className="flex gap-5">
-                <button
-                    type="button"
+                <Link
+                    href="/"
                     className="flex gap-1 text-gray-600"
                 >
                     <Reply />
                     <span className="text-base font-medium">Về trang web</span>
-                </button>
+                </Link>
                 <button
                     type="button"
                     className="flex gap-1 text-gray-600"

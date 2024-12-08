@@ -1,7 +1,7 @@
 'use client';
 import { Delete, Edit, ViewList } from '@mui/icons-material';
 
-import { useCourses, useGrades, useTopics } from '~/hooks';
+import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
 import { useFilterData } from '~/context';
 import { QuizService } from '~/services';
 import AdminManagementWrapper from '../components/management';

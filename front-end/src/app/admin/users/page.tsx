@@ -1,5 +1,5 @@
 'use client';
-import { useGrades } from '~/hooks';
+import { useGrades } from '~/app/admin/hooks';
 import { UserService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import { Delete, Edit } from '@mui/icons-material';

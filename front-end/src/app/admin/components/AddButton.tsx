@@ -3,12 +3,13 @@ import { Tooltip } from '@mui/material';
 import Link from 'next/link';
 
 interface AddButtonProps {
+    content?: string;
     link?: string;
     onClick?: () => void;
     disabled?: boolean;
 }
 
-function AddButton({ link, onClick, disabled }: AddButtonProps) {
+function AddButton({ content, link, onClick, disabled }: AddButtonProps) {
     if ((!link && !onClick) || (link && onClick)) {
         return null;
     }
@@ -24,7 +25,7 @@ function AddButton({ link, onClick, disabled }: AddButtonProps) {
                     aria-label="Thêm"
                 >
                     <Add />
-                    <span>Thêm</span>
+                    <span>{content || 'Thêm'}</span>
                 </Link>
             ) : (
                 <button
@@ -34,7 +35,7 @@ function AddButton({ link, onClick, disabled }: AddButtonProps) {
                     disabled={disabled}
                 >
                     <Add />
-                    <span>Thêm</span>
+                    <span>{content || 'Thêm'}</span>
                 </button>
             )}
         </Tooltip>

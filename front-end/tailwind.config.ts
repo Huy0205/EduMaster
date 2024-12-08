@@ -27,6 +27,13 @@ const config: Config = {
                 btn: '32px',
             },
         },
+        listStyleType: {
+            none: 'none',
+            disc: 'disc',
+            decimal: 'decimal',
+            square: 'square',
+            roman: 'upper-roman',
+        },
     },
     plugins: [],
 };

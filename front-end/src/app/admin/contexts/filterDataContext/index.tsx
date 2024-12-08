@@ -1,19 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface FilterData {
-    grade: number;
-    courseId: string;
-    topicId: string;
-    lessonId: string;
-}
-
-interface FilterDataContextProps {
-    filterData: FilterData;
-    setFilterData: (data: Partial<FilterData>) => void;
-    resetFilterData: () => void;
-}
-
 const defaultFilterData: FilterData = {
     grade: 0,
     courseId: '',

@@ -17,6 +17,19 @@ export class QuestionService {
     public static async getAllQuestions(isQuizQuestion: boolean) {
         try {
             const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
                 where: {
                     lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
                     status: In([Status.ACTIVE]),
@@ -58,6 +71,19 @@ export class QuestionService {
     public static async getQuestionsByGrade(isQuizQuestion: boolean, grade: number) {
         try {
             const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
                 where: {
                     topic: { course: { grade } },
                     lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
@@ -99,6 +125,19 @@ export class QuestionService {
     public static async getQuestionsByCourse(isQuizQuestion: boolean, courseId: string) {
         try {
             const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
                 where: {
                     topic: {
                         course: { id: courseId },
@@ -132,13 +171,24 @@ export class QuestionService {
      * ordered by lesson order, question order
      * only for admin
      * @param topicId
-     * @param page
-     * @param limit
      * @returns
      */
     public static async getQuestionsByTopic(isQuizQuestion: boolean, topicId: string) {
         try {
             const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
                 where: {
                     topic: { id: topicId },
                     lesson: isQuizQuestion ? IsNull() : Not(IsNull()),
@@ -166,16 +216,30 @@ export class QuestionService {
      * Get questions by lesson
      * Only for admin
      * @param lessonId
-     * @param page
-     * @param limit
      * @returns
      */
     public static async getQuestionsByLesson(lessonId: string) {
         try {
             const questions = await questionRepository.find({
+                relations: ['practiceQuestions', 'answers'],
+                select: {
+                    id: true,
+                    content: true,
+                    image: true,
+                    type: true,
+                    feedback: true,
+                    answers: {
+                        id: true,
+                        content: true,
+                        isCorrect: true,
+                    },
+                },
                 where: {
                     lesson: { id: lessonId },
                     status: In([Status.ACTIVE]),
+                },
+                order: {
+                    createdAt: 'DESC',
                 },
             });
 
@@ -191,6 +255,7 @@ export class QuestionService {
     }
 
     public static async getQuestionByPractice(practiceId: string) {
+        console.log('practiceId', practiceId);
         try {
             const questions = await questionRepository.find({
                 relations: ['practiceQuestions', 'answers'],

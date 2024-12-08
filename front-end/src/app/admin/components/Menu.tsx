@@ -20,10 +20,10 @@ const menuItems = [
     { icon: <OndemandVideo />, label: 'Bài giảng', href: '/admin/theories' },
     {
         icon: <Help />,
-        label: 'Câu hỏi',
+        label: 'Ngân hàng câu hỏi',
         children: [
-            { label: 'Thực hành', href: '/admin/questions/practice' },
-            { label: 'Kiểm tra', href: '/admin/questions/quiz' },
+            { label: 'Câu hỏi thực hành', href: '/admin/questions/practice' },
+            { label: 'Câu hỏi kiểm tra', href: '/admin/questions/quiz' },
         ],
     },
     { icon: <Assessment />, label: 'Đề thực hành', href: '/admin/practices' },

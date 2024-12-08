@@ -1,10 +1,15 @@
 'use client';
 import { Delete, Edit, ViewList } from '@mui/icons-material';
 
-import { useCourses, useGrades, useTopics } from '~/hooks';
-import { useFilterData } from '~/context';
+import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
+import { useFilterData } from '~/app/admin/contexts';
 import { QuestionService } from '~/services';
 import AdminManagementWrapper from '~/app/admin/components/management';
+import {
+    createCourseFilter,
+    createGradeFilter,
+    createTopicFilter,
+} from '~/app/admin/configs/filters';
 
 function AdminQuizQuestionsPage() {
     const { filterData } = useFilterData();
@@ -22,25 +27,9 @@ function AdminQuizQuestionsPage() {
     };
 
     const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-        {
-            key: 'topicId',
-            placeholder: 'Chọn chương mục',
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
-            tooltipTitle: 'Vui lòng chọn môn học trước',
-        },
+        createGradeFilter(grades),
+        createCourseFilter(courses, filterData.grade),
+        createTopicFilter(topics, filterData.courseId),
     ];
 
     const tableConfig = {
@@ -57,7 +46,7 @@ function AdminQuizQuestionsPage() {
                 width: '200px',
                 align: 'left',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
             {
                 label: 'Sửa',

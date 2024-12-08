@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useFilterData } from '~/context';
+import { useFilterData } from '../contexts';
 import { CourseService } from '~/services';
 
 function useCourses(grade: number) {
@@ -10,6 +10,7 @@ function useCourses(grade: number) {
 
     useEffect(() => {
         if (grade) {
+            setFilterData({ courseId: '', topicId: '', lessonId: '' });
             const fetchCourses = async () => {
                 const result = await CourseService.getCoursesByGrade(grade);
                 const { data, message } = result.data;
@@ -22,7 +23,6 @@ function useCourses(grade: number) {
             fetchCourses();
         } else {
             setCourses([]);
-            setFilterData({ courseId: '', topicId: '', lessonId: '' });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [grade]);

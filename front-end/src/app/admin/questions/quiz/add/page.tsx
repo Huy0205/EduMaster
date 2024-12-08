@@ -1,9 +1,10 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useFilterData } from '~/context';
-import AdminAddQuestion from '~/app/admin/components/AddQuestion';
-import { AnswerService, CourseService, QuestionService, TopicService } from '~/services';
 import { useEffect, useState } from 'react';
+
+import { useFilterData } from '~/app/admin/contexts';
+import { AnswerService, CourseService, QuestionService, TopicService } from '~/services';
+import AdminAddQuestion from '~/app/admin/components/addQuestion';
 
 function AdminAddQuizQuestionPage() {
     const router = useRouter();

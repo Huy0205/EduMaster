@@ -26,6 +26,10 @@ export class QuestionService {
         });
     }
 
+    public static getQuestionsByPractice(practiceId: string) {
+        return axios.get(`question/practice/${practiceId}`);
+    }
+
     public static getQuestionById(questionId: string) {
         return axios.get(`question/${questionId}`);
     }

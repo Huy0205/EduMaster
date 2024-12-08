@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useFilterData } from '~/context';
+import { useFilterData } from '~/app/admin/contexts';
 import {
     AnswerService,
     CourseService,
@@ -10,7 +10,7 @@ import {
     QuestionService,
     TopicService,
 } from '~/services';
-import AdminAddQuestion from '~/app/admin/components/AddQuestion';
+import AdminAddQuestion from '~/app/admin/components/addQuestion';
 
 function AdminAddPracticeQuestionPage() {
     const router = useRouter();

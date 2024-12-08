@@ -1,14 +1,16 @@
 'use client';
-import { Add, Close } from '@mui/icons-material';
 import { useState } from 'react';
-import BorderWrapper from './BorderWrapper';
+import { Add, Close } from '@mui/icons-material';
+
+import BorderWrapper from '../BorderWrapper';
+import FilterDisplay from '../filterDisplay';
 
 function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
     const answerObj = {
         content: '',
         isCorrect: false,
     };
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormDataType>({
         content: '',
         image: '',
         type: 1,
@@ -30,13 +32,13 @@ function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
         });
     };
 
-    const updateAnswer = (index, key, value) => {
+    const updateAnswer = (index: number, key: string, value: string | boolean) => {
         if (formData.type === 3) {
             setFormData({
                 ...formData,
                 answers: [
                     {
-                        content: value,
+                        content: value as string,
                         isCorrect: true,
                     },
                 ],
@@ -49,28 +51,28 @@ function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
         }
     };
 
-    const onTypeChange = (e) => {
+    const onTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
-            type: Number(e.target.value),
+            type: Number(e.target.value) as 1 | 2 | 3,
             answers: [answerObj, answerObj],
         });
     };
 
-    const validate = () => {
-        if (formData.content.trim() === '' && formData.image.trim() === '') {
-            return false;
-        }
-        if (formData.answers.some((a) => a.content.trim() === '')) {
-            return false;
-        }
-        if (formData.type === 1 || formData.type === 2) {
-            if (!formData.answers.some((a) => a.isCorrect)) {
-                return false;
-            }
-        }
-        return true;
-    };
+    // const validate = () => {
+    //     if (formData.content.trim() === '' && formData.image.trim() === '') {
+    //         return false;
+    //     }
+    //     if (formData.answers.some((a) => a.content.trim() === '')) {
+    //         return false;
+    //     }
+    //     if (formData.type === 1 || formData.type === 2) {
+    //         if (!formData.answers.some((a) => a.isCorrect)) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // };
 
     const handleSave = () => {
         onSave(formData);
@@ -78,18 +80,8 @@ function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
 
     return (
         <div className="w-full flex bg-white py-5">
-            <div className="flex-2 flex flex-col items-center px-5 border-r-2">
-                <div className="w-full mb-5">
-                    {items.map((item, index) => (
-                        <div
-                            key={index}
-                            className="flex flex-col pb-3"
-                        >
-                            <label className="text-base font-medium m-1">{item.label}:</label>
-                            <span className="border-2 rounded-md px-2 py-1">{item.value}</span>
-                        </div>
-                    ))}
-                </div>
+            <div className=" max-w-[265px] flex flex-col items-center px-5 border-r-2 text-sm">
+                <FilterDisplay items={items} />
                 <BorderWrapper title="Loại câu hỏi">
                     <label className="flex items-center">
                         <input
@@ -126,7 +118,7 @@ function AdminAddQuestion({ items, onSave }: AdminAddQuestionProps) {
                     </label>
                 </BorderWrapper>
             </div>
-            <div className="flex-7 flex flex-col px-5">
+            <div className="flex-1 flex flex-col px-5">
                 <div className="flex-1 flex flex-col">
                     <textarea
                         placeholder="Nhập nội dung câu hỏi"
