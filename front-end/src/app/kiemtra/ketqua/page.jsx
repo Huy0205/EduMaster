@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home'; // Icon Ngôi Nhà
 import Navbar from '~/components/Navbar';
-import Header from '~/components/Header';
+import Header from '~/components/Header'
+import { getApiNoneToken } from '~/api/page';;
 const KetQua = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [quizData, setQuizData] = useState({});
+  const [quizname, setQuizName] = useState();
 
   useEffect(() => {
     // Lấy các tham số từ URL
@@ -16,13 +18,27 @@ const KetQua = () => {
     const timeLeft = searchParams.get('timeLeft');
     const score = searchParams.get('score');
     const time1 = 2400 - timeLeft
-    if (quizId && time1 && score) {
-      setQuizData({ quizId, time1, score });
+    if (time1 && score) {
+      setQuizData({ time1, score });
     }
+    if (quizId) {
+      const getQuizName = async (quizId) => {
+        try {
+          const response = await getApiNoneToken(`/quiz/${quizId}`);
+          setQuizName(response.data.data?.name || 'Không có tên quiz');
+        } catch (error) {
+          console.error('Error fetching quiz name:', error);
+          setQuizName('Không có tên quiz');
+        }
+      };
+
+      getQuizName(quizId);
+    }
+
   }, [searchParams]);
 
   // Kiểm tra nếu chưa có dữ liệu
-  if (!quizData.quizId || !quizData.time1 || !quizData.score) {
+  if (!quizData.time1 || !quizData.score) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh" flexDirection="column" padding={3}>
         <Typography variant="h5" sx={{ color: 'black' }}>
@@ -46,8 +62,8 @@ const KetQua = () => {
 
   return (
     <Box display="flex" flexDirection="column" height="100vh">
-      <Header/>
-      <Navbar/>
+      <Header />
+      <Navbar />
       <Box display="flex" justifyContent="space-between" alignItems="center" padding={2}>
         <Box display="flex" alignItems="center" onClick={goBackToQuiz} style={{ cursor: 'pointer' }}>
           <HomeIcon sx={{ color: 'black', fontSize: 30 }} />
@@ -60,7 +76,7 @@ const KetQua = () => {
           Kết quả bài kiểm tra
         </Typography>
         <Typography variant="h5" sx={{ color: 'black', fontSize: 28, marginTop: 2 }}>
-          Đề kiểm tra: {quizData.quizId}
+          Đề kiểm tra: {quizname}
         </Typography>
         <Typography variant="h5" sx={{ color: 'black', fontSize: 28, marginTop: 2 }}>
           Thời gian làm bài: {formatTime(Number(quizData.time1))}

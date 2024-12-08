@@ -18,7 +18,7 @@ const UserAvatarPage = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [activeFrameUrl, setActiveFrameUrl] = useState("/iframe/img/default.png");
+  const [activeFrameUrl, setActiveFrameUrl] = useState("");
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -30,7 +30,7 @@ const UserAvatarPage = () => {
     const activeFrame = frameUserMapping.find((f) => f.isActive);
     const frameUrl = activeFrame
       ? frames.find((frame) => frame.id === activeFrame.avatarFrameId)?.url
-      : "/iframe/img/default.png"; // URL mặc định nếu không tìm thấy
+      : ""; // URL mặc định nếu không tìm thấy
     setActiveFrameUrl(frameUrl);
   }, [frameUserMapping, frames]);
   useEffect(() => {
@@ -92,12 +92,12 @@ const UserAvatarPage = () => {
         // Trừ điểm
         const updatedPoint = point - frameToUnlock.point;
         setPoint(updatedPoint);
-  
+
         // Gọi API để cập nhật điểm của user
-         await putApiNoneToken(`user/update/${userId}`, {
+        await putApiNoneToken(`user/update/${userId}`, {
           totalPoint: updatedPoint,
         });
-        
+
         // Cập nhật danh sách frameUserMapping
         setFrameUserMapping((prevMapping) => [
           ...prevMapping,
@@ -228,17 +228,20 @@ const UserAvatarPage = () => {
             paddingRight: 2,
           }}
         >
-          <img
-            src={activeFrameUrl}
-            style={{
-              position: 'absolute',
-              width: 180,
-              height: 180,
-              top: '42%',
-              zIndex: 2,
-              pointerEvents: 'none',
-            }}
-          />
+          {activeFrameUrl ? (
+            <img
+              src={activeFrameUrl}
+              alt="Avatar frame"
+              style={{
+                position: 'absolute',
+                width: 180,
+                height: 180,
+                top: '42%',
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}
+            />
+          ) : null}
           <Avatar
             src={avatar}
             alt="User avatar"
