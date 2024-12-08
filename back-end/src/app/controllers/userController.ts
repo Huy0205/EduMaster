@@ -150,8 +150,8 @@ export class UserController {
                 !phoneNumber &&
                 !avatar &&
                 !currentGrade &&
-                !totalPoint &&
-                !status)
+                totalPoint === undefined &&
+                status === undefined)
         ) {
             ResponseUtil.sendMissingData(res);
         } else if (
@@ -162,7 +162,10 @@ export class UserController {
         ) {
             ResponseUtil.sendInvalidData(res);
         } else {
-            const hashPassword = await BcryptUtil.hashPassword(password);
+            let hashPassword = password;
+            if (password) {
+                hashPassword = await BcryptUtil.hashPassword(password);
+            }
             try {
                 const response = await UserService.saveUser({
                     id,
