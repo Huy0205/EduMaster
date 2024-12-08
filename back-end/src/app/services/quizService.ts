@@ -121,6 +121,24 @@ export class QuizService {
         }
     }
 
+    public static async getQuizById(quizId: string) {
+        try {
+            const quiz = await quizRepository.findOne({
+                where: {
+                    id: quizId,
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get quiz by id successfully',
+                data: quiz,
+            };
+        } catch (error) {
+            console.error('Error getting quiz by id', error);
+            throw error;
+        }
+    }
+
     /**
      * Add a new quiz
      * @param quiz

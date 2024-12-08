@@ -6,7 +6,7 @@ const AvatarFrameRepository = db.AppDataSource.getRepository(AvatarFrame);
 export class AvatarFrameService {
     /**
      * Get all avatar frames
-     * @returns 
+     * @returns
      */
     public static async getAllAvatarFrames() {
         try {
@@ -22,4 +22,26 @@ export class AvatarFrameService {
         }
     }
 
+    /**
+     * Get avatar frame by id
+     * @param id
+     * @returns
+     */
+    public static async getAvatarFrameById(avatarFrameId: string) {
+        try {
+            const response = await AvatarFrameRepository.findOne({
+                where: {
+                    id: avatarFrameId,
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get avatar frame by id success',
+                data: response,
+            };
+        } catch (error) {
+            console.log('Error getting avatar frame by id', error);
+            throw error;
+        }
+    }
 }

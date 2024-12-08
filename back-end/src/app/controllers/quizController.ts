@@ -66,6 +66,22 @@ export class QuizController {
         }
     }
 
+    public static async getQuizById(req: Request, res: Response, next: NextFunction) {
+        const { quizId } = req.params;
+        if (!quizId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(quizId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await QuizService.getQuizById(quizId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
     public static async addQuiz(req: Request, res: Response, next: NextFunction) {
         const { name, time, bonusPoint, topicId } = req.body;
         if (!name || !time || !topicId) {

@@ -15,6 +15,9 @@ quizRouter.get('/course/:courseId', QuizController.getQuizByCourse);
 // GET: http://localhost:8080/api/v1/quiz/topic/:topicId
 quizRouter.get('/topic/:topicId', QuizController.getQuizByTopic);
 
+// GET: http://localhost:8080/api/v1/quiz/:quizId
+quizRouter.get('/:quizId', QuizController.getQuizById);
+
 // POST: http://localhost:8080/api/v1/quiz/add
 quizRouter.post('/add', QuizController.addQuiz);
 

@@ -12,5 +12,17 @@ export class AvatarFrameController {
         }
     }
 
-    
+    public static async getAvatarFrameById(req: Request, res: Response, next: NextFunction) {
+        const { avatarFrameId } = req.params;
+        if (!avatarFrameId) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            try {
+                const response = await AvatarFrameService.getAvatarFrameById(avatarFrameId);
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
 }
