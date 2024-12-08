@@ -18,6 +18,9 @@ resultRouter.get(
     ResultController.getResultByUserAndQuizLatest,
 );
 
+// GET http://localhost:8080/api/v1/result/user/:userId/quiz/:quizId
+resultRouter.get('/user/:userId/quiz/:quizId', ResultController.getResultsByUserAndQuiz);
+
 // POST http://localhost:8080/api/v1/result/add
 resultRouter.post('/add', ResultController.addResult);
 

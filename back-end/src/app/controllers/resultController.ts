@@ -40,6 +40,22 @@ export class ResultController {
         }
     }
 
+    public static async getResultsByUserAndQuiz(req: Request, res: Response, next: NextFunction) {
+        const { userId, quizId } = req.params;
+        if (!userId || !quizId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(userId) || !isUUID(quizId)) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const results = await ResultService.getResultsByUserAndQuiz(userId, quizId);
+                ResponseUtil.sendResponse(res, results);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
     public static async getResultByUserAndQuizLatest(
         req: Request,
         res: Response,
@@ -66,13 +82,13 @@ export class ResultController {
         console.log('correctCount', correctCount);
         console.log('type score', typeof score);
         console.log('type correctCount', typeof correctCount);
-        if (score === undefined  || correctCount === undefined || !userId || !quizId) {
+        if (score === undefined || correctCount === undefined || !userId || !quizId) {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const result = await ResultService.addResult({
-                    score:Number(score),
-                    correctCount:Number(correctCount),
+                    score: Number(score),
+                    correctCount: Number(correctCount),
                     userId,
                     quizId,
                 });

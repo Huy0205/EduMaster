@@ -49,6 +49,23 @@ export class ResultService {
         }
     }
 
+    public static async getResultsByUserAndQuiz(userId: string, quizId: string) {
+        try {
+            const results = await ResultRepository.find({
+                where: { userId, quizId },
+                order: { createdAt: 'DESC' },
+            });
+            return {
+                code: 200,
+                message: 'Get results success',
+                data: results,
+            };
+        } catch (error) {
+            console.log('Error getting results', error);
+            throw error;
+        }
+    }
+
     /**
      * Get result by user and quiz latest
      * @param userId
