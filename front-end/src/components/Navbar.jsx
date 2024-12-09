@@ -14,7 +14,7 @@ const Navbar = () => {
           <Button
             variant="contained"
             sx={{
-              bgcolor: (pathname.startsWith('/ontap') || pathname === '/' || pathname === '/profile') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /ontap hoặc trang con của nó
+              bgcolor: (pathname.startsWith('/ontap') || pathname === '/' || pathname === '/profile' || pathname === '/tiendo') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /ontap hoặc trang con của nó
               color: 'white',
               mx: 1,
               fontWeight: 'bold',
@@ -31,7 +31,7 @@ const Navbar = () => {
           <Button
             variant="contained"
             sx={{
-              bgcolor: (pathname.startsWith('/kiemtra') || pathname === '/' || pathname === '/profile') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /kiemtra hoặc trang con của nó
+              bgcolor: (pathname.startsWith('/kiemtra') || pathname === '/' || pathname === '/profile' || pathname === '/tiendo') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /kiemtra hoặc trang con của nó
               color: 'white',
               mx: 1,
               fontWeight: 'bold',
@@ -48,7 +48,7 @@ const Navbar = () => {
           <Button
             variant="contained"
             sx={{
-              bgcolor: (pathname.startsWith('/doithuong')|| pathname === '/' || pathname === '/profile') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /doithuong hoặc trang con của nó
+              bgcolor: (pathname.startsWith('/doithuong')|| pathname === '/' || pathname === '/profile' || pathname === '/tiendo') ? 'green.500' : 'grey.300', // Kiểm tra nếu đang ở trang /doithuong hoặc trang con của nó
               color: 'white',
               mx: 1,
               fontWeight: 'bold',
