@@ -23,13 +23,27 @@ const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questionsData, setQuestionsData] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(2400); // 5 phút
+  const [timeLeft, setTimeLeft] = useState(); // 5 phút
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false); // Biến để xác nhận thoát
   const searchParams = useSearchParams();
   const quizId = searchParams.get('quizId');
   const router = useRouter();
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const response = await getApiNoneToken(`/quiz/${quizId}`);
+        setTimeLeft((response.data.data.time)*60); 
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      }
+    };
+
+    if (quizId) {
+      fetchQuestions();
+    }
+  }, [quizId]);
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -109,7 +123,7 @@ const Quiz = () => {
         return count;
       }, 0);
 
-      const score = Math.round(correctCount * 0.5);
+      const score = correctCount * 0.5;
       const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
 
       const payload = {

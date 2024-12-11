@@ -95,18 +95,21 @@ const Statistics = () => {
 
   // Lấy danh sách kết quả quiz
   useEffect(() => {
-    if (userid) {
+    if (userid && selectedQuiz) {
       const fetchData = async () => {
         try {
-          const response = await getApiNoneToken(`/result/user/${userid}`);
+          const response = await getApiNoneToken(`/result/user/${userid}/quiz/${selectedQuiz.id}`);
           setQuizData(response.data.data || []);
         } catch (error) {
           console.error('Lỗi khi lấy dữ liệu:', error);
         }
       };
       fetchData();
+    } else {
+      // Reset dữ liệu khi chưa chọn bài kiểm tra
+      setQuizData([]);
     }
-  }, [userid]);
+  }, [userid, selectedQuiz]);
 
   return (
     <>
