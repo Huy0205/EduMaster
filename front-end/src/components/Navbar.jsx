@@ -22,7 +22,7 @@ const Navbar = () => {
               '&:hover': { bgcolor: pathname.startsWith('/ontap') ? 'green.400' : 'grey.400' }, // Hiệu ứng hover tùy vào trang
             }}
           >
-            Ôn Tập
+            Vào học
           </Button>
         </a>
 

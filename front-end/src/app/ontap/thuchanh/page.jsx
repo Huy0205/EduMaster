@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getApiNoneToken } from '~/api/page';
 import Question from '~/components/thuchanh/question';
-
+import { useOntapContext } from '~/context/OntapContext';
 export default function Home() {
   const searchParams = useSearchParams();
   const pargesId = searchParams.get('pargesId');
@@ -19,10 +19,13 @@ export default function Home() {
   const [timeTaken, setTimeTaken] = useState(null);
   const [questionsData, setQuestionsData] = useState([]);
   const router = useRouter();
-
-  const chapterName = "Chương 1";
-  const lessonName = "Bài 1: Vị Trí";
-
+  const {
+    selectedSubject,
+    selectedGrade,
+    topics,
+    selectedTopicId,
+    selectedReviewId,
+  } = useOntapContext();
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -158,29 +161,57 @@ export default function Home() {
   }
 
   return (
-    <Box className="min-h-screen flex flex-col items-center" sx={{
-      backgroundImage: 'url(/img/bg-question.jpg)',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    }}>
+    <Box
+      className="min-h-screen flex flex-col items-center"
+      sx={{
+        backgroundImage: 'url(/img/bg-question.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       <Header />
       <Navbar />
-      <Box sx={{ maxWidth: 800 }}>
-        <Typography variant="h6" component="div" sx={{ fontWeight: "bold", color: "#000" }}>
-          {chapterName} {'>'} {lessonName}
+
+      {/* Box hiển thị thông tin bài học */}
+      <Box sx={{ maxWidth: 800}}> {/* Thêm margin-top để tách khỏi Navbar */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ fontWeight: "bold", color: "#000" }}
+        >
+          {selectedSubject ? `${selectedSubject.name} ${selectedGrade}` : "Chưa chọn môn"} {'>'}
+          {topics.length > 0 && selectedTopicId
+            ? ` ${topics.find(topic => topic.id === selectedTopicId)?.name}`
+            : "Chưa chọn chương"} {'>'}
+          {selectedReviewId
+            ? `${topics
+              .find(topic => topic.id === selectedTopicId)
+              ?.reviews?.find(review => review.id === selectedReviewId)?.name || "Không rõ"
+            }`
+            : "Chưa chọn bài học"}
         </Typography>
       </Box>
-      <Box className="text-lg font-bold my-4 flex items-center justify-center gap-28 space-x-6 bg-white p-4 rounded-lg shadow-lg " sx={{
-        minWidth: 1200,
-      }}>
+
+      {/* Box hiển thị thông tin tổng quan */}
+      <Box
+        className="text-lg font-bold my-4 flex flex-wrap items-center justify-center gap-4 bg-white p-4 rounded-lg shadow-lg"
+        sx={{
+          maxWidth: 1200,
+          width: '100%',
+        }}
+      >
         <Box className="flex items-center space-x-2">
           <Image src="/img/star.svg" alt="Lesson Icon" width={24} height={24} />
-          <span className="font-bold text-lg text-black">{currentQuestion + 1}/{questionsData.length}</span>
+          <span className="font-bold text-lg text-black">
+            {currentQuestion + 1}/{questionsData.length}
+          </span>
         </Box>
         <Box className="flex items-center space-x-2 border rounded-lg p-2">
           <Image src="/img/clock.svg" alt="Clock Icon" width={24} height={24} />
           <span className="font-bold text-lg text-black">
-            {String(Math.floor(elapsedTime / 3600)).padStart(2, '0')} : {String(Math.floor((elapsedTime % 3600) / 60)).padStart(2, '0')} : {String(elapsedTime % 60).padStart(2, '0')}
+            {String(Math.floor(elapsedTime / 3600)).padStart(2, '0')} :{' '}
+            {String(Math.floor((elapsedTime % 3600) / 60)).padStart(2, '0')} :{' '}
+            {String(elapsedTime % 60).padStart(2, '0')}
           </span>
         </Box>
         <Box className="flex items-center space-x-1">
@@ -192,7 +223,16 @@ export default function Home() {
           <span className="text-red-600 font-bold text-lg">{incorrectAnswers}</span>
         </Box>
       </Box>
-      <Box className="flex flex-col items-center justify-center mt-8 p-4 " sx={{ maxWidth: 1000, width: '100%', height: 500 }}>
+
+      {/* Box hiển thị câu hỏi */}
+      <Box
+        className="flex flex-col items-center justify-center"
+        sx={{
+          maxWidth: 1000,
+          width: '100%',
+          height: 'auto', // Cho phép chiều cao tự động
+        }}
+      >
         {questionsData.length > 0 ? (
           <Question
             question={questionsData[currentQuestion]}
