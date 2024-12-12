@@ -77,7 +77,10 @@ const Header = () => {
     router.push('/profile');
     setAnchorEl(null);
   };
-
+  const handleThongKe = () => {
+    router.push('/tiendo');
+    setAnchorEl(null);
+  };
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -177,6 +180,9 @@ const Header = () => {
                 >
                   Điểm thưởng:
                   <span style={{ color: '#23ff23', fontWeight: 'bold', marginLeft: 6 }}>{point}</span>
+                </MenuItem>
+                <MenuItem onClick={handleThongKe} sx={{ minWidth: 200, justifyContent: 'space-between' }}>
+                  Thống kê
                 </MenuItem>
                 <MenuItem onClick={handleProfileClick} sx={{ minWidth: 200, justifyContent: 'space-between' }}>
                   Thông tin cá nhân

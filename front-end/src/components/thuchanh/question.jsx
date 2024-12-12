@@ -98,7 +98,7 @@ function Question({ question, onNext, onSubmitAnswer, questionlist,userId,parges
       );
     };
     return (
-      <Box display="flex" flexDirection="column" alignItems="center" width="100%" sx={{ marginTop: 10 }}>
+      <Box display="flex" flexDirection="column" alignItems="center" width="100%">
         <Box
           p={3}
           border={1}
