@@ -212,7 +212,7 @@ function AdminCreatePracticesOrQuizzes({
                         className="p-2 mt-3 bg-green-400 text-white rounded-md"
                         onClick={handleCreate}
                     >
-                        <span>Tạo bài thực hành</span>
+                        <span>Tạo đề</span>
                         <NavigateNext fontSize="inherit" />
                     </button>
                 </div>

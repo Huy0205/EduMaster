@@ -133,8 +133,8 @@ function AdminPracticesPage() {
         open: showDetail,
         onClose: () => setShowDetail(false),
         title: 'Chi tiết đề thực hành',
-        name: itemSelected.name,
-        bonusPoint: itemSelected.bonusPoint,
+        name: itemSelected?.name,
+        bonusPoint: itemSelected?.bonusPoint,
         questions: detailData,
     };
 
@@ -142,6 +142,7 @@ function AdminPracticesPage() {
         <>
             <AdminManagementWrapper
                 fetchData={fetchData}
+                updateData={PracticeService.updatePractice}
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}

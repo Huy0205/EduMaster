@@ -30,12 +30,21 @@ function AdminQuizzesPage() {
         return await QuizService.getAllQuizzes();
     };
 
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn;
+    };
+
     const handleDelete = async (quizId: string) => {
         try {
             const updateRes = await QuizService.updateQuiz(quizId, { status: -1 });
             const { data, message } = updateRes.data;
             if (data) {
-                toast.success('Đã xóa đề kiểm tra: ' + data.name);
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Xóa đề kiểm tra thành công');
             } else {
                 throw new Error(message);
             }
@@ -43,6 +52,7 @@ function AdminQuizzesPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+        setIsConfirmDialogOpen(false);
     };
 
     const handleShowDetail = async (item: any) => {
@@ -61,6 +71,11 @@ function AdminQuizzesPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+    };
+
+    const handleOpenConfirmDialog = (quiz: any) => {
+        setQuizToDelete(quiz);
+        setIsConfirmDialogOpen(true);
     };
 
     const filterConfig = [
@@ -107,7 +122,7 @@ function AdminQuizzesPage() {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => setQuizToDelete(item),
+                onClick: (item: any) => handleOpenConfirmDialog(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -125,7 +140,7 @@ function AdminQuizzesPage() {
 
     const confirmDialogConfig = {
         open: isConfirmDialogOpen,
-        title: 'Xác nhận đề kiểm tra',
+        title: 'Xác nhận xóa đề kiểm tra',
         content: quizToDelete?.name,
         onClose: () => setIsConfirmDialogOpen(false),
         onConfirm: () => handleDelete(quizToDelete.id),
@@ -135,9 +150,9 @@ function AdminQuizzesPage() {
         open: isShowDetail,
         onClose: () => setIsShowDetail(false),
         title: 'Chi tiết đề kiểm tra',
-        name: itemSelected.name,
-        time: itemSelected.time,
-        bonusPoint: itemSelected.bonusPoint,
+        name: itemSelected?.name,
+        time: itemSelected?.time,
+        bonusPoint: itemSelected?.bonusPoint,
         questions: detailData,
     };
 
@@ -145,9 +160,11 @@ function AdminQuizzesPage() {
         <>
             <AdminManagementWrapper
                 fetchData={fetchData}
+                updateData={QuizService.updateQuiz}
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
+                onReloadTable={handleReloadSetup}
             />
             <AdminConfirmDialog {...confirmDialogConfig} />
             <AdminDialogPracticeOrQuizDetail {...dialogDetailConfig} />

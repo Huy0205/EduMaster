@@ -19,12 +19,26 @@ function AdminUsersPage() {
         return await UserService.getUsersByRole(1);
     };
 
+    const handleOpenConfirmDialog = (user: any) => {
+        setUserToDelete(user);
+        setIsConfirmDialogOpen(true);
+    };
+
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn;
+    };
+
     const handleDelete = async (userId: string) => {
         try {
             const updateRes = await UserService.updateUser(userId, { status: -1 });
             const { data, message } = updateRes.data;
             if (data) {
-                toast.success('Đã xóa người dùng ' + data.fullName);
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Xóa người dùng thành công');
             } else {
                 throw new Error(message);
             }
@@ -32,6 +46,7 @@ function AdminUsersPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+        setIsConfirmDialogOpen(false);
     };
 
     const filterConfig = [createGradeFilter(grades)];
@@ -80,7 +95,7 @@ function AdminUsersPage() {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => setUserToDelete(item),
+                onClick: (item: any) => handleOpenConfirmDialog(item),
             },
         ],
     };
@@ -102,6 +117,7 @@ function AdminUsersPage() {
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
+                onReloadTable={handleReloadSetup}
             />
             <AdminConfirmDialog {...confirmDialogConfig} />
         </>

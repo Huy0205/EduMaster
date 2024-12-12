@@ -14,7 +14,35 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
     const [filterData, setFilterDataState] = useState<FilterData>(defaultFilterData);
 
     const setFilterData = (data: Partial<FilterData>) => {
-        setFilterDataState((prev) => ({ ...prev, ...data })); // Chỉ cập nhật các field truyền vào
+        setFilterDataState((prev) => {
+            let newFilterData = { ...prev, ...data };
+
+            // Kiểm tra và reset giá trị phụ thuộc
+            if (data.grade !== undefined && data.grade !== prev.grade) {
+                // Nếu grade thay đổi, reset courseId, topicId, lessonId
+                newFilterData = {
+                    ...newFilterData,
+                    courseId: '',
+                    topicId: '',
+                    lessonId: '',
+                };
+            } else if (data.courseId !== undefined && data.courseId !== prev.courseId) {
+                // Nếu courseId thay đổi, reset topicId, lessonId
+                newFilterData = {
+                    ...newFilterData,
+                    topicId: '',
+                    lessonId: '',
+                };
+            } else if (data.topicId !== undefined && data.topicId !== prev.topicId) {
+                // Nếu topicId thay đổi, reset lessonId
+                newFilterData = {
+                    ...newFilterData,
+                    lessonId: '',
+                };
+            }
+
+            return newFilterData;
+        });
     };
 
     const resetFilterData = () => {

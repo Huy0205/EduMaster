@@ -1,18 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useFilterData } from '../contexts';
 import { TopicService } from '~/services';
 
 function useTopics(courseId: string) {
     const [topics, setTopics] = useState([]);
 
-    const { filterData, setFilterData } = useFilterData();
-
     useEffect(() => {
         if (courseId) {
-            if (filterData.courseId !== courseId) {
-                setFilterData({ topicId: '', lessonId: '' });
-            }
             const fetchTopics = async () => {
                 const result = await TopicService.getTopicsByCourse(courseId, 0);
                 const { data, message } = result.data;

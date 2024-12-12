@@ -61,38 +61,40 @@ function AdminAddQuizQuestionPage() {
         setIsLoadingGlobal(true);
         const { answers, file, ...question } = FormData;
         try {
-            const uploadRes = await UploadService.uploadQuestionImage(file);
-            const { data: uploadData, message: uploadMessage } = uploadRes.data;
-            if (uploadData) {
-                question.image = uploadData.fileUrl;
-                const questionRes = await QuestionService.addQuestion({
-                    ...question,
-                    topicId: filterData.topicId,
-                    lessonId: null,
-                });
-                const { data: questionData, message: questionMessage } = questionRes.data;
-                if (questionData) {
-                    const questionId = questionData.id;
-                    const answerData = answers.map((answer: any) => ({
-                        ...answer,
-                        question: {
-                            id: questionId,
-                        },
-                    }));
-                    const answerRes = await AnswerService.addAnswers(answerData);
-                    const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
-                    if (answerDataRes) {
-                        setIsLoadingGlobal(false);
-                        toast.success('Thêm câu hỏi thành công');
-                        router.push('/admin/questions/quiz');
-                    } else {
-                        throw new Error(answerMessageRes);
-                    }
+            if (file.size > 0) {
+                const uploadRes = await UploadService.uploadQuestionImage(file);
+                const { data: uploadData, message: uploadMessage } = uploadRes.data;
+                if (uploadData) {
+                    question.image = uploadData.fileUrl;
                 } else {
-                    throw new Error(questionMessage);
+                    throw new Error(uploadMessage);
+                }
+            }
+            const questionRes = await QuestionService.addQuestion({
+                ...question,
+                topicId: filterData.topicId,
+                lessonId: null,
+            });
+            const { data: questionData, message: questionMessage } = questionRes.data;
+            if (questionData) {
+                const questionId = questionData.id;
+                const answerData = answers.map((answer: any) => ({
+                    ...answer,
+                    question: {
+                        id: questionId,
+                    },
+                }));
+                const answerRes = await AnswerService.addAnswers(answerData);
+                const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
+                if (answerDataRes) {
+                    setIsLoadingGlobal(false);
+                    toast.success('Thêm câu hỏi thành công');
+                    router.push('/admin/questions/quiz');
+                } else {
+                    throw new Error(answerMessageRes);
                 }
             } else {
-                throw new Error(uploadMessage);
+                throw new Error(questionMessage);
             }
         } catch (error) {
             setIsLoadingGlobal(false);

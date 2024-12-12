@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { QuestionAnswerOutlined } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 
 function QuestionView({ data }: QuestionViewProps) {
     const { content, type, image, feedback, answers } = data;
@@ -66,14 +67,23 @@ function QuestionView({ data }: QuestionViewProps) {
                 </ul>
                 {image && (
                     <div className="relative flex-3 w-full flex items-center">
-                        <Image
-                            src={image}
-                            alt="Question image"
-                            width={size.width}
-                            height={size.height}
-                            objectFit="contain"
-                            onLoad={handleImageLoad}
-                        />
+                        {image.startsWith('text_') || image.startsWith('Text_') ? (
+                            <Typography
+                                variant="h6"
+                                sx={{ fontWeight: 'bold', color: 'black' }}
+                            >
+                                {image.split('_')[1]}
+                            </Typography>
+                        ) : (
+                            <Image
+                                src={image}
+                                alt="Question image"
+                                width={size.width}
+                                height={size.height}
+                                objectFit="contain"
+                                onLoad={handleImageLoad}
+                            />
+                        )}
                     </div>
                 )}
             </div>

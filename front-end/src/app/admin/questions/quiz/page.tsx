@@ -35,12 +35,21 @@ function AdminQuizQuestionsPage() {
         return await QuestionService.getAllQuestions(true);
     };
 
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn;
+    };
+
     const handleDelete = async (questionId: string) => {
         try {
             const updateRes = await QuestionService.updateQuestion(questionId, { status: -1 });
             const { data, message } = updateRes.data;
             if (data) {
-                toast.success('Đã xóa câu hỏi: ' + data.content);
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Đã xóa câu hỏi thành công');
             } else {
                 throw new Error(message);
             }
@@ -48,6 +57,12 @@ function AdminQuizQuestionsPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+        setIsConfirmDialogOpen(false);
+    };
+
+    const handleOpenConfirmDialog = (question: any) => {
+        setQuestionToDelete(question);
+        setIsConfirmDialogOpen(true);
     };
 
     const handleShowDetail = (data: any) => {
@@ -87,7 +102,7 @@ function AdminQuizQuestionsPage() {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => setQuestionToDelete(item),
+                onClick: (item: any) => handleOpenConfirmDialog(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -105,7 +120,7 @@ function AdminQuizQuestionsPage() {
 
     const confirmDialogConfig = {
         open: isConfirmDialogOpen,
-        title: 'Xác nhận xóa chương mục',
+        title: 'Xác nhận xóa câu hỏi kiểm tra',
         content: questionToDelete?.content,
         onClose: () => setIsConfirmDialogOpen(false),
         onConfirm: () => handleDelete(questionToDelete.id),
@@ -124,6 +139,7 @@ function AdminQuizQuestionsPage() {
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
+                onReloadTable={handleReloadSetup}
             />
             <AdminConfirmDialog {...confirmDialogConfig} />
             <AdminDialogQuestionDetail {...dialogQuestionDetailConfig} />

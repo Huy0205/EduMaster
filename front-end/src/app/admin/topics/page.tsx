@@ -82,7 +82,6 @@ function AdminTopicsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        console.log('Delete topic:', id);
         const deletedRes = await TopicService.updateTopic(id, { status: -1 });
         const { data: deletedTopic, message } = deletedRes.data;
         if (deletedTopic) {

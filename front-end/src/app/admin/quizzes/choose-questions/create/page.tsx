@@ -36,31 +36,37 @@ function CreatePracticePage() {
 
     const handleCreateQuiz = async (formData: CreatePracticesOrQuizzesFormData) => {
         const { name, time, bonusPoint } = formData;
-        const quizRes = await QuizService.addQuiz({
-            name,
-            time,
-            bonusPoint,
-            topicId: filterData.topicId,
-        });
-        const { data, message } = quizRes.data;
-        if (data) {
-            const { id: quizId } = data;
-            const quizQuestions = questionsSelected.map((question, index) => ({
-                quizId,
-                questionId: question.id,
-                orderInQuiz: index + 1,
-            }));
-            const quizQuestionRes = await QuizQuestionService.addQuizQuestions(quizQuestions);
-            const { data: quizQuestionData, message: quizQuestionMessage } = quizQuestionRes.data;
-            if (quizQuestionData) {
-                setQuestionsSelected([]);
-                toast.success('Tạo bài kiểm tra thành công');
-                router.push('/admin/quizzes');
+        try {
+            const quizRes = await QuizService.addQuiz({
+                name,
+                time,
+                bonusPoint,
+                topicId: filterData.topicId,
+            });
+            const { data, message } = quizRes.data;
+            if (data) {
+                const { id: quizId } = data;
+                const quizQuestions = questionsSelected.map((question, index) => ({
+                    quizId,
+                    questionId: question.id,
+                    orderInQuiz: index + 1,
+                }));
+                const quizQuestionRes = await QuizQuestionService.addQuizQuestions(quizQuestions);
+                const { data: quizQuestionData, message: quizQuestionMessage } =
+                    quizQuestionRes.data;
+                if (quizQuestionData) {
+                    setQuestionsSelected([]);
+                    toast.success('Tạo bài kiểm tra thành công');
+                    router.push('/admin/quizzes');
+                } else {
+                    throw new Error(quizQuestionMessage);
+                }
             } else {
-                toast.error('Có lỗi xảy ra: ' + quizQuestionMessage);
+                throw new Error(message);
             }
-        } else {
-            toast.error('Có lỗi xảy ra: ' + message);
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
         }
     };
 
@@ -84,39 +90,47 @@ function CreatePracticePage() {
     const handleAddQuestion = async (isSaveToQuestionBank: boolean) => {
         setIsConfirmDialogOpen(false);
         const { answers, file, ...question } = formData;
-        const uploadRes = await UploadService.uploadQuestionImage(file);
-        const { data: uploadData, message: uploadMessage } = uploadRes.data;
         try {
-            if (uploadData) {
-                question.image = uploadData.fileUrl;
-                const questionRes = await QuestionService.addQuestion({
-                    ...question,
-                    status: (isSaveToQuestionBank ? 1 : 0) as -1 | 0 | 1,
-                    topicId: filterData.topicId,
-                    lessonId: null,
-                });
-                const { data: questionData, message: questionMessage } = questionRes.data;
-                if (questionData) {
-                    const questionId = questionData.id;
-                    const answerData = answers.map((answer: any) => ({
-                        ...answer,
-                        question: {
-                            id: questionId,
-                        },
-                    }));
-                    const answerRes = await AnswerService.addAnswers(answerData);
-                    const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
-                    if (answerDataRes) {
-                        toast.success('Thêm câu hỏi thành công');
-                        router.push('/admin/questions/practice');
-                    } else {
-                        throw new Error(answerMessageRes);
-                    }
+            if (file.size > 0) {
+                const uploadRes = await UploadService.uploadQuestionImage(file);
+                const { data: uploadData, message: uploadMessage } = uploadRes.data;
+                if (uploadData) {
+                    question.image = uploadData.fileUrl;
                 } else {
-                    throw new Error(questionMessage);
+                    throw new Error(uploadMessage);
+                }
+            }
+            const questionRes = await QuestionService.addQuestion({
+                ...question,
+                status: (isSaveToQuestionBank ? 1 : 0) as -1 | 0 | 1,
+                topicId: filterData.topicId,
+                lessonId: null,
+            });
+            const { data: questionData, message: questionMessage } = questionRes.data;
+            if (questionData) {
+                const questionId = questionData.id;
+                const answerData = answers.map((answer: any) => ({
+                    ...answer,
+                    question: {
+                        id: questionId,
+                    },
+                }));
+                const answerRes = await AnswerService.addAnswers(answerData);
+                const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
+                if (answerDataRes) {
+                    setQuestionsSelected([
+                        ...questionsSelected,
+                        {
+                            ...questionData,
+                            answers: answerData,
+                        },
+                    ]);
+                    toast.success('Thêm câu hỏi thành công');
+                } else {
+                    throw new Error(answerMessageRes);
                 }
             } else {
-                throw new Error(uploadMessage);
+                throw new Error(questionMessage);
             }
         } catch (error) {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
