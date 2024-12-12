@@ -52,7 +52,7 @@ function AdminPracticesPage() {
                 if (typeof triggerReload === 'function') {
                     triggerReload(true);
                 }
-                toast.success('Đã xóa đề thực hành: ' + data.name);
+                toast.success('Xóa đề thực hành thành công');
             } else {
                 throw new Error(message);
             }
