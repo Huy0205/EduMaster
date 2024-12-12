@@ -44,8 +44,7 @@ const Pie1 = ({ data }) => {
       },
       datalabels: {
         color: 'black', // Màu chữ
-        formatter: (value, context) => {
-          const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
+        formatter: (value) => {
           return `${value} `; // Hiển thị số lần và %
         },
         font: {

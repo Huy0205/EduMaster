@@ -1,14 +1,14 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,Suspense } from 'react';
 import { Button, Typography, Box } from '@mui/material';
 import Navbar from '~/components/Navbar';
 import Header from '~/components/Header';
 import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getApiNoneToken } from '~/api/page';
+import { getApiNoneToken,putApiNoneToken } from '~/api/page';
 import Question from '~/components/thuchanh/question';
 import { useOntapContext } from '~/context/OntapContext';
-export default function Home() {
+const Home = ()=> {
   const searchParams = useSearchParams();
   const pargesId = searchParams.get('pargesId');
   const userId = searchParams.get('userId');
@@ -249,5 +249,11 @@ export default function Home() {
     </Box>
   );
 }
-
+export default function PageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Home />
+    </Suspense>
+  );
+}
 

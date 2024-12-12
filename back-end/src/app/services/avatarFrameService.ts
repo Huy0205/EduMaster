@@ -1,5 +1,5 @@
-import { db } from '~/configs';
-import { AvatarFrame } from '~/app/models';
+import { db } from '../../configs';
+import { AvatarFrame } from '../../app/models';
 
 const AvatarFrameRepository = db.AppDataSource.getRepository(AvatarFrame);
 

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 import { PracticeProgressService } from '../services';
 
 export class PracticeProgressController {

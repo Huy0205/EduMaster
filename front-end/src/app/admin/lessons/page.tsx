@@ -154,7 +154,7 @@ function AdminLessonsPage() {
         title: 'Xác nhận xóa bài học',
         content: lessonToDelete?.name,
         onClose: () => setIsConfirmDialogOpen(false),
-        onConfirm: () => handleDelete(currentData.id),
+        onConfirm: () => handleDelete(lessonToDelete.id),
     };
 
     return (

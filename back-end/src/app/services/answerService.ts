@@ -1,5 +1,5 @@
-import { db } from '~/configs';
-import { Answer } from '~/app/models';
+import { db } from '../../configs';
+import { Answer } from '../../app/models';
 
 const AnswerRepository = db.AppDataSource.getRepository(Answer);
 

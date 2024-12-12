@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { AvatarFrameService } from '../services';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 
 export class AvatarFrameController {
     public static async getAllAvatarFrames(req: Request, res: Response, next: NextFunction) {

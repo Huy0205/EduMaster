@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { QuizService, TopicService } from '~/app/services';
-import { ResponseUtil } from '~/utils';
+import { QuizService, TopicService } from '../../app/services';
+import { ResponseUtil } from '../../utils';
 import { Role, Status } from '../enums';
 
 export class QuizController {
@@ -84,15 +84,17 @@ export class QuizController {
 
     public static async addQuiz(req: Request, res: Response, next: NextFunction) {
         const { name, time, bonusPoint, topicId } = req.body;
-        if (!name || !time || !topicId) {
+        if (!name || time === undefined || !topicId) {
             ResponseUtil.sendMissingData(res);
         } else {
             try {
                 const topicRes = await TopicService.getTopicById(topicId);
+                const orderRes = await QuizService.getMaxOrderInTopic(topicId);
                 const response = await QuizService.saveQuiz({
                     name,
                     time,
                     bonusPoint: bonusPoint || 20,
+                    orderInTopic: orderRes.data + 1,
                     topic: topicRes.data,
                 });
                 ResponseUtil.sendResponse(res, response);

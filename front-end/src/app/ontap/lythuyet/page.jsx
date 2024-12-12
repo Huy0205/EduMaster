@@ -2,18 +2,17 @@
 'use client';
 import React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Box, Typography, Paper, Button, IconButton, CircularProgress } from '@mui/material';
+import { Box, Typography, Paper, Button, IconButton } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import ReactPlayer from 'react-player';  // Import ReactPlayer
-import { useState, useEffect } from 'react';
+import { useState, useEffect,Suspense } from 'react';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { getApiNoneToken } from '~/api/page';
 const LyThuyet = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reviewId = searchParams.get('reviewId');
-  const lectureId = searchParams.get('lectureId');
   const lectureTitle = searchParams.get('lectureTitle');
   const lectureUrl = searchParams.get('lectureUrl');
   const topicId = searchParams.get('topicId');
@@ -25,21 +24,23 @@ const LyThuyet = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setIsClient(true);
+    console.log(isClient)
+    console.log(loading)
   }, []);
   const fetchQuestions = async (reviewId) => {
     try {
       const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
       const data = response.data;
       if (Array.isArray(data.data) && data.data.length > 0) {
-        // Lấy mảng đầu tiên
+
         const firstQuestion = data.data[0];
         
-        // Gắn `id` từ mảng đầu tiên
+
         const questionId = firstQuestion.id;
   
-        console.log('First question ID:', questionId); // Kiểm tra id đã lấy
+        console.log('First question ID:', questionId); 
   
-        setQuestionPages(data.data); // Lưu toàn bộ dữ liệu
+        setQuestionPages(data.data); 
       } else {
         console.error('No data found or data is not an array');
       }
@@ -49,7 +50,7 @@ const LyThuyet = () => {
   };
   const fetchTopicName = async (topicId) => {
     try {
-      const response = await getApiNoneToken(`topic/${topicId}`);; // API lấy thông tin topic
+      const response = await getApiNoneToken(`topic/${topicId}`);; 
       const data = response.data;
       if (data && data.data) {
         setTopicName(data.data.name);
@@ -63,9 +64,7 @@ const LyThuyet = () => {
   };
   const handlePracticeQuestion = (reviewId) => {
     if (questionPages.length > 0) {
-      const firstQuestionId = questionPages[0]?.id; // Lấy ID của phần tử đầu tiên
-      const questionIdString = encodeURIComponent(JSON.stringify(firstQuestionId));
-  
+      const firstQuestionId = questionPages[0]?.id; 
       router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${firstQuestionId}`);
     } 
   };
@@ -83,11 +82,10 @@ const LyThuyet = () => {
       fetchQuestions(reviewId);
     }
     if (currentTopicId) {
-      fetchTopicName(currentTopicId); // Gọi API lấy tên topic
+      fetchTopicName(currentTopicId); 
     }
   }, [reviewId,topicId]);
   const handleGoBackToOnTap = () => {
-    // Khi quay lại trang Ôn tập, truyền giá trị false cho isFirstLoad
     router.push("/ontap");
   };
   return (
@@ -140,4 +138,10 @@ const LyThuyet = () => {
   );
 };
 
-export default LyThuyet;
+export default function PageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LyThuyet />
+    </Suspense>
+  );
+}

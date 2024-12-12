@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { PracticeProgressController } from '~/app/controllers';
+import { PracticeProgressController } from '../app/controllers';
 
 const practiceProgressRouter = Router();
 

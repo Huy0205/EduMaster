@@ -65,7 +65,10 @@ function AdminPracticesPage() {
         }
         setShowDetail(true);
     };
-
+    const handleOpenConfirmDialog = (practices: any) => {
+        setPracticeToDelete(practices);
+        setIsConfirmDialogOpen(true);
+    }
     const filterConfig = [
         createGradeFilter(grades),
         createCourseFilter(courses, filterData.grade),
@@ -105,7 +108,7 @@ function AdminPracticesPage() {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => setPracticeToDelete(item),
+                onClick: (item: any) => handleOpenConfirmDialog(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -133,8 +136,8 @@ function AdminPracticesPage() {
         open: showDetail,
         onClose: () => setShowDetail(false),
         title: 'Chi tiết đề thực hành',
-        name: itemSelected.name,
-        bonusPoint: itemSelected.bonusPoint,
+        name: itemSelected?.name,
+        bonusPoint: itemSelected?.bonusPoint,
         questions: detailData,
     };
 

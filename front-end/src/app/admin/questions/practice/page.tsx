@@ -39,12 +39,21 @@ function AdminPracticeQuestionsPage() {
         return await QuestionService.getAllQuestions(false);
     };
 
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn;
+    };
+
     const handleDelete = async (questionId: string) => {
         try {
             const updateRes = await QuestionService.updateQuestion(questionId, { status: -1 });
             const { data, message } = updateRes.data;
             if (data) {
-                toast.success('Đã xóa câu hỏi: ' + data.content);
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
+                toast.success('Đã xóa câu hỏi thành công');
             } else {
                 throw new Error(message);
             }
@@ -52,6 +61,12 @@ function AdminPracticeQuestionsPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+        setIsConfirmDialogOpen(false);
+    };
+
+    const handleOpenConfirmDialog = (question: any) => {
+        setQuestionToDelete(question);
+        setIsConfirmDialogOpen(true);
     };
 
     const handleShowDetail = (data: any) => {
@@ -60,7 +75,7 @@ function AdminPracticeQuestionsPage() {
     };
 
     const filterConfig = [
-        createGradeFilter(grades),
+createGradeFilter(grades),
         createCourseFilter(courses, filterData.grade),
         createTopicFilter(topics, filterData.courseId),
         createLessonFilter(lessons, filterData.topicId),
@@ -92,7 +107,7 @@ function AdminPracticeQuestionsPage() {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => setQuestionToDelete(item),
+                onClick: (item: any) => handleOpenConfirmDialog(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -110,7 +125,7 @@ function AdminPracticeQuestionsPage() {
 
     const confirmDialogConfig = {
         open: isConfirmDialogOpen,
-        title: 'Xác nhận xóa chương mục',
+        title: 'Xác nhận câu hỏi thực hành',
         content: questionToDelete?.content,
         onClose: () => setIsConfirmDialogOpen(false),
         onConfirm: () => handleDelete(questionToDelete.id),
@@ -129,6 +144,7 @@ function AdminPracticeQuestionsPage() {
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
+                onReloadTable={handleReloadSetup}
             />
             <AdminConfirmDialog {...confirmDialogConfig} />
             <AdminDialogQuestionDetail {...dialogQuestionDetailConfig} />

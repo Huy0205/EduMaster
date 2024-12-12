@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { TokenUtil } from '~/utils';
+import { TokenUtil } from '../utils';
 
 export const authentication = (req: Request, res: Response, next: NextFunction) => {
     if (req?.headers?.authorization?.split(' ')?.[1]) {

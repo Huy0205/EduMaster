@@ -1,5 +1,5 @@
 import { validate as isUUID } from 'uuid';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 import { LessonService, PracticeService } from '../services';
 import { NextFunction, Request, Response } from 'express';
 import { Role, Status } from '../enums';

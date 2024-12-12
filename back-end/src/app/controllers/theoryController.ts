@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { LessonService, TheoryService } from '~/app/services';
-import { ResponseUtil } from '~/utils';
+import { LessonService, TheoryService } from  '../../app/services';
+import { ResponseUtil } from '../../utils';
 import { Role, Status } from '../enums';
 
 export class TheoryController {

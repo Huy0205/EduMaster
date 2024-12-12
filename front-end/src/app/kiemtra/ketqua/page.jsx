@@ -1,6 +1,6 @@
 'use client'
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState,Suspense } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home'; // Icon Ngôi Nhà
 import Navbar from '~/components/Navbar';
@@ -96,4 +96,10 @@ const KetQua = () => {
   );
 };
 
-export default KetQua;
+export default function PageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <KetQua />
+    </Suspense>
+  );
+}

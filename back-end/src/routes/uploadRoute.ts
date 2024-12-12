@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { UploadController } from '~/app/controllers';
-import upload from '~/middlewares/upload';
+import { UploadController } from '../app/controllers';
+import upload from '../middlewares/upload';
 
 const uploadRouter = Router();
 

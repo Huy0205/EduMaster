@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { EnrollmentController } from '~/app/controllers';
-import { authentication } from '~/middlewares';
+import { EnrollmentController } from '../app/controllers';
+import { authentication } from '../middlewares';
 
 const enrollmentRouter = Router();
 

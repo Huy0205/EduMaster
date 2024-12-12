@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { TheoryController } from '~/app/controllers';
+import { TheoryController } from '../app/controllers';
 
 const theoryRouter = Router();
 

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 import { PracticeQuestionService } from '../services/practiceQuestionService';
 
 export class PracticeQuestionController {

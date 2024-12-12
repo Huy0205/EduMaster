@@ -14,9 +14,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
+
 } from '@mui/material';
-import { FcGoogle } from 'react-icons/fc'
+
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
     email: '',
@@ -29,7 +29,7 @@ const RegistrationPage = () => {
   const [loading, setLoading] = useState(false);
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
   const [otp, setOtp] = useState('');
-  const [otpMessage, setOtpMessage] = useState(''); // Thông báo khi gửi OTP
+  const [otpMessage, setOtpMessage] = useState(''); 
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -92,6 +92,7 @@ const RegistrationPage = () => {
       setOtpMessage('OTP đã được gửi đến email của bạn!'); // Hiển thị thông báo
       setLoading(false);
     } catch (error) {
+      console.log(error)
       setOtpMessage('Gửi OTP thất bại! Vui lòng thử lại.');
       setLoading(false);
     }

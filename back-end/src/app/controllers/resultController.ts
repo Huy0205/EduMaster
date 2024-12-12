@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
 import { ResultService } from '../services';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 
 export class ResultController {
     public static async getResultsByUser(req: Request, res: Response, next: NextFunction) {

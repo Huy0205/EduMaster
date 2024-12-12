@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { ResponseUtil } from '~/utils';
-import { QuizQuestionService } from '~/app/services';
+import { ResponseUtil } from '../../utils';
+import { QuizQuestionService } from  '../../app/services';
 
 export class QuizQuestionController {
     public static async addQuizQuestions(req: Request, res: Response, next: NextFunction) {
