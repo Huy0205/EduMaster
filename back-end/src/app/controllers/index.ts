@@ -13,3 +13,5 @@ export * from './practiceController';
 export * from './resultController';
 export * from './enrollmentController';
 export * from './practiceProgressController';
+export * from './practiceQuestionController';
+export * from './uploadController';

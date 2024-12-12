@@ -13,3 +13,4 @@ export * from './practiceService';
 export * from './resultService';
 export * from './enrollmentService';
 export * from './practiceProgressService';
+export * from './practiceQuestionService';

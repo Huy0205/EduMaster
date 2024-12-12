@@ -1,12 +1,16 @@
-'use client';
 import AdminMenu from './Menu';
 function AdminSidebar() {
     return (
         <aside className="w-full h-full rounded-br-md bg-white shadow-xl">
-            <div>
-                <h2 className="text-2xl font-semibold text-primary text-center pt-8 pb-4">
+            <div className='flex flex-col justify-center'>
+                <button
+                    className="text-2xl font-semibold text-primary text-center p-2 mt-7 mb-2"
+                    onClick={() => {
+                        window.location.href = '/admin/dashboard';
+                    }}
+                >
                     EduMaster
-                </h2>
+                </button>
                 <div className="flex items-center">
                     <div className="flex-1 h-[2px] bg-primary"></div>
                     <div className="px-2 flex items-center justify-center shrink-0">

@@ -10,7 +10,7 @@ const nextConfig = {
         ];
     },
     images: {
-        domains: ['github.com'], // Thêm github.com vào danh sách domain cho phép
+        domains: ['github.com', 'localhost'], // Thêm github.com vào danh sách domain cho phép
     },
 };
 

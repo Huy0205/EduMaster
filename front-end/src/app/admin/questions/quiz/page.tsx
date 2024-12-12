@@ -1,5 +1,5 @@
 'use client';
-import { Delete, Edit, ViewList } from '@mui/icons-material';
+import { Delete, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
 import { useFilterData } from '~/app/admin/contexts';
@@ -10,8 +10,17 @@ import {
     createGradeFilter,
     createTopicFilter,
 } from '~/app/admin/configs/filters';
+import AdminDialogQuestionDetail from '../../components/dialogQuestionDetail';
+import { useState } from 'react';
+import AdminConfirmDialog from '../../components/confirmDialog';
+import { toast } from 'react-toastify';
 
 function AdminQuizQuestionsPage() {
+    const [showDetail, setShowDetail] = useState(false);
+    const [dataSelected, setDataSelected] = useState<any>(null);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [questionToDelete, setQuestionToDelete] = useState<any>(null);
+
     const { filterData } = useFilterData();
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
@@ -24,6 +33,26 @@ function AdminQuizQuestionsPage() {
             return await QuestionService.getQuestionsByCourse(true, filters.courseId);
         if (filters.grade) return await QuestionService.getQuestionsByGrade(true, filters.grade);
         return await QuestionService.getAllQuestions(true);
+    };
+
+    const handleDelete = async (questionId: string) => {
+        try {
+            const updateRes = await QuestionService.updateQuestion(questionId, { status: -1 });
+            const { data, message } = updateRes.data;
+            if (data) {
+                toast.success('Đã xóa câu hỏi: ' + data.content);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
+    };
+
+    const handleShowDetail = (data: any) => {
+        setDataSelected(data);
+        setShowDetail(true);
     };
 
     const filterConfig = [
@@ -48,23 +77,23 @@ function AdminQuizQuestionsPage() {
             },
         ] as ColumnConfig[],
         actions: [
-            {
-                label: 'Sửa',
-                icon: Edit,
-                color: 'blue',
-                onClick: (item: any) => console.log('Edit', item),
-            },
+            // {
+            //     label: 'Sửa',
+            //     icon: Edit,
+            //     color: 'blue',
+            //     onClick: (item: any) => console.log('Edit', item),
+            // },
             {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => console.log('Delete', item),
+                onClick: (item: any) => setQuestionToDelete(item),
             },
             {
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => console.log('Detail', item),
+                onClick: (item: any) => handleShowDetail(item),
             },
         ],
     };
@@ -74,13 +103,31 @@ function AdminQuizQuestionsPage() {
         disabled: !filterData.topicId,
     };
 
+    const confirmDialogConfig = {
+        open: isConfirmDialogOpen,
+        title: 'Xác nhận xóa chương mục',
+        content: questionToDelete?.content,
+        onClose: () => setIsConfirmDialogOpen(false),
+        onConfirm: () => handleDelete(questionToDelete.id),
+    };
+
+    const dialogQuestionDetailConfig = {
+        open: showDetail,
+        onClose: () => setShowDetail(false),
+        data: dataSelected,
+    };
+
     return (
-        <AdminManagementWrapper
-            fetchData={fetchData}
-            filterConfig={filterConfig}
-            tableConfig={tableConfig}
-            addBtn={addBtn}
-        />
+        <>
+            <AdminManagementWrapper
+                fetchData={fetchData}
+                filterConfig={filterConfig}
+                tableConfig={tableConfig}
+                addBtn={addBtn}
+            />
+            <AdminConfirmDialog {...confirmDialogConfig} />
+            <AdminDialogQuestionDetail {...dialogQuestionDetailConfig} />
+        </>
     );
 }
 

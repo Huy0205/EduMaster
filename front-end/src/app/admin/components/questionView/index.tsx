@@ -1,10 +1,36 @@
-import { QuestionAnswerOutlined } from '@mui/icons-material';
+'use client';
+import { useState } from 'react';
 import Image from 'next/image';
+import { QuestionAnswerOutlined } from '@mui/icons-material';
 
 function QuestionView({ data }: QuestionViewProps) {
     const { content, type, image, feedback, answers } = data;
+
+    const [size, setSize] = useState({ width: 0, height: 0 });
+
+    const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        const { naturalWidth, naturalHeight } = e.currentTarget;
+        if (naturalWidth > naturalHeight) {
+            if (naturalWidth - naturalHeight > 300) {
+                setSize({ width: 650, height: 100 });
+            } else if (naturalWidth - naturalHeight > 200) {
+                setSize({ width: 400, height: 300 });
+            } else {
+                setSize({ width: 300, height: 300 });
+            }
+        } else {
+            if (naturalHeight - naturalWidth > 200) {
+                setSize({ width: 200, height: 200 });
+            } else if (naturalHeight - naturalWidth > 100) {
+                setSize({ width: 200, height: 300 });
+            } else {
+                setSize({ width: 300, height: 300 });
+            }
+        }
+    };
+
     return (
-        <div className="w-full p-3">
+        <div className="w-full">
             <h3 className="text-lg">
                 <span className="italic">
                     {type === 1
@@ -18,7 +44,7 @@ function QuestionView({ data }: QuestionViewProps) {
             </h3>
             <div className="flex w-full p-3">
                 <ul
-                    className="py-1 px-4"
+                    className="flex-1 py-1 px-4"
                     style={{
                         listStyleType: type === 3 ? 'none' : 'upper-alpha',
                     }}
@@ -39,14 +65,14 @@ function QuestionView({ data }: QuestionViewProps) {
                     ))}
                 </ul>
                 {image && (
-                    <div className="flex-1 relative w-full flex justify-center items-center">
+                    <div className="relative flex-3 w-full flex items-center">
                         <Image
                             src={image}
                             alt="Question image"
-                            layout="responsive"
-                            width={80}
-                            height={80}
+                            width={size.width}
+                            height={size.height}
                             objectFit="contain"
+                            onLoad={handleImageLoad}
                         />
                     </div>
                 )}

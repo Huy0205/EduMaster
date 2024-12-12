@@ -6,78 +6,103 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import AdminHeader from './components/Header';
 import AdminSidebar from './components/Sidebar';
-import { Home, KeyboardArrowRight, Search } from '@mui/icons-material';
-import { FilterDataProvider } from './contexts';
+import { Home, NavigateNext } from '@mui/icons-material';
+import { FilterDataProvider, QuestionsSelectedProvider } from './contexts';
 import Link from 'next/link';
-import { Breadcrumbs } from '@mui/material';
-// import Link from 'next/link';
+import { Breadcrumbs, Typography } from '@mui/material';
+import { useLoadingGlobal } from './contexts/loadingGlobalContext';
+import Loading from './components/loading';
 
-interface AdminLayoutProps {
-    children: ReactNode;
-}
+const breadcrumbMap: Record<string, string> = {
+    dashboard: 'Trang chủ',
+    users: 'Danh sách người dùng',
+    topics: 'Danh sách chương mục',
+    lessons: 'Danh sách bài học',
+    theories: 'Danh sách bài giảng',
+    questions: 'Ngân hàng câu hỏi',
+    practice: 'Danh sách câu hỏi thực hành',
+    quiz: 'Danh sách câu hỏi kiểm tra',
+    add: 'Thêm mới',
+    practices: 'Danh sách bài thực hành',
+    quizzes: 'Danh sách bài kiểm tra',
+    'choose-questions': 'Chọn câu hỏi',
+    create: 'Tạo đề',
+};
 
-function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
+function AdminLayout({ children }: { children: ReactNode }): JSX.Element {
     const pathname = usePathname();
+
+    const { isLoadingGlobal } = useLoadingGlobal();
 
     const isLoginPage = pathname === '/admin/login';
     if (isLoginPage) return <>{children}</>;
 
     return (
         <FilterDataProvider>
-            <div className="flex flex-row bg-foreground">
-                <div className="w-[260px] h-screen">
-                    <AdminSidebar />
-                </div>
-                <div className="flex flex-1 flex-col">
-                    <AdminHeader />
-                    <div className=" flex-1 pt-[1px]">
-                        <div className="h-[47px] mt-[3px] px-3 flex justify-between items-center bg-white">
-                            <Breadcrumbs aria-label="breadcrumb">
-                                <Link href="/admin/dashboard">
-                                    <Home fontSize="small" />
-                                </Link>
-                                {pathname.split('/').map((item, index) => (
-                                    <Link
-                                        key={index}
-                                        href="/admin/dashboard"
-                                    >
-                                        {item}
-                                        <KeyboardArrowRight fontSize="small" />
-                                    </Link>
-                                ))}
-                            </Breadcrumbs>
-                            <div className="flex border border-gray-400 rounded-xl ">
-                                <div className="flex flex-1 px-2 py-1 rounded-xl">
-                                    <input
-                                        type="search"
-                                        className="flex-1 text-base text-gray-600 outline-none"
-                                    />
-                                </div>
-                                <button
-                                    type="button"
-                                    className="text-gray-600 border-l border-gray-400 px-2 hover:bg-gray-200 rounded-r-xl"
-                                >
-                                    <Search />
-                                </button>
-                            </div>
-                        </div>
-                        <div className="h-[calc(100%-62px)] flex justify-center mt-[12px] ml-[12px] bg-white">
+            <QuestionsSelectedProvider>
+                <div className="w-screen h-screen flex bg-foreground">
+                    <div className="w-[17%]">
+                        <AdminSidebar />
+                    </div>
+                    <div className="w-[83%] flex flex-col gap-1">
+                        <AdminHeader />
+                        <Breadcrumbs
+                            aria-label="breadcrumb"
+                            separator={<NavigateNext fontSize="small" />}
+                            className="h-[50px] flex items-center px-3 bg-white"
+                        >
+                            <Link href="/admin/dashboard">
+                                <Home fontSize="small" />
+                            </Link>
+                            {pathname
+                                .replace('/admin', '') // Loại bỏ phần '/admin'
+                                .split('/')
+                                .filter(Boolean) // Loại bỏ các phần trống
+                                .map((segment, index, array) => {
+                                    const isCurrent = index === array.length - 1;
+                                    const href = `/admin/${array.slice(0, index + 1).join('/')}`;
+                                    const label = breadcrumbMap[segment] || segment; // Lấy từ map hoặc dùng segment
+                                    return isCurrent ? (
+                                        <Typography
+                                            key={segment}
+                                            color="textPrimary"
+                                        >
+                                            {label}
+                                        </Typography>
+                                    ) : (
+                                        <Link
+                                            key={segment}
+                                            href={href}
+                                            className="text-gray-400 hover:underline"
+                                        >
+                                            {label}
+                                        </Link>
+                                    );
+                                })}
+                        </Breadcrumbs>
+
+                        <div className="flex-auto h-[calc(100vh-116px)] ml-3 mt-2 bg-white">
                             {children}
                         </div>
                     </div>
+                    {isLoadingGlobal && (
+                        <div className="fixed inset-0 bg-slate-700 bg-opacity-50 z-50 flex items-center justify-center">
+                            <Loading />
+                        </div>
+                    )}
+                    <ToastContainer
+                        position="bottom-center"
+                        autoClose={3000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
                 </div>
-                <ToastContainer
-                    position="bottom-center"
-                    autoClose={3000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                />
-            </div>
+            </QuestionsSelectedProvider>
         </FilterDataProvider>
     );
 }

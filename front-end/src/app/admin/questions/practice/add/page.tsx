@@ -9,15 +9,20 @@ import {
     LessonService,
     QuestionService,
     TopicService,
+    UploadService,
 } from '~/services';
 import AdminAddQuestion from '~/app/admin/components/addQuestion';
+import { toast } from 'react-toastify';
+import { useLoadingGlobal } from '~/app/admin/contexts/loadingGlobalContext';
 
 function AdminAddPracticeQuestionPage() {
     const router = useRouter();
-    const { filterData, resetFilterData } = useFilterData();
     const [courseName, setCourseName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [lessonName, setLessonName] = useState('');
+
+    const { filterData } = useFilterData();
+    const { setIsLoadingGlobal } = useLoadingGlobal();
 
     useEffect(() => {
         if (!filterData.lessonId) {
@@ -59,36 +64,49 @@ function AdminAddPracticeQuestionPage() {
         },
     ];
 
-    const handleAddPracticeQuestion = async (FormData: any) => {
-        const { answers, ...question } = FormData;
+    const handleAddPracticeQuestion = async (FormData: FormDataAddQuestion) => {
+        setIsLoadingGlobal(true);
+        const { answers, file, ...question } = FormData;
         try {
-            const questionData = {
-                ...question,
-                topicId: filterData.topicId,
-                lessonId: filterData.lessonId,
-            };
-            const questionRes = await QuestionService.addQuestion(questionData);
-            console.log(questionRes);
-            const { data, message } = questionRes.data;
-            if (data) {
-                const questionId = data.id;
-                const answerData = answers.map((answer: any) => ({
-                    ...answer,
-                    questionId,
-                }));
-                const answerRes = await AnswerService.addAnswers(answerData);
-                const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
-                if (answerDataRes) {
-                    alert('Thêm câu hỏi và câu trả lời thành công');
-                    resetFilterData();
-                    router.push('/admin/questions/practice');
+            const uploadRes = await UploadService.uploadQuestionImage(file);
+            const { data: uploadData, message: uploadMessage } = uploadRes.data;
+            if (uploadData) {
+                question.image = uploadData.fileUrl;
+                const questionRes = await QuestionService.addQuestion({
+                    ...question,
+                    topicId: filterData.topicId,
+                    lessonId: filterData.lessonId,
+                });
+                const { data: questionData, message: questionMessage } = questionRes.data;
+                if (questionData) {
+                    const questionId = questionData.id;
+                    const answerData = answers.map((answer: any) => ({
+                        ...answer,
+                        question: {
+                            id: questionId,
+                        },
+                    }));
+                    const answerRes = await AnswerService.addAnswers(answerData);
+                    const { data: answerDataRes, message: answerMessageRes } = answerRes.data;
+                    if (answerDataRes) {
+                        setIsLoadingGlobal(false);
+                        toast.success('Thêm câu hỏi thành công');
+                        router.push('/admin/questions/practice');
+                    } else {
+                        throw new Error(answerMessageRes);
+                    }
                 } else {
-                    console.log(answerMessageRes);
+                    throw new Error(questionMessage);
                 }
             } else {
-                console.log(message);
+                throw new Error(uploadMessage);
             }
         } catch (error) {
+            setIsLoadingGlobal(false);
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            setTimeout(() => {
+                router.push('/admin/questions/practice');
+            }, 3000);
             console.log(error);
         }
     };

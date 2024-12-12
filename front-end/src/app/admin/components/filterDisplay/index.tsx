@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 function FilterDisplay({ items }: FilterDisplayProps) {
     return (
-        <div className="w-full mb-5">
+        <div className="w-full">
             {items.map((item, index) => (
                 <TruncatedTooltip
                     key={index}
@@ -49,11 +49,11 @@ function TruncatedTooltip({ label, value }: { label: string; value: string }) {
                 },
             }}
         >
-            <div className="flex flex-col pb-3">
-                <label className="font-medium m-1">{label}:</label>
+            <div className="flex flex-col gap-1 mb-3">
+                <label className="font-medium mb-1">{label}:</label>
                 <span
                     ref={spanRef}
-                    className="w-full border-2 rounded-md px-2 py-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                    className="w-full p-2 border border-gray-300 rounded overflow-hidden text-ellipsis whitespace-nowrap"
                 >
                     {value}
                 </span>

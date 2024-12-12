@@ -140,20 +140,20 @@ export class QuizService {
     }
 
     /**
-     * Add a new quiz
+     * Save quiz
      * @param quiz
      * @returns
      */
-    static async addQuiz(quiz: Partial<Quiz>) {
+    public static async saveQuiz(quiz: Partial<Quiz>) {
         try {
             const newQuiz = await quizRepository.save(quiz);
             return {
                 code: 200,
-                message: 'Add quiz success',
+                message: 'Save quiz successfully',
                 data: newQuiz,
             };
         } catch (error) {
-            console.log('Error adding quiz', error);
+            console.log('Error saving quiz', error);
             throw error;
         }
     }

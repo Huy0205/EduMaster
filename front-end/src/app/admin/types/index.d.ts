@@ -24,11 +24,3 @@ interface AddButtonProps {
     link?: string;
     onClick?: () => void;
 }
-
-interface ConfirmDialogProps {
-    open: boolean;
-    title: string;
-    content: string;
-    onClose: () => void;
-    onConfirm: () => void;
-}

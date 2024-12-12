@@ -16,6 +16,7 @@ export class UserService {
             const user = await UserRepository.findOne({
                 where: {
                     email,
+                    status: Status.ACTIVE,
                 },
             });
             if (!user) {

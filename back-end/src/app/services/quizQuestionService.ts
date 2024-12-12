@@ -5,24 +5,20 @@ const QuizQuestionRepository = db.AppDataSource.getRepository(QuizQuestion);
 
 export class QuizQuestionService {
     /**
-     * Add new quiz question
-     * @param quizId
-     * @param questionId
+     * Save quiz questions
+     * @param quizQuestions
      * @returns
      */
-    static async addQuizQuestion(quizId: string, questionId: string) {
+    public static async saveQuizQuestions(quizQuestions: QuizQuestion[]) {
         try {
-            const quizQuestion = new QuizQuestion();
-            quizQuestion.quizId = quizId;
-            quizQuestion.questionId = questionId;
-            const result = await QuizQuestionRepository.save(quizQuestion);
+            const result = await QuizQuestionRepository.save(quizQuestions);
             return {
                 code: 200,
-                message: 'Quiz question added successfully',
+                message: 'Save quiz questions successfully',
                 data: result,
             };
         } catch (error) {
-            console.log('Error adding quiz question', error);
+            console.error('Error saving quiz questions', error);
             throw error;
         }
     }

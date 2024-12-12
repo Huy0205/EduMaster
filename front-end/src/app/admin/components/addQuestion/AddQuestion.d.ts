@@ -12,9 +12,9 @@ interface FormDataAddQuestion {
     image: string;
     type: 1 | 2 | 3;
     feedback: string;
+    file: File;
     answers: {
         content: string;
         isCorrect: boolean;
-    };
-    [];
+    }[];
 }

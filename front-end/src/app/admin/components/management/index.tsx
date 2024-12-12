@@ -6,7 +6,7 @@ import AdminFilter from './filter';
 import AdminTable from './table';
 import AddButton from '../AddButton';
 import { useDebounce } from '~/app/admin/hooks';
-// import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 function AdminManagementWrapper({
     fetchData,
@@ -16,7 +16,7 @@ function AdminManagementWrapper({
     addBtn,
     onReloadTable,
 }: AdminManagementWrapperProps) {
-    // const pathname = usePathname();
+    const pathname = usePathname();
     const { filterData, resetFilterData } = useFilterData();
     const [tableData, setTableData] = useState<any[]>([]);
     const [mounted, setMounted] = useState(false);
@@ -26,7 +26,6 @@ function AdminManagementWrapper({
     const debouncedValue = useDebounce(filterData, 1000);
 
     const handleFilterChange = async () => {
-        console.log('Filter data>>>>>>:', debouncedValue);
         setLoading(true);
         const result = await fetchData(debouncedValue);
         const { data, message } = result.data;
@@ -63,21 +62,28 @@ function AdminManagementWrapper({
     }, [reLoadTable]);
 
     useEffect(() => {
-        if (mounted && debouncedValue) handleFilterChange();
-        else {
-            resetFilterData();
+        if (!mounted) {
+            const previousPath = sessionStorage.getItem('adminPreviousPath');
+            if (previousPath !== pathname) {
+                resetFilterData();
+            }
             setMounted(true);
+        } else {
+            sessionStorage.setItem('adminPreviousPath', pathname);
+            if (debouncedValue) {
+                handleFilterChange();
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted, debouncedValue]);
 
     return (
-        <div className="flex-auto text-gray-600">
-            <div className="p-[12px] flex justify-between items-center">
+        <div className="max-w-full h-full text-gray-600">
+            <div className="h-[54px] px-2 flex justify-between items-center">
                 <AdminFilter filters={filterConfig} />
                 <AddButton {...addBtn} />
             </div>
-            <div className="h-[calc(100%-57px)]">
+            <div className="h-[calc(100%-54px)]">
                 <AdminTable
                     {...tableConfig}
                     data={tableData}

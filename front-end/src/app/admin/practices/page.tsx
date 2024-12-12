@@ -1,6 +1,5 @@
 'use client';
-import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
-import { Close, Delete, Edit, ViewList } from '@mui/icons-material';
+import { Delete, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useLessons, useTopics } from '~/app/admin/hooks';
 import { useFilterData } from '../contexts';
@@ -13,12 +12,16 @@ import {
     createTopicFilter,
 } from '../configs/filters';
 import { useState } from 'react';
-import QuestionView from '../components/questionView';
+import AdminDialogPracticeOrQuizDetail from '../components/dialogPracticeOrQuizDetail';
+import AdminConfirmDialog from '../components/confirmDialog';
+import { toast } from 'react-toastify';
 
 function AdminPracticesPage() {
     const [showDetail, setShowDetail] = useState(false);
     const [itemSelected, setItemSelected] = useState<any>(null);
     const [detailData, setDetailData] = useState<any>(null);
+    const [practiceToDelete, setPracticeToDelete] = useState<any>(null);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
     const { filterData } = useFilterData();
     const grades = useGrades();
@@ -33,6 +36,21 @@ function AdminPracticesPage() {
         if (filters.courseId) return await PracticeService.getPracticesByCourse(filters.courseId);
         if (filters.grade) return await PracticeService.getPracticesByGrade(filters.grade);
         return await PracticeService.getAllPractices();
+    };
+
+    const handleDelete = async (practiceId: string) => {
+        try {
+            const updateRes = await PracticeService.updatePractice(practiceId, { status: -1 });
+            const { data, message } = updateRes.data;
+            if (data) {
+                toast.success('Đã xóa đề thực hành: ' + data.name);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
     };
 
     const handleShowDetail = async (item: any) => {
@@ -77,17 +95,17 @@ function AdminPracticesPage() {
             },
         ] as ColumnConfig[],
         actions: [
-            {
-                label: 'Sửa',
-                icon: Edit,
-                color: 'blue',
-                onClick: (item: any) => console.log('Edit', item),
-            },
+            // {
+            //     label: 'Sửa',
+            //     icon: Edit,
+            //     color: 'blue',
+            //     onClick: (item: any) => console.log('Edit', item),
+            // },
             {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => console.log('Delete', item),
+                onClick: (item: any) => setPracticeToDelete(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -103,6 +121,23 @@ function AdminPracticesPage() {
         disabled: !filterData.lessonId,
     };
 
+    const confirmDialogConfig = {
+        open: isConfirmDialogOpen,
+        title: 'Xác nhận xóa đề thực hành',
+        content: practiceToDelete?.name,
+        onClose: () => setIsConfirmDialogOpen(false),
+        onConfirm: () => handleDelete(practiceToDelete.id),
+    };
+
+    const dialogDetailConfig = {
+        open: showDetail,
+        onClose: () => setShowDetail(false),
+        title: 'Chi tiết đề thực hành',
+        name: itemSelected.name,
+        bonusPoint: itemSelected.bonusPoint,
+        questions: detailData,
+    };
+
     return (
         <>
             <AdminManagementWrapper
@@ -111,61 +146,8 @@ function AdminPracticesPage() {
                 tableConfig={tableConfig}
                 addBtn={addBtn}
             />
-            <Dialog
-                open={showDetail}
-                onClose={() => setShowDetail(false)}
-                maxWidth="md"
-            >
-                <DialogTitle
-                    sx={{
-                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                        // padding: '16px 24px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-                    <div className="flex items-center gap-2">
-                        <h2>Chi tiết đề thực hành</h2>
-                    </div>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setShowDetail(false)}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <div className="flex flex-col items-center justify-center">
-                        <h2 className="text-2xl font-extrabold text-center py-2">
-                            {itemSelected?.name}
-                        </h2>
-                        <p className="text-base font-semibold">
-                            Điểm thưởng: {itemSelected?.bonusPoint}
-                        </p>
-                    </div>
-                    <div>
-                        <ul>
-                            {detailData?.map((item: any, index: number) => (
-                                <div
-                                    key={item.id}
-                                    className="flex py-2 border-b border-gray-200"
-                                >
-                                    <div className="flex-1 flex justify-end py-3">
-                                        <strong className="text-lg">Câu {index + 1}:</strong>
-                                    </div>
-                                    <div className="flex-9">
-                                        <QuestionView data={item} />
-                                    </div>
-                                </div>
-                            ))}
-                        </ul>
-                        <div className="flex justify-center pt-2">
-                            <span className="text-base font-medium">---------- Hết ----------</span>
-                        </div>
-                    </div>
-                </DialogContent>
-            </Dialog>
+            <AdminConfirmDialog {...confirmDialogConfig} />
+            <AdminDialogPracticeOrQuizDetail {...dialogDetailConfig} />
         </>
     );
 }

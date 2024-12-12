@@ -8,9 +8,13 @@ import {
     OndemandVideo,
     Assessment,
     FactCheck,
+    ExpandLess,
+    ExpandMore,
+    NavigateNext,
 } from '@mui/icons-material';
 import Link from 'next/link';
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const menuItems = [
     { icon: <Home />, label: 'Trang chủ', href: '/admin/dashboard' },
@@ -31,29 +35,46 @@ const menuItems = [
 ];
 
 function AdminMenu() {
+    const pathname = usePathname();
     const [active, setActive] = useState<string>('dashboard');
     const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
     const handleSelectItem = (activeNameCurrent: string) => {
-        setActive(activeNameCurrent);
+        menuItems.forEach((item) => {
+            if (item.children) {
+                const matchedChild = item.children.find(
+                    (child) => child.href.split('/')[3] === activeNameCurrent,
+                );
+                if (matchedChild) {
+                    setActive(matchedChild.href.split('/')[3]);
+                    setOpenSubmenu(item.label);
+                }
+            } else {
+                if (item.href.split('/')[2] === activeNameCurrent) {
+                    setActive(item.href.split('/')[2]);
+                    setOpenSubmenu(null);
+                }
+            }
+        });
     };
 
     const toggleSubmenu = (label: string) => {
         setOpenSubmenu((prev) => (prev === label ? null : label));
     };
 
+    useEffect(() => {
+        handleSelectItem(pathname.split('/').pop() || 'dashboard');
+    }, [pathname]);
+
     return (
-        <nav className="my-5 px-3">
+        <nav className="my-5 overflow-hidden">
             <ul>
                 {menuItems.map((item, index) => (
-                    <li
-                        key={index}
-                        className="my-1"
-                    >
+                    <li key={index}>
                         {!item.children ? (
                             <Link
                                 href={item.href!}
-                                className={`py-2 px-2 flex items-center gap-2 font-medium rounded-md transition-all hover:bg-red-100 hover:text-primary cursor-pointer ${
+                                className={`p-3 flex items-center gap-2 font-medium transition-all hover:bg-red-100 hover:text-primary hover:scale-105 cursor-pointer ${
                                     active === item.href.split('/')[2]
                                         ? 'text-primary bg-red-100'
                                         : 'text-gray-500 bg-white'
@@ -65,8 +86,10 @@ function AdminMenu() {
                             </Link>
                         ) : (
                             <div
-                                className={`py-2 px-2 flex items-center gap-2 font-medium rounded-md transition-all hover:bg-red-100 hover:text-primary cursor-pointer ${
-                                    openSubmenu === item.label
+                                className={`p-3 flex items-center gap-2 font-medium transition-all hover:bg-red-100 hover:text-primary hover:scale-105 cursor-pointer ${
+                                    item.children.some(
+                                        (child) => active === child.href.split('/')[2],
+                                    )
                                         ? 'text-primary bg-red-100'
                                         : 'text-gray-500 bg-white'
                                 }`}
@@ -74,31 +97,40 @@ function AdminMenu() {
                             >
                                 {item.icon}
                                 <span className="text-lg flex-1">{item.label}</span>
-                                <span className="text-sm text-gray-400">
-                                    {openSubmenu === item.label ? '▲' : '▼'}
-                                </span>
+                                {openSubmenu === item.label ? (
+                                    <ExpandMore color="inherit" />
+                                ) : (
+                                    <ExpandLess color="inherit" />
+                                )}
                             </div>
                         )}
 
                         {item.children && openSubmenu === item.label && (
-                            <ul className="pl-6 pt-1 space-y-1 bg-slate-100">
-                                {item.children.map((child, childIndex) => (
-                                    <li
-                                        key={childIndex}
-                                        className="py-1 px-2 rounded-md transition-all hover:bg-gray-100"
-                                    >
-                                        <Link
-                                            href={child.href}
-                                            className="flex items-center gap-2 text-gray-600 hover:text-primary"
-                                            onClick={() =>
-                                                handleSelectItem(child.href.split('/')[3])
-                                            }
+                            <nav className="py-1 bg-slate-50">
+                                <ul className="my-2 m-3 transition-all">
+                                    {item.children.map((child, childIndex) => (
+                                        <li
+                                            key={childIndex}
+                                            className="overflow-hidden rounded-md"
                                         >
-                                            <span className="text-md">{child.label}</span>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
+                                            <Link
+                                                href={child.href}
+                                                onClick={() =>
+                                                    handleSelectItem(child.href.split('/')[3])
+                                                }
+                                                className={`p-3 flex items-center gap-2 rounded-md font-medium transition-all hover:bg-red-100 hover:text-primary hover:scale-105 cursor-pointer ${
+                                                    active === child.href.split('/')[3]
+                                                        ? 'text-primary bg-red-100'
+                                                        : 'text-gray-500 bg-slate-50'
+                                                }`}
+                                            >
+                                                <NavigateNext />
+                                                <span className="text-md">{child.label}</span>
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </nav>
                         )}
                     </li>
                 ))}

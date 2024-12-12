@@ -4,13 +4,15 @@ import { useFilterData } from '../contexts';
 import { LessonService } from '~/services';
 
 function useLessons(topicId: string) {
-    const [lessons, setLessons] = useState([]);
+    const [lessons, setLessons] = useState<any[]>([]);
 
-    const { setFilterData } = useFilterData();
+    const { filterData, setFilterData } = useFilterData();
 
     useEffect(() => {
         if (topicId) {
-            setFilterData({ lessonId: '' });
+            if (filterData.topicId !== topicId) {
+                setFilterData({ lessonId: '' });
+            }
             const fetchLessons = async () => {
                 const result = await LessonService.getLessonsByTopic(topicId, 0);
                 const { data, message } = result.data;

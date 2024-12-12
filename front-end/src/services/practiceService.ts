@@ -23,4 +23,19 @@ export class PracticeService {
             headers,
         });
     }
+
+    public static addPractice(data: { name: string; bonusPoint: number; lessonId: string }) {
+        return axios.post('practice/add', data);
+    }
+
+    public static updatePractice(
+        practiceId: string,
+        data: {
+            name?: string;
+            bonusPoint?: number;
+            status?: -1 | 0 | 1;
+        },
+    ) {
+        return axios.put(`practice/update/${practiceId}`, data);
+    }
 }

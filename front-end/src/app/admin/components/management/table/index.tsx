@@ -61,16 +61,22 @@ export default function AdminTable({
     }, [data, order, orderBy]);
 
     return (
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer sx={{ maxHeight: '507px' }}>
+        <Paper sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+            <TableContainer sx={{ height: 'calc(100% - 50px)' }}>
                 <Table
                     stickyHeader
                     aria-label="sticky table"
+                    sx={{
+                        '& .MuiTableCell-root': {
+                            padding: '9px',
+                        },
+                    }}
                 >
                     <TableHead>
                         <TableRow>
                             <TableCell
-                                sx={{ backgroundColor: '#f5f5f5', width: '40px' }}
+                                sx={{ backgroundColor: '#f5f5f5' }}
+                                width="40px"
                                 align="center"
                             >
                                 STT
@@ -78,7 +84,8 @@ export default function AdminTable({
                             {columns.map((item, index) => (
                                 <TableCell
                                     key={index}
-                                    sx={{ backgroundColor: '#f5f5f5', width: item.width }}
+                                    sx={{ backgroundColor: '#f5f5f5' }}
+                                    width={item.width}
                                     align="center"
                                 >
                                     <TableSortLabel
@@ -93,6 +100,7 @@ export default function AdminTable({
                             {actions && (
                                 <TableCell
                                     sx={{ backgroundColor: '#f5f5f5' }}
+                                    width="150px"
                                     align="center"
                                 >
                                     Thao tác
@@ -127,7 +135,7 @@ export default function AdminTable({
                                         {columns.map((column, colIndex) => (
                                             <TableCell
                                                 key={colIndex}
-                                                sx={{ width: column.width }}
+                                                width={column.width}
                                                 align={column.align}
                                             >
                                                 {column.key === 'status' ? (
@@ -148,6 +156,7 @@ export default function AdminTable({
                                         ))}
                                         {actions && (
                                             <TableCell
+                                                width="150px"
                                                 align="center"
                                                 sx={{
                                                     display: 'flex',
@@ -195,6 +204,7 @@ export default function AdminTable({
                 <TablePagination
                     rowsPerPageOptions={[10, 25, 100]}
                     component="div"
+                    sx={{ height: '50px' }}
                     count={data.length}
                     rowsPerPage={rowsPerPage}
                     page={page}

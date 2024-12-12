@@ -2,16 +2,20 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useFilterData } from '~/app/admin/contexts';
-import { CourseService, LessonService, TopicService } from '~/services';
-import FilterDisplay from '~/app/admin/components/filterDisplay';
+import { useFilterData, useQuestionsSelected } from '~/app/admin/contexts';
+import { CourseService, LessonService, QuestionService, TopicService } from '~/services';
+import { toast } from 'react-toastify';
+import AdminChooseQuestions from '../../components/chooseQuestions';
 
 function AdminChoosePracticeQuestion() {
     const router = useRouter();
     const { filterData } = useFilterData();
+    const { questionsSelected } = useQuestionsSelected();
+
     const [courseName, setCourseName] = useState('');
     const [topicName, setTopicName] = useState('');
     const [lessonName, setLessonName] = useState('');
+    const [questions, setQuestions] = useState<QuestionTypeWithSelection[]>([]);
 
     useEffect(() => {
         if (!filterData.lessonId) {
@@ -24,11 +28,33 @@ function AdminChoosePracticeQuestion() {
                 setCourseName(course.data.data.name);
                 setTopicName(topic.data.data.name);
                 setLessonName(lesson.data.data.name);
+
+                const questionsRes = await QuestionService.getQuestionsByLesson(
+                    filterData.lessonId,
+                );
+                const { data, message } = questionsRes.data;
+                if (data) {
+                    if (data.length > 0) {
+                        setQuestions(data);
+                    } else {
+                        console.error('No questions found');
+                    }
+                } else {
+                    console.error(message);
+                }
             };
             fetchData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filterData.lessonId]);
+
+    const handleContinue = () => {
+        if (questionsSelected.length === 0) {
+            toast.warning('Vui lòng chọn câu hỏi');
+            return;
+        }
+        router.push('/admin/practices/choose-questions/create');
+    };
 
     const filterDisplayItems = [
         {
@@ -54,12 +80,11 @@ function AdminChoosePracticeQuestion() {
     ];
 
     return (
-        <div className="w-full flex bg-white py-5">
-            <div className="max-w-[265px] flex flex-col items-center px-5 border-r-2 text-sm">
-                <FilterDisplay items={filterDisplayItems} />
-            </div>
-            <div></div>
-        </div>
+        <AdminChooseQuestions
+            filterDisplayItems={filterDisplayItems}
+            questions={questions}
+            onContinue={handleContinue}
+        />
     );
 }
 

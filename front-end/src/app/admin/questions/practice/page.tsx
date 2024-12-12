@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Close, Delete, Edit, HelpOutline, ViewList } from '@mui/icons-material';
-import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Delete, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
 import { useFilterData } from '~/app/admin/contexts';
@@ -14,11 +13,15 @@ import {
     createLessonFilter,
     createTopicFilter,
 } from '~/app/admin/configs/filters';
-import QuestionView from '../../components/questionView';
+import AdminDialogQuestionDetail from '../../components/dialogQuestionDetail';
+import AdminConfirmDialog from '../../components/confirmDialog';
+import { toast } from 'react-toastify';
 
 function AdminPracticeQuestionsPage() {
     const [showDetail, setShowDetail] = useState(false);
     const [dataSelected, setDataSelected] = useState<any>(null);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [questionToDelete, setQuestionToDelete] = useState<any>(null);
 
     const { filterData } = useFilterData();
     const grades = useGrades();
@@ -27,14 +30,28 @@ function AdminPracticeQuestionsPage() {
     const lessons = useLessons(filterData.topicId);
 
     const fetchData = async (filters: any) => {
-        if (filters.lessonId)
-            return await QuestionService.getQuestionsByLesson(filters.lessonId, 0);
+        if (filters.lessonId) return await QuestionService.getQuestionsByLesson(filters.lessonId);
         if (filters.topicId)
             return await QuestionService.getQuestionsByTopic(false, filters.topicId);
         if (filters.courseId)
             return await QuestionService.getQuestionsByCourse(false, filters.courseId);
         if (filters.grade) return await QuestionService.getQuestionsByGrade(false, filters.grade);
         return await QuestionService.getAllQuestions(false);
+    };
+
+    const handleDelete = async (questionId: string) => {
+        try {
+            const updateRes = await QuestionService.updateQuestion(questionId, { status: -1 });
+            const { data, message } = updateRes.data;
+            if (data) {
+                toast.success('Đã xóa câu hỏi: ' + data.content);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
     };
 
     const handleShowDetail = (data: any) => {
@@ -65,17 +82,17 @@ function AdminPracticeQuestionsPage() {
             },
         ] as ColumnConfig[],
         actions: [
-            {
-                label: 'Sửa',
-                icon: Edit,
-                color: 'blue',
-                onClick: (item: any) => console.log('Edit', item),
-            },
+            // {
+            //     label: 'Sửa',
+            //     icon: Edit,
+            //     color: 'blue',
+            //     onClick: (item: any) => console.log('Edit', item),
+            // },
             {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => console.log('Delete', item),
+                onClick: (item: any) => setQuestionToDelete(item),
             },
             {
                 label: 'Xem chi tiết',
@@ -91,6 +108,20 @@ function AdminPracticeQuestionsPage() {
         disabled: !filterData.lessonId,
     };
 
+    const confirmDialogConfig = {
+        open: isConfirmDialogOpen,
+        title: 'Xác nhận xóa chương mục',
+        content: questionToDelete?.content,
+        onClose: () => setIsConfirmDialogOpen(false),
+        onConfirm: () => handleDelete(questionToDelete.id),
+    };
+
+    const dialogQuestionDetailConfig = {
+        open: showDetail,
+        onClose: () => setShowDetail(false),
+        data: dataSelected,
+    };
+
     return (
         <>
             <AdminManagementWrapper
@@ -99,35 +130,8 @@ function AdminPracticeQuestionsPage() {
                 tableConfig={tableConfig}
                 addBtn={addBtn}
             />
-            <Dialog
-                open={showDetail}
-                onClose={() => setShowDetail(false)}
-                // sx={{ '& .MuiDialog-paper': { width: '60%', maxWidth: 'none' } }}
-            >
-                <DialogTitle
-                    sx={{
-                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                        // padding: '16px 24px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-                    <div className="flex items-center gap-2">
-                        <HelpOutline />
-                        <h2>Chi tiết câu hỏi</h2>
-                    </div>
-                    <IconButton
-                        aria-label="close"
-                        onClick={() => setShowDetail(false)}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent>
-                    <QuestionView data={dataSelected} />
-                </DialogContent>
-            </Dialog>
+            <AdminConfirmDialog {...confirmDialogConfig} />
+            <AdminDialogQuestionDetail {...dialogQuestionDetailConfig} />
         </>
     );
 }

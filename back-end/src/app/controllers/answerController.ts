@@ -23,7 +23,6 @@ export class AnswerController {
 
     public static async addAnswers(req: Request, res: Response, next: NextFunction) {
         const { answers } = req.body;
-        console.log('answers', answers);
         if (!answers || answers.length === 0) {
             ResponseUtil.sendMissingData(res);
         } else {

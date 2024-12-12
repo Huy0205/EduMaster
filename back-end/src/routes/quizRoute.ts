@@ -21,4 +21,7 @@ quizRouter.get('/:quizId', QuizController.getQuizById);
 // POST: http://localhost:8080/api/v1/quiz/add
 quizRouter.post('/add', QuizController.addQuiz);
 
+// PUT: http://localhost:8080/api/v1/quiz/update/:quizId
+quizRouter.put('/update/:quizId', QuizController.updateQuiz);
+
 export default quizRouter;

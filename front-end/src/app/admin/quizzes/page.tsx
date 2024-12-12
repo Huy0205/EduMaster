@@ -1,12 +1,23 @@
 'use client';
-import { Delete, Edit, ViewList } from '@mui/icons-material';
+import { Delete, ViewList } from '@mui/icons-material';
 
 import { useCourses, useGrades, useTopics } from '~/app/admin/hooks';
-import { useFilterData } from '~/context';
-import { QuizService } from '~/services';
+import { useFilterData } from '~/app/admin/contexts';
+import { QuestionService, QuizService } from '~/services';
 import AdminManagementWrapper from '../components/management';
+import { createCourseFilter, createGradeFilter, createTopicFilter } from '../configs/filters';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import AdminConfirmDialog from '../components/confirmDialog';
+import AdminDialogPracticeOrQuizDetail from '../components/dialogPracticeOrQuizDetail';
 
 function AdminQuizzesPage() {
+    const [quizToDelete, setQuizToDelete] = useState<any>(null);
+    const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+    const [isShowDetail, setIsShowDetail] = useState(false);
+    const [itemSelected, setItemSelected] = useState<any>(null);
+    const [detailData, setDetailData] = useState<any>();
+
     const { filterData } = useFilterData();
     const grades = useGrades();
     const courses = useCourses(filterData.grade);
@@ -19,26 +30,43 @@ function AdminQuizzesPage() {
         return await QuizService.getAllQuizzes();
     };
 
+    const handleDelete = async (quizId: string) => {
+        try {
+            const updateRes = await QuizService.updateQuiz(quizId, { status: -1 });
+            const { data, message } = updateRes.data;
+            if (data) {
+                toast.success('Đã xóa đề kiểm tra: ' + data.name);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
+    };
+
+    const handleShowDetail = async (item: any) => {
+        setItemSelected(item);
+        try {
+            const questionsRes = await QuestionService.getQuestionsByQuiz(item.id);
+            const { data, message } = questionsRes.data;
+            if (data) {
+                setDetailData(data);
+            } else {
+                throw new Error(message);
+            }
+            setIsShowDetail(true);
+        } catch (error) {
+            setIsShowDetail(false);
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
+    };
+
     const filterConfig = [
-        {
-            key: 'grade',
-            placeholder: 'Chọn lớp',
-            options: grades.map((grade) => ({ value: grade, label: 'Lớp ' + grade })),
-        },
-        {
-            key: 'courseId',
-            placeholder: 'Chọn môn học',
-            options: courses.map((course: any) => ({ value: course.id, label: course.name })),
-            disabled: !filterData.grade,
-            tooltipTitle: 'Vui lòng chọn lớp trước',
-        },
-        {
-            key: 'topicId',
-            placeholder: 'Chọn chương mục',
-            options: topics.map((topic: any) => ({ value: topic.id, label: topic.name })),
-            disabled: !filterData.courseId,
-            tooltipTitle: 'Vui lòng chọn môn học trước',
-        },
+        createGradeFilter(grades),
+        createCourseFilter(courses, filterData.grade),
+        createTopicFilter(topics, filterData.courseId),
     ];
 
     const tableConfig = {
@@ -67,41 +95,63 @@ function AdminQuizzesPage() {
                 width: '200px',
                 align: 'center',
             },
-        ],
+        ] as ColumnConfig[],
         actions: [
-            {
-                label: 'Sửa',
-                icon: Edit,
-                color: 'blue',
-                onClick: (item: any) => console.log('Edit', item),
-            },
+            // {
+            //     label: 'Sửa',
+            //     icon: Edit,
+            //     color: 'blue',
+            //     onClick: (item: any) => console.log('Edit', item),
+            // },
             {
                 label: 'Xóa',
                 icon: Delete,
                 color: 'red',
-                onClick: (item: any) => console.log('Delete', item),
+                onClick: (item: any) => setQuizToDelete(item),
             },
             {
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => console.log('Detail', item),
+                onClick: (item: any) => handleShowDetail(item),
             },
         ],
     };
 
     const addBtn = {
-        link: '/admin/quizzes/add',
+        link: '/admin/quizzes/choose-questions',
         disabled: !filterData.topicId,
     };
 
+    const confirmDialogConfig = {
+        open: isConfirmDialogOpen,
+        title: 'Xác nhận đề kiểm tra',
+        content: quizToDelete?.name,
+        onClose: () => setIsConfirmDialogOpen(false),
+        onConfirm: () => handleDelete(quizToDelete.id),
+    };
+
+    const dialogDetailConfig = {
+        open: isShowDetail,
+        onClose: () => setIsShowDetail(false),
+        title: 'Chi tiết đề kiểm tra',
+        name: itemSelected.name,
+        time: itemSelected.time,
+        bonusPoint: itemSelected.bonusPoint,
+        questions: detailData,
+    };
+
     return (
-        <AdminManagementWrapper
-            fetchData={fetchData}
-            filterConfig={filterConfig}
-            tableConfig={tableConfig}
-            addBtn={addBtn}
-        />
+        <>
+            <AdminManagementWrapper
+                fetchData={fetchData}
+                filterConfig={filterConfig}
+                tableConfig={tableConfig}
+                addBtn={addBtn}
+            />
+            <AdminConfirmDialog {...confirmDialogConfig} />
+            <AdminDialogPracticeOrQuizDetail {...dialogDetailConfig} />
+        </>
     );
 }
 

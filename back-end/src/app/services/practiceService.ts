@@ -167,4 +167,41 @@ export class PracticeService {
             throw error;
         }
     }
+
+    public static async getMaxOrderInLesson(lessonId: string) {
+        try {
+            const max = await PracticeRepository.maximum('orderInLesson', {
+                lesson: {
+                    id: lessonId,
+                },
+            });
+            return {
+                code: 200,
+                message: 'Get max order in lesson successfully',
+                data: max,
+            };
+        }  catch (error) {
+            console.error('Error getting max order in lesson', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Save practice
+     * @param practice
+     * @returns
+     */
+    public static async savePractice(practice: Partial<Practice>) {
+        try {
+            const newPractice = await PracticeRepository.save(practice);
+            return {
+                code: 200,
+                message: 'Save practice successfully',
+                data: newPractice,
+            };
+        } catch (error) {
+            console.error('Error saving practice', error);
+            throw error;
+        }
+    }
 }

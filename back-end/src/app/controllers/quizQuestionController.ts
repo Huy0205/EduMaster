@@ -1,24 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import { validate as isUUID } from 'uuid';
 
 import { ResponseUtil } from '~/utils';
 import { QuizQuestionService } from '~/app/services';
 
 export class QuizQuestionController {
-    static async addQuizQuestion(req: Request, res: Response, next: NextFunction) {
-        const { quizId, questionId } = req.body;
-
-        if (!quizId || !questionId) {
+    public static async addQuizQuestions(req: Request, res: Response, next: NextFunction) {
+        const { quizQuestions } = req.body;
+        if (!quizQuestions || quizQuestions.length === 0) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(quizId) || !isUUID(questionId)) {
-            ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                const quizQuestionRes = await QuizQuestionService.addQuizQuestion(
-                    quizId,
-                    questionId,
-                );
-                ResponseUtil.sendResponse(res, quizQuestionRes);
+                const result = await QuizQuestionService.saveQuizQuestions(quizQuestions);
+                ResponseUtil.sendResponse(res, result);
             } catch (error) {
                 next(error);
             }

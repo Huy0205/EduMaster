@@ -6,11 +6,13 @@ import { CourseService } from '~/services';
 function useCourses(grade: number) {
     const [courses, setCourses] = useState([]);
 
-    const { setFilterData } = useFilterData();
+    const { filterData, setFilterData } = useFilterData();
 
     useEffect(() => {
         if (grade) {
-            setFilterData({ courseId: '', topicId: '', lessonId: '' });
+            if (filterData.grade !== grade) {
+                setFilterData({ courseId: '', topicId: '', lessonId: '' });
+            }
             const fetchCourses = async () => {
                 const result = await CourseService.getCoursesByGrade(grade);
                 const { data, message } = result.data;

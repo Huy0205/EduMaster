@@ -14,6 +14,8 @@ import practiceRouter from './practiceRoute';
 import resultRouter from './resultRoute';
 import enrollmentRouter from './enrollmentRoute';
 import practiceProgressRouter from './practiceProgressRoute';
+import practiceQuestionRouter from './practiceQuestionRoute';
+import uploadRouter from './uploadRoute';
 
 const router = Router();
 
@@ -31,6 +33,8 @@ router.use('/avatar-frame-user', avatarFrameUserRouter);
 router.use('/practice', practiceRouter);
 router.use('/result', resultRouter);
 router.use('/enrollment', enrollmentRouter);
+router.use('/practice-question', practiceQuestionRouter);
 router.use('/practice-progress', practiceProgressRouter);
+router.use('/upload', uploadRouter);
 
 export default router;

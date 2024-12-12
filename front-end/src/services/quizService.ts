@@ -19,4 +19,25 @@ export class QuizService {
             headers,
         });
     }
+
+    public static addQuiz(quiz: {
+        name: string;
+        time: number;
+        bonusPoint?: number;
+        topicId: string;
+    }) {
+        return axios.post('/quiz/add', quiz);
+    }
+
+    public static updateQuiz(
+        quizId: string,
+        data: {
+            name?: string;
+            time?: number;
+            bonusPoint?: number;
+            status?: -1 | 0 | 1;
+        },
+    ) {
+        return axios.put(`quiz/update/${quizId}`, data);
+    }
 }

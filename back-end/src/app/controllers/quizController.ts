@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
 import { QuizService, TopicService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
-import { Role } from '../enums';
+import { Role, Status } from '../enums';
 
 export class QuizController {
     public static async getAllQuizzes(req: Request, res: Response, next: NextFunction) {
@@ -89,11 +89,34 @@ export class QuizController {
         } else {
             try {
                 const topicRes = await TopicService.getTopicById(topicId);
-                const response = await QuizService.addQuiz({
+                const response = await QuizService.saveQuiz({
                     name,
                     time,
                     bonusPoint: bonusPoint || 20,
                     topic: topicRes.data,
+                });
+                ResponseUtil.sendResponse(res, response);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async updateQuiz(req: Request, res: Response, next: NextFunction) {
+        const { quizId } = req.params;
+        const { name, time, bonusPoint, status } = req.body;
+        if (!quizId || (!name && !time && bonusPoint === undefined && status === undefined)) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(quizId) || (status !== undefined && !(status in Status))) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const response = await QuizService.saveQuiz({
+                    id: quizId,
+                    name,
+                    time,
+                    bonusPoint,
+                    status,
                 });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {

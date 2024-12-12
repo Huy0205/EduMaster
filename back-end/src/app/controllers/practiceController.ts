@@ -1,8 +1,8 @@
 import { validate as isUUID } from 'uuid';
 import { ResponseUtil } from '~/utils';
-import { PracticeService } from '../services';
+import { LessonService, PracticeService } from '../services';
 import { NextFunction, Request, Response } from 'express';
-import { Role } from '../enums';
+import { Role, Status } from '../enums';
 
 export class PracticeController {
     public static async getAllPractices(req: Request, res: Response, next: NextFunction) {
@@ -76,6 +76,56 @@ export class PracticeController {
             }
             try {
                 const result = await PracticeService.getPracticesByLesson(lessonId, role);
+                ResponseUtil.sendResponse(res, result);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async addPractice(req: Request, res: Response, next: NextFunction) {
+        const { name, bonusPoint, lessonId } = req.body;
+        console.log(name, bonusPoint, lessonId);
+        console.log(typeof bonusPoint);
+        if (!name || !lessonId) {
+            ResponseUtil.sendMissingData(res);
+        } else if (!isUUID(lessonId) || Number(bonusPoint) < 0) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const maxOrderRes = await PracticeService.getMaxOrderInLesson(lessonId);
+                const LessonRes = await LessonService.getLessonById(lessonId);
+                const result = await PracticeService.savePractice({
+                    name,
+                    bonusPoint: Number(bonusPoint) || 10,
+                    orderInLesson: maxOrderRes.data + 1,
+                    lesson: LessonRes.data,
+                });
+                ResponseUtil.sendResponse(res, result);
+            } catch (error) {
+                next(error);
+            }
+        }
+    }
+
+    public static async updatePractice(req: Request, res: Response, next: NextFunction) {
+        const { practiceId } = req.params;
+        const { name, bonusPoint, status } = req.body;
+        if (!practiceId || (!name && bonusPoint === undefined && status === undefined)) {
+            ResponseUtil.sendMissingData(res);
+        } else if (
+            !isUUID(practiceId) ||
+            (bonusPoint !== undefined && Number(bonusPoint) < 0) ||
+            (status !== undefined && !(status in Status))
+        ) {
+            ResponseUtil.sendInvalidData(res);
+        } else {
+            try {
+                const result = await PracticeService.savePractice({
+                    id: practiceId,
+                    name,
+                    bonusPoint: Number(bonusPoint),
+                });
                 ResponseUtil.sendResponse(res, result);
             } catch (error) {
                 next(error);

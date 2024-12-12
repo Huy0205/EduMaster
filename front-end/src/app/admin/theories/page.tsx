@@ -8,7 +8,7 @@ import { useFilterData } from '../contexts';
 import { TheoryService } from '~/services';
 import AdminManagementWrapper from '../components/management';
 import AdminFormDialog from '../components/FormDialog';
-import AdminConfirmDialog from '../components/ConfirmDialog';
+import AdminConfirmDialog from '../components/confirmDialog';
 import {
     createCourseFilter,
     createGradeFilter,

@@ -4,9 +4,7 @@ import { authentication } from '~/middlewares';
 
 const quizQuestionRouter = Router();
 
-
-
-// POST: http://localhost:8080/api/v1/quiz-question/add
-quizQuestionRouter.post('/add', authentication, QuizQuestionController.addQuizQuestion);
+// POST: http://localhost:8080/api/v1/quiz-question/add-multiple
+quizQuestionRouter.post('/add-multiple', authentication, QuizQuestionController.addQuizQuestions);
 
 export default quizQuestionRouter;

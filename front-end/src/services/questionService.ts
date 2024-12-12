@@ -19,15 +19,16 @@ export class QuestionService {
         return axios.get(`question/topic/${topicId}`, { params: { isQuizQuestion } });
     }
 
-    public static getQuestionsByLesson(lessonId: string, role?: 0 | 1) {
-        const headers = role !== undefined ? { role } : {};
-        return axios.get(`question/lesson/${lessonId}`, {
-            headers,
-        });
+    public static getQuestionsByLesson(lessonId: string) {
+        return axios.get(`question/lesson/${lessonId}`);
     }
 
     public static getQuestionsByPractice(practiceId: string) {
         return axios.get(`question/practice/${practiceId}`);
+    }
+
+    public static getQuestionsByQuiz(quizId: string) {
+        return axios.get(`question/quiz/${quizId}`);
     }
 
     public static getQuestionById(questionId: string) {
@@ -37,10 +38,11 @@ export class QuestionService {
     public static addQuestion(data: {
         content: string;
         image: string;
-        type: string;
+        type: 1 | 2 | 3;
         feedback: string;
+        status?: -1 | 0 | 1;
         topicId: string;
-        lessonId?: string;
+        lessonId?: string | null;
     }) {
         return axios.post('question/add', data);
     }

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
 import { LessonService, QuestionService, TopicService } from '~/app/services';
 import { ResponseUtil } from '~/utils';
-import { QuestionType } from '../enums';
+import { QuestionType, Status } from '../enums';
 
 export class QuestionController {
     public static async getAllQuestions(req: Request, res: Response, next: NextFunction) {
@@ -151,10 +151,16 @@ export class QuestionController {
     }
 
     public static async addQuestion(req: Request, res: Response, next: NextFunction) {
-        const { content, image, type, feedback, lessonId, topicId } = req.body;
+        const { content, image, type, feedback, status, lessonId, topicId } = req.body;
+        console.log(status in Status);
         if ((!content && !image) || !type || !topicId) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(topicId) || !(type in QuestionType) || (lessonId && !isUUID(lessonId))) {
+        } else if (
+            !isUUID(topicId) ||
+            !(type in QuestionType) ||
+            (status !== undefined && !(status in Status)) ||
+            (lessonId && !isUUID(lessonId))
+        ) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
@@ -169,6 +175,7 @@ export class QuestionController {
                     image,
                     type,
                     feedback,
+                    status,
                     lesson: lessonData,
                     topic: topicRes.data,
                 });
@@ -182,25 +189,23 @@ export class QuestionController {
 
     public static async updateQuestion(req: Request, res: Response, next: NextFunction) {
         const { questionId } = req.params;
-        const { content, image, feedback, lessonId } = req.body;
+        const { content, image, feedback, status } = req.body;
 
-        if (!questionId || (!content && !image && !feedback && !lessonId)) {
+        if (!questionId || (!content && !image && !feedback && status === undefined)) {
             ResponseUtil.sendMissingData(res);
-        } else if (!isUUID(questionId) || (lessonId && !isUUID(lessonId))) {
+        } else if (
+            !isUUID(questionId) ||
+            (status !== undefined && !(status in Status))
+        ) {
             ResponseUtil.sendInvalidData(res);
         } else {
             try {
-                let lessonData = null;
-                if (lessonId) {
-                    const lessonRes = await LessonService.getLessonById(lessonId);
-                    lessonData = lessonRes.data;
-                }
                 const response = await QuestionService.saveQuestion({
                     id: questionId,
                     content,
                     image,
                     feedback,
-                    lesson: lessonData,
+                    status,
                 });
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {

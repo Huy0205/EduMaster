@@ -21,7 +21,7 @@ function AddButton({ content, link, onClick, disabled }: AddButtonProps) {
             {link ? (
                 <Link
                     href={disabled ? '#' : link}
-                    className="h-btn flex justify-center items-center bg-green-500 text-sm text-white px-3 rounded"
+                    className="h-[36px] flex justify-center items-center bg-green-500 text-sm text-white px-3 rounded"
                     aria-label="Thêm"
                 >
                     <Add />
@@ -30,7 +30,7 @@ function AddButton({ content, link, onClick, disabled }: AddButtonProps) {
             ) : (
                 <button
                     onClick={onClick}
-                    className="h-btn flex justify-center items-center bg-green-500 text-sm text-white px-3 rounded"
+                    className="h-[36px] flex justify-center items-center bg-green-500 text-sm text-white px-3 rounded"
                     aria-label="Thêm"
                     disabled={disabled}
                 >
