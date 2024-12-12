@@ -70,7 +70,12 @@ function AdminQuizzesPage() {
             setIsShowDetail(false);
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
-        }
+}
+    };
+
+    const handleOpenConfirmDialog = (quiz: any) => {
+        setQuizToDelete(quiz);
+        setIsConfirmDialogOpen(true);
     };
 
     const handleOpenConfirmDialog = (quiz: any) => {

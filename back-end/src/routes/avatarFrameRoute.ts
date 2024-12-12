@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { AvatarFrameController } from '~/app/controllers';
+import { AvatarFrameController } from '../app/controllers';
 // import { authentication } from '~/middlewares';
 
 const avatarFrameRouter = Router();

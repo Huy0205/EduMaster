@@ -1,15 +1,13 @@
 'use client'
 import React, { useState } from 'react'
-import { Box, Button, Typography, TextField, CircularProgress, Divider } from "@mui/material";
-import { FcGoogle } from 'react-icons/fc'
+import { Box, Button, Typography, TextField, CircularProgress } from "@mui/material";
 import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '~/context/AuthContext'
-import { GoogleLogin } from '@react-oauth/google'
 import { postApiNoneToken } from '~/api/page'
 import Header from '../../components/Header';
 const LoginPage = () => {
-  const { loggedIn, setLoggedIn } = useAuth();
+  const { setLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -42,11 +40,6 @@ const LoginPage = () => {
       setError('Tên đăng nhập hoặc mật khẩu không đúng.');
     }
     setLoading(false);
-  };
-
-  const handleGoogleLogin = async (credentialRespone) => {
-    setLoggedIn(true);
-    router.push('/');
   };
 
   return (
@@ -160,25 +153,6 @@ const LoginPage = () => {
             </Button>
           </form>
 
-          {/* Divider */}
-          {/* <Box mt={4}>
-            <Divider>
-              <Typography variant="body2" color="textSecondary">
-                Hoặc
-              </Typography>
-            </Divider>
-          </Box> */}
-
-          {/* Google Login */}
-          {/* <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<FcGoogle />}
-            onClick={handleGoogleLogin}
-            sx={{ mt: 2, py: 1.5 }}
-          >
-            Đăng nhập bằng Google
-          </Button> */}
 
           {/* Đăng ký */}
           <Box

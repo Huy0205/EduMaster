@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { UserService } from '~/app/services';
+import { UserService } from '../app/services';
 
 export const authorization = async (req: Request, res: Response, next: NextFunction) => {
     const { email } = req['currentUser'];

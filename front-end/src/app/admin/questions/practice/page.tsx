@@ -75,7 +75,7 @@ function AdminPracticeQuestionsPage() {
     };
 
     const filterConfig = [
-        createGradeFilter(grades),
+createGradeFilter(grades),
         createCourseFilter(courses, filterData.grade),
         createTopicFilter(topics, filterData.courseId),
         createLessonFilter(lessons, filterData.topicId),

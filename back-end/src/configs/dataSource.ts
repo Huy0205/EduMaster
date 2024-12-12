@@ -18,7 +18,7 @@ import {
     Result,
     AvatarFrame,
     AvatarFrameUser,
-} from '~/app/models';
+} from '../app/models';
 
 const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT } = process.env;
 

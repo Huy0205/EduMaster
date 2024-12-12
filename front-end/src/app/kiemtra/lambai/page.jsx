@@ -1,12 +1,11 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,Suspense } from 'react';
 import {
   Button,
   Radio,
   Checkbox,
   TextField,
   Typography,
-  Alert,
   Box,
   Dialog,
   DialogTitle,
@@ -381,4 +380,10 @@ const Quiz = () => {
   );
 };
 
-export default Quiz;
+export default function PageWrapper() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Quiz />
+    </Suspense>
+  );
+}

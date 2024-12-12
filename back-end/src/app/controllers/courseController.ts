@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { CourseService } from '~/app/services';
-import { ResponseUtil } from '~/utils';
+import { CourseService } from  '../../app/services';
+import { ResponseUtil } from '../../utils';
 
 export class CourseController {
     static async getAllCourses(req: Request, res: Response, next: NextFunction) {

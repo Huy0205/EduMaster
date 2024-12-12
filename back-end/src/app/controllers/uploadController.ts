@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 
 export class UploadController {
     public static uploadFile(req: Request, res: Response) {

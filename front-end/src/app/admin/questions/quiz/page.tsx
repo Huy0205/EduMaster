@@ -80,7 +80,7 @@ function AdminQuizQuestionsPage() {
         columns: [
             {
                 key: 'content',
-                label: 'Nội dung',
+label: 'Nội dung',
                 width: 'auto',
                 align: 'left',
             },

@@ -7,7 +7,7 @@ import path from 'path';
 
 import { db } from './configs';
 import routes from './routes';
-import { errorHandler } from '~/middlewares';
+import { errorHandler } from './middlewares';
 
 const app = express();
 const port = process.env.PORT || 3000;

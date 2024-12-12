@@ -1,9 +1,9 @@
-import { db } from '~/configs';
-import { User } from '~/app/models';
-import { Role, Status } from '~/app/enums';
+import { db } from '../../configs';
+import { User } from '../../app/models';
+import { Role, Status } from '../../app/enums';
 import * as cache from 'memory-cache';
 import nodeMailer from 'nodemailer';
-import { BcryptUtil, TokenUtil } from '~/utils';
+import { BcryptUtil, TokenUtil } from '../../utils';
 
 const UserRepository = db.AppDataSource.getRepository(User);
 

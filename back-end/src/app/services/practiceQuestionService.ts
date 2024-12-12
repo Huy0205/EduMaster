@@ -1,5 +1,5 @@
-import { db } from '~/configs';
-import { PracticeQuestion } from '~/app/models';
+import { db } from '../../configs';
+import { PracticeQuestion } from '../../app/models';
 
 const PracticeQuestionRepository = db.AppDataSource.getRepository(PracticeQuestion);
 

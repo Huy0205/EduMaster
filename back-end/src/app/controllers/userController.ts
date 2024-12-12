@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { UserService } from '~/app/services';
-import { BcryptUtil, ResponseUtil } from '~/utils';
+import { UserService } from  '../../app/services';
+import { BcryptUtil, ResponseUtil } from '../../utils';
 import { Status } from '../enums';
 
 export class UserController {

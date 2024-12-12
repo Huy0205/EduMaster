@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { QuizController } from '~/app/controllers';
+import { QuizController } from '../app/controllers';
 
 const quizRouter = Router();
 

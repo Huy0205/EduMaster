@@ -7,7 +7,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
-import { QuestionType, Status } from '~/app/enums';
+import { QuestionType, Status } from '../../app/enums';
 import { Lesson } from './lesson';
 import { QuizQuestion } from './quizQuestion';
 import { Answer } from './answer';

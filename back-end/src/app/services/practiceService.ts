@@ -1,5 +1,5 @@
-import { db } from '~/configs';
-import { Practice } from '~/app/models';
+import { db } from '../../configs';
+import { Practice } from '../../app/models';
 import { In } from 'typeorm';
 import { Role, Status } from '../enums';
 

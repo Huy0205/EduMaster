@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
 import { Box, Avatar, Button, Typography, Grid } from "@mui/material";
-import axios from "axios";
 import Navbar from "~/components/Navbar";
 import Header from "~/components/Header";
 import { Snackbar, Alert } from "@mui/material";

@@ -1,5 +1,5 @@
-import { db } from '~/configs';
-import { Enrollment } from '~/app/models';
+import { db } from '../../configs';
+import { Enrollment } from '../../app/models';
 
 const EnrollmentRepository = db.AppDataSource.getRepository(Enrollment);
 

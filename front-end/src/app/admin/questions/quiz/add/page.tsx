@@ -100,7 +100,7 @@ function AdminAddQuizQuestionPage() {
             setIsLoadingGlobal(false);
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             setTimeout(() => {
-                router.push('/admin/questions/practice');
+                router.push('/admin/questions/quiz');
             }, 3000);
             console.log(error);
         }

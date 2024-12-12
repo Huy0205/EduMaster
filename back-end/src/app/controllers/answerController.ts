@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { AnswerService } from '~/app/services';
-import { ResponseUtil } from '~/utils';
+import { AnswerService } from '../../app/services';
+import { ResponseUtil } from '../../utils';
 
 export class AnswerController {
     static async getAnswersByQuestion(req: Request, res: Response, next: NextFunction) {

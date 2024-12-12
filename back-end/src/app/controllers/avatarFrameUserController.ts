@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
 import { AvatarFrameUserService } from '../services/avatarFrameUserService';
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 
 export class AvatarFrameUserController {
     public static async getAvatarFrameUsersByUser(req: Request, res: Response, next: NextFunction) {

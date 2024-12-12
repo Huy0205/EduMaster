@@ -1,4 +1,4 @@
-import { ResponseUtil } from '~/utils';
+import { ResponseUtil } from '../../utils';
 import { validate as isUUID } from 'uuid';
 import { LessonService, TopicService } from '../services';
 import { NextFunction, Request, Response } from 'express';

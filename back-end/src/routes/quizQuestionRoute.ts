@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { QuizQuestionController } from '~/app/controllers';
-import { authentication } from '~/middlewares';
+import { QuizQuestionController } from '../app/controllers';
+import { authentication } from '../middlewares';
 
 const quizQuestionRouter = Router();
 
