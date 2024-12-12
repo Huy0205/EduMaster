@@ -111,6 +111,7 @@ export class PracticeController {
     public static async updatePractice(req: Request, res: Response, next: NextFunction) {
         const { practiceId } = req.params;
         const { name, bonusPoint, status } = req.body;
+        console.log(practiceId, name, bonusPoint, status);
         if (!practiceId || (!name && bonusPoint === undefined && status === undefined)) {
             ResponseUtil.sendMissingData(res);
         } else if (
@@ -124,7 +125,8 @@ export class PracticeController {
                 const result = await PracticeService.savePractice({
                     id: practiceId,
                     name,
-                    bonusPoint: Number(bonusPoint),
+                    bonusPoint,
+                    status,
                 });
                 ResponseUtil.sendResponse(res, result);
             } catch (error) {

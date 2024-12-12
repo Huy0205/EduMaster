@@ -7,24 +7,6 @@ const { AppDataSource } = db;
 const quizRepository = AppDataSource.getRepository(Quiz);
 
 export class QuizService {
-    public static async getMaxOrderInTopic(topicId: string) {
-        try {
-            const maxOrder = await quizRepository.maximum('orderInTopic', {
-                topic: {
-                    id: topicId,
-                },
-            });
-            return {
-                code: 200,
-                message: 'Get max order in topic successfully',
-                data: maxOrder,
-            };
-        } catch (error) {
-            console.error('Error getting max order in topic', error);
-            throw error;
-        }
-    }
-
     public static async getAllQuizzes() {
         try {
             const quizzes = await quizRepository.find({
