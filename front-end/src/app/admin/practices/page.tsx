@@ -38,11 +38,20 @@ function AdminPracticesPage() {
         return await PracticeService.getAllPractices();
     };
 
+    let triggerReload: ((reload: boolean) => void) | undefined;
+
+    const handleReloadSetup = (setReloadFn: (reload: boolean) => void) => {
+        triggerReload = setReloadFn;
+    };
+
     const handleDelete = async (practiceId: string) => {
         try {
             const updateRes = await PracticeService.updatePractice(practiceId, { status: -1 });
             const { data, message } = updateRes.data;
             if (data) {
+                if (typeof triggerReload === 'function') {
+                    triggerReload(true);
+                }
                 toast.success('Đã xóa đề thực hành: ' + data.name);
             } else {
                 throw new Error(message);
@@ -51,6 +60,7 @@ function AdminPracticesPage() {
             toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
             console.error(error);
         }
+        setIsConfirmDialogOpen(false);
     };
 
     const handleShowDetail = async (item: any) => {
@@ -68,7 +78,7 @@ function AdminPracticesPage() {
     const handleOpenConfirmDialog = (practices: any) => {
         setPracticeToDelete(practices);
         setIsConfirmDialogOpen(true);
-    }
+    };
     const filterConfig = [
         createGradeFilter(grades),
         createCourseFilter(courses, filterData.grade),
@@ -149,6 +159,7 @@ function AdminPracticesPage() {
                 filterConfig={filterConfig}
                 tableConfig={tableConfig}
                 addBtn={addBtn}
+                onReloadTable={handleReloadSetup}
             />
             <AdminConfirmDialog {...confirmDialogConfig} />
             <AdminDialogPracticeOrQuizDetail {...dialogDetailConfig} />
