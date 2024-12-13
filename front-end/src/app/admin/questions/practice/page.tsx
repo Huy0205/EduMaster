@@ -69,20 +69,9 @@ function AdminPracticeQuestionsPage() {
         setIsConfirmDialogOpen(true);
     };
 
-    const handleShowDetail = async (questionId: string) => {
-        try {
-            const questionRes = await QuestionService.getQuestionById(questionId);
-            const { data, message } = questionRes.data;
-            if (data) {
-                setDataSelected(data);
-                setShowDetail(true);
-            } else {
-                throw new Error(message);
-            }
-        } catch (error) {
-            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
-            console.error(error);
-        }
+    const handleShowDetail = async (data: any) => {
+        setDataSelected(data);
+        setShowDetail(true);
     };
 
     const filterConfig = [
@@ -136,7 +125,7 @@ function AdminPracticeQuestionsPage() {
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => handleShowDetail(item.id),
+                onClick: (item: any) => handleShowDetail(item),
             },
         ],
     };

@@ -30,7 +30,6 @@ function AdminManagementWrapper({
         const result = await fetchData(debouncedValue);
         const { data, message } = result.data;
         if (data) {
-            console.log(data);
             setTableData(data);
         } else {
             console.error(message);

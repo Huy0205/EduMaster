@@ -7,7 +7,8 @@ export class UploadController {
         if (!file) {
             ResponseUtil.sendMissingData(res);
         } else {
-            const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
+            const fileUrl = `${req.protocol}://${req.get('host')}:8080/uploads/${file.filename}`;
+            // const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
             ResponseUtil.sendResponse(res, {
                 code: 200,
                 message: 'File uploaded successfully!',
