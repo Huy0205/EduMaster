@@ -24,7 +24,7 @@ export default function AdminTable({
 }: AdminTableProps) {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [page, setPage] = useState(0);
-    const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+    const [order, setOrder] = useState<'asc' | 'desc' | null>('asc');
     const [orderBy, setOrderBy] = useState<string>('');
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -42,13 +42,19 @@ export default function AdminTable({
     };
 
     const handleSort = (column: string) => {
-        const isAsc = orderBy === column && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(column);
+        if (orderBy === column) {
+            setOrder(order === 'asc' ? 'desc' : order === 'desc' ? null : 'asc');
+            if (order === 'desc') {
+                setOrderBy('');
+            }
+        } else {
+            setOrder('asc');
+            setOrderBy(column);
+        }
     };
 
     const sortedData = useMemo(() => {
-        if (!orderBy) return data;
+        if (!orderBy || !order) return data;
         return [...data].sort((a, b) => {
             if (a[orderBy] < b[orderBy]) {
                 return order === 'asc' ? -1 : 1;
@@ -59,6 +65,10 @@ export default function AdminTable({
             return 0;
         });
     }, [data, order, orderBy]);
+
+    const getNestedValue = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+    };
 
     return (
         <Paper sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
@@ -90,7 +100,9 @@ export default function AdminTable({
                                 >
                                     <TableSortLabel
                                         active={orderBy === columns[index].key}
-                                        direction={orderBy === columns[index].key ? order : 'asc'}
+                                        {...(orderBy === columns[index].key && order
+                                            ? { direction: order }
+                                            : {})}
                                         onClick={() => handleSort(columns[index].key)}
                                     >
                                         {item.label}
@@ -149,8 +161,25 @@ export default function AdminTable({
                                                             )
                                                         }
                                                     />
+                                                ) : column.key === 'type' ? (
+                                                    <p>
+                                                        {(() => {
+                                                            const questionTypeMap = {
+                                                                1: 'Chọn một đáp án đúng',
+                                                                2: 'Chọn nhiều đáp án đúng',
+                                                                3: 'Điền đáp án',
+                                                            };
+                                                            return (
+                                                                questionTypeMap[
+                                                                    item[
+                                                                        column.key
+                                                                    ] as keyof typeof questionTypeMap
+                                                                ] || 'Không xác định'
+                                                            );
+                                                        })()}
+                                                    </p>
                                                 ) : (
-                                                    item[column.key]
+                                                    <p>{getNestedValue(item, column.key)}</p>
                                                 )}
                                             </TableCell>
                                         ))}
@@ -158,12 +187,6 @@ export default function AdminTable({
                                             <TableCell
                                                 width="150px"
                                                 align="center"
-                                                sx={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    gap: '10px',
-                                                }}
                                             >
                                                 {actions.map(
                                                     (
@@ -181,6 +204,7 @@ export default function AdminTable({
                                                                     border: '1px solid #e0e0e0',
                                                                     borderRadius: '5px',
                                                                     padding: '3px',
+                                                                    margin: '0 5px',
                                                                 }}
                                                                 onClick={() => onClick(item)}
                                                             >

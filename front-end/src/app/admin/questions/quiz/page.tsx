@@ -65,9 +65,20 @@ function AdminQuizQuestionsPage() {
         setIsConfirmDialogOpen(true);
     };
 
-    const handleShowDetail = (data: any) => {
-        setDataSelected(data);
-        setShowDetail(true);
+    const handleShowDetail = async (questionId: string) => {
+        try {
+            const questionRes = await QuestionService.getQuestionById(questionId);
+            const { data, message } = questionRes.data;
+            if (data) {
+                setDataSelected(data);
+                setShowDetail(true);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
     };
 
     const filterConfig = [
@@ -80,7 +91,7 @@ function AdminQuizQuestionsPage() {
         columns: [
             {
                 key: 'content',
-label: 'Nội dung',
+                label: 'Nội dung',
                 width: 'auto',
                 align: 'left',
             },
@@ -88,6 +99,12 @@ label: 'Nội dung',
                 key: 'type',
                 label: 'Loại',
                 width: '200px',
+                align: 'left',
+            },
+            {
+                key: 'topic.name',
+                label: 'Chương mục',
+                width: '350px',
                 align: 'left',
             },
         ] as ColumnConfig[],
@@ -108,7 +125,7 @@ label: 'Nội dung',
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => handleShowDetail(item),
+                onClick: (item: any) => handleShowDetail(item.id),
             },
         ],
     };

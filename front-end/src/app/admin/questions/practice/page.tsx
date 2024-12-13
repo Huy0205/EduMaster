@@ -69,13 +69,24 @@ function AdminPracticeQuestionsPage() {
         setIsConfirmDialogOpen(true);
     };
 
-    const handleShowDetail = (data: any) => {
-        setDataSelected(data);
-        setShowDetail(true);
+    const handleShowDetail = async (questionId: string) => {
+        try {
+            const questionRes = await QuestionService.getQuestionById(questionId);
+            const { data, message } = questionRes.data;
+            if (data) {
+                setDataSelected(data);
+                setShowDetail(true);
+            } else {
+                throw new Error(message);
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error(error);
+        }
     };
 
     const filterConfig = [
-createGradeFilter(grades),
+        createGradeFilter(grades),
         createCourseFilter(courses, filterData.grade),
         createTopicFilter(topics, filterData.courseId),
         createLessonFilter(lessons, filterData.topicId),
@@ -93,6 +104,18 @@ createGradeFilter(grades),
                 key: 'type',
                 label: 'Loại',
                 width: '200px',
+                align: 'left',
+            },
+            {
+                key: 'topic.name',
+                label: 'Chương mục',
+                width: '250px',
+                align: 'left',
+            },
+            {
+                key: 'lesson.name',
+                label: 'Bài học',
+                width: '250px',
                 align: 'left',
             },
         ] as ColumnConfig[],
@@ -113,7 +136,7 @@ createGradeFilter(grades),
                 label: 'Xem chi tiết',
                 icon: ViewList,
                 color: 'green',
-                onClick: (item: any) => handleShowDetail(item),
+                onClick: (item: any) => handleShowDetail(item.id),
             },
         ],
     };

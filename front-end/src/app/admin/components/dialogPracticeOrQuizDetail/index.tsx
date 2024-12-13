@@ -51,7 +51,7 @@ function AdminDialogPracticeOrQuizDetail({
                                 <div className="flex-1 flex justify-end py-3">
                                     <strong className="text-lg">Câu {index + 1}:</strong>
                                 </div>
-                                <div className="flex-9">
+                                <div className="flex-9 py-3 pl-1">
                                     <QuestionView data={item} />
                                 </div>
                             </div>

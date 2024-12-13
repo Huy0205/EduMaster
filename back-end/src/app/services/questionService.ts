@@ -17,17 +17,18 @@ export class QuestionService {
     public static async getAllQuestions(isQuizQuestion: boolean) {
         try {
             const questions = await questionRepository.find({
-                relations: ['practiceQuestions', 'answers'],
+                relations: ['lesson', 'topic'],
                 select: {
                     id: true,
                     content: true,
                     image: true,
                     type: true,
                     feedback: true,
-                    answers: {
-                        id: true,
-                        content: true,
-                        isCorrect: true,
+                    lesson: {
+                        name: true,
+                    },
+                    topic: {
+                        name: true,
                     },
                 },
                 where: {
@@ -71,17 +72,18 @@ export class QuestionService {
     public static async getQuestionsByGrade(isQuizQuestion: boolean, grade: number) {
         try {
             const questions = await questionRepository.find({
-                relations: ['practiceQuestions', 'answers'],
+                relations: ['lesson', 'topic'],
                 select: {
                     id: true,
                     content: true,
                     image: true,
                     type: true,
                     feedback: true,
-                    answers: {
-                        id: true,
-                        content: true,
-                        isCorrect: true,
+                    lesson: {
+                        name: true,
+                    },
+                    topic: {
+                        name: true,
                     },
                 },
                 where: {
@@ -125,17 +127,18 @@ export class QuestionService {
     public static async getQuestionsByCourse(isQuizQuestion: boolean, courseId: string) {
         try {
             const questions = await questionRepository.find({
-                relations: ['practiceQuestions', 'answers'],
+                relations: ['lesson', 'topic'],
                 select: {
                     id: true,
                     content: true,
                     image: true,
                     type: true,
                     feedback: true,
-                    answers: {
-                        id: true,
-                        content: true,
-                        isCorrect: true,
+                    lesson: {
+                        name: true,
+                    },
+                    topic: {
+                        name: true,
                     },
                 },
                 where: {
@@ -176,17 +179,18 @@ export class QuestionService {
     public static async getQuestionsByTopic(isQuizQuestion: boolean, topicId: string) {
         try {
             const questions = await questionRepository.find({
-                relations: ['practiceQuestions', 'answers'],
+                relations: ['lesson', 'topic'],
                 select: {
                     id: true,
                     content: true,
                     image: true,
                     type: true,
                     feedback: true,
-                    answers: {
-                        id: true,
-                        content: true,
-                        isCorrect: true,
+                    lesson: {
+                        name: true,
+                    },
+                    topic: {
+                        name: true,
                     },
                 },
                 where: {
@@ -221,17 +225,18 @@ export class QuestionService {
     public static async getQuestionsByLesson(lessonId: string) {
         try {
             const questions = await questionRepository.find({
-                relations: ['practiceQuestions', 'answers'],
+                relations: ['lesson', 'topic'],
                 select: {
                     id: true,
                     content: true,
                     image: true,
                     type: true,
                     feedback: true,
-                    answers: {
-                        id: true,
-                        content: true,
-                        isCorrect: true,
+                    lesson: {
+                        name: true,
+                    },
+                    topic: {
+                        name: true,
                     },
                 },
                 where: {
