@@ -222,7 +222,7 @@ const Statistics = () => {
                 }}
               >
                 <Typography variant="h6" align="center" gutterBottom>
-                  Biểu đồ cột
+                  Thống kê số điểm kiểm tra
                 </Typography>
                 <div style={{ flex: 1 }}>
                   <Chart data={quizData} />
@@ -245,7 +245,7 @@ const Statistics = () => {
                 }}
               >
                 <Typography variant="h6" align="center" gutterBottom>
-                  Biểu đồ hình tròn
+                  Thống kê tổng số điểm kiểm tra đạt được
                 </Typography>
                 <div style={{ flex: 1, maxHeight: '300px', maxWidth: '300px', width: '100%' }}>
                   <Pie1 data={quizData} />

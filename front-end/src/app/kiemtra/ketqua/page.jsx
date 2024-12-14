@@ -17,9 +17,9 @@ const KetQua = () => {
     const quizId = searchParams.get('quizId');
     const timeLeft = searchParams.get('timeLeft');
     const score = searchParams.get('score');
-    const time1 = 2400 - timeLeft
-    if (time1 && score) {
-      setQuizData({ time1, score });
+
+    if (timeLeft && score) {
+      setQuizData({ timeLeft, score });
     }
     if (quizId) {
       const getQuizName = async (quizId) => {
@@ -38,7 +38,7 @@ const KetQua = () => {
   }, [searchParams]);
 
   // Kiểm tra nếu chưa có dữ liệu
-  if (!quizData.time1 || !quizData.score) {
+  if (!quizData.timeLeft || !quizData.score) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh" flexDirection="column" padding={3}>
         <Typography variant="h5" sx={{ color: 'black' }}>
@@ -79,7 +79,7 @@ const KetQua = () => {
           Đề kiểm tra: {quizname}
         </Typography>
         <Typography variant="h5" sx={{ color: 'black', fontSize: 28, marginTop: 2 }}>
-          Thời gian làm bài: {formatTime(Number(quizData.time1))}
+          Thời gian làm bài: {formatTime(Number(quizData.timeLeft))}
         </Typography>
         <Typography variant="h5" sx={{ color: 'black', fontSize: 28, marginTop: 2 }}>
           Số điểm đạt được: {quizData.score}/10

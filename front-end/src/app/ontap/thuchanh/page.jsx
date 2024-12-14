@@ -12,6 +12,7 @@ const Home = ()=> {
   const searchParams = useSearchParams();
   const pargesId = searchParams.get('pargesId');
   const userId = searchParams.get('userId');
+  let bonusPoint = Number(searchParams.get('bonusPoint'));
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [incorrectAnswers, setIncorrectAnswers] = useState(0);
@@ -90,22 +91,19 @@ const Home = ()=> {
 
   const handleFinish = async () => {
     router.push("/ontap");
-    let pointsToAdd = 10;
     if (score < questionsData.length / 2) {
-      // Sai quá 50% => không được cộng điểm
       return;
     } else if (score === questionsData.length) {
-      // Đúng 100% => x2 điểm
-      pointsToAdd = pointsToAdd * 2; // Giả định: mỗi bài ôn tập bình thường cộng 10 điểm
+      bonusPoint = bonusPoint * 2; 
     }
     try {
       // Gửi API cập nhật điểm
       const res = await getApiNoneToken(`user/${userId}`);
-      const currentPoints = res.data.data.points || 0; // Lấy điểm hiện tại từ API
-      const updatedPoints = currentPoints + pointsToAdd;
-
+      const currentPoints = res.data.data.totalPoint || 0; 
+      const updatedPoints = currentPoints + bonusPoint;
+      console.log(updatedPoints);
       await putApiNoneToken(`user/update/${userId}`, {
-        totalPoint: updatedPoints, // Cộng điểm vào điểm hiện tại
+        totalPoint: updatedPoints, 
       });
     } catch (error) {
       console.error('Lỗi khi cập nhật điểm:', error);
