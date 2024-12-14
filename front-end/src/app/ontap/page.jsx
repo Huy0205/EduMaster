@@ -137,7 +137,7 @@ const OnTap = () => {
             if (progress) {
                 // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
                 console.log('Tiến trình đã tồn tại:', progress);
-                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}`);
+                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`);
             } else {
                 // Nếu chưa có tiến trình, tạo mới
                 console.log('Chưa có tiến trình, tạo mới...');
@@ -148,7 +148,7 @@ const OnTap = () => {
                 });
 
                 // Chuyển hướng tới trang thực hành
-                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}`);
+                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`);
             }
         } catch (error) {
             console.error('Error handling practice progress:', error);

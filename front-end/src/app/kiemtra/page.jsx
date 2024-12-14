@@ -75,9 +75,9 @@ const Kiemtra = () => {
             console.error('Error fetching quizzes:', error);
         }
     };
-    const handleViewQuiz = (quizId) => {
+    const handleViewQuiz = (quiz) => {
         // Truyền thêm quizId vào URL
-        router.push(`/kiemtra/lambai?quizId=${quizId}`);
+        router.push(`/kiemtra/lambai?quizId=${quiz.id}&bonusPoint=${quiz.bonusPoint}`);
     };
     return (
         <Box className="bg-gradient-to-r from-amber-50 to-white" sx={{ minHeight: '100vh' }}>
@@ -196,7 +196,7 @@ const Kiemtra = () => {
                                             variant="contained"
                                             color="success"
                                             sx={{ mt: 1, textTransform: 'none', fontWeight: 'bold' }}
-                                            onClick={() => handleViewQuiz(quiz.id)}
+                                            onClick={() => handleViewQuiz(quiz)}
                                         >
                                             Kiểm tra ngay
                                         </Button>

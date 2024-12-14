@@ -15,25 +15,28 @@ import {
 } from '@mui/material';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { getApiNoneToken, postApiNoneToken } from '~/api/page';
+import { getApiNoneToken, postApiNoneToken, putApiNoneToken } from '~/api/page';
 import HomeIcon from '@mui/icons-material/Home';
 import FlagIcon from '@mui/icons-material/Flag';
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questionsData, setQuestionsData] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(); // 5 phút
+  const [timeLeft, setTimeLeft] = useState(); 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [confirmExit, setConfirmExit] = useState(false); // Biến để xác nhận thoát
+  const [confirmExit, setConfirmExit] = useState(false); 
   const searchParams = useSearchParams();
   const quizId = searchParams.get('quizId');
+  let bonusPoint = Number(searchParams.get('bonusPoint'));
   const router = useRouter();
+  const [totalQuizTime, setTotalQuizTime] = useState(0);
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const response = await getApiNoneToken(`/quiz/${quizId}`);
-        setTimeLeft((response.data.data.time)*60); 
+        setTimeLeft((response.data.data.time)*60);
+        setTotalQuizTime((response.data.data.time)*60);
       } catch (error) {
         console.error('Error fetching questions:', error);
       }
@@ -102,7 +105,26 @@ const Quiz = () => {
         : [...prev, questionId]
     );
   };
+  const updateUserPoints = async (score,userId, bonusPoint) => {
+    if (score < 5) {
+      return;
+    }
+    if (score === 10) {
+      bonusPoint *= 2; 
+    }
+    try {
+      const res = await getApiNoneToken(`user/${userId}`);
+      const currentPoints = res.data.data.totalPoint || 0;
+      const updatedPoints = currentPoints + bonusPoint;
 
+      await putApiNoneToken(`user/update/${userId}`, {
+        totalPoint: updatedPoints,
+      });
+    } catch (error) {
+      console.error("Lỗi khi cập nhật điểm:", error);
+    }
+  };
+  
   const handleSubmitResult = async () => {
     try {
       const correctCount = questionsData.reduce((count, question) => {
@@ -121,10 +143,11 @@ const Quiz = () => {
         }
         return count;
       }, 0);
-
-      const score = correctCount * 0.5;
+      const totalQuestions = questionsData.length;
+      const maxScore = 10;
+      const score = (correctCount / totalQuestions) * maxScore;
       const userId = localStorage.getItem('userId'); // Lấy userId từ localStorage
-
+      await updateUserPoints(score,userId, bonusPoint);
       const payload = {
         userId,
         quizId,
@@ -132,14 +155,14 @@ const Quiz = () => {
         correctCount,
       };
 
-      console.log('Payload gửi đi:', payload);
+      const timeSpent = totalQuizTime - timeLeft;
       await postApiNoneToken('result/add', payload);
       const queryParams = new URLSearchParams({
         quizId,
-        timeLeft: timeLeft.toString(),
-        score: score.toString(),
+        timeLeft: timeSpent.toString(),
+        score: score.toFixed(2),
       }).toString();
-      // Chuyển hướng sang trang kết quả với query string
+
       router.push(`/kiemtra/ketqua?${queryParams}`);
     } catch (error) {
       console.error('Error submitting result:', error);

@@ -3,12 +3,13 @@ import 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const Chart = ({ data }) => {
+  const reversedData = [...data].reverse();
   const chartData = {
-    labels: data.map(item => new Date(item.createdAt).toLocaleDateString('vi-VN')),
+    labels: reversedData.map(item => new Date(item.createdAt).toLocaleDateString('vi-VN')),
     datasets: [
       {
         label: 'Điểm của bạn',
-        data: data.map(item => item.score),
+        data: reversedData.map(item => item.score),
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         borderColor: 'rgba(255, 99, 132, 1)',
         borderWidth: 1,
@@ -26,7 +27,7 @@ const Chart = ({ data }) => {
         color: 'black', // Màu chữ
         anchor: 'end', // Vị trí: trên cột
         align: 'top', // Canh chỉnh
-        formatter: (value) => value, // Hiển thị giá trị
+        formatter: (value) => value.toFixed(2), // Hiển thị giá trị
         font: {
           size: 12, // Kích thước chữ
           weight: 'bold',
@@ -34,7 +35,7 @@ const Chart = ({ data }) => {
       },
       tooltip: {
         callbacks: {
-          label: context => `Điểm: ${context.raw}`,
+          label: context => `Điểm: ${context.raw.toFixed(2)}`,
         },
       },
     },

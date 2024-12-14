@@ -5,7 +5,7 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 const Pie1 = ({ data }) => {
   // Đếm số lần mỗi mức score xuất hiện
   const scoreCounts = data.reduce((acc, item) => {
-    acc[item.score] = (acc[item.score] || 0) + 1;
+    acc[item.score.toFixed(2)] = (acc[item.score.toFixed(2)] || 0) + 1;
     return acc;
   }, {});
 
