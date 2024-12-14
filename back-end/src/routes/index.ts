@@ -16,8 +16,11 @@ import enrollmentRouter from './enrollmentRoute';
 import practiceProgressRouter from './practiceProgressRoute';
 import practiceQuestionRouter from './practiceQuestionRoute';
 import uploadRouter from './uploadRoute';
+import { authentication } from '../middlewares';
 
 const router = Router();
+
+router.all('*', authentication);
 
 router.use('/answer', answerRouter);
 router.use('/course', courseRouter);

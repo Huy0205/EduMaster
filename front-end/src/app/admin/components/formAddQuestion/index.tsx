@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Add, Close } from '@mui/icons-material';
 
 import BorderWrapper from '../BorderWrapper';
 import Image from 'next/image';
+import { toast } from 'react-toastify';
 
 function AdminFormAddQuestion({ type, onSave }: FormAddQuestionProps) {
     const answerObj = {
@@ -23,6 +24,15 @@ function AdminFormAddQuestion({ type, onSave }: FormAddQuestionProps) {
             ...formData,
             answers: [...formData.answers, answerObj],
         });
+    };
+
+    const disableRemoveAnswer = () => {
+        if (type === 1) {
+            console.log(formData.answers.length);
+            return formData.answers.length <= 2;
+        }
+        console.log(formData.answers.length);
+        return formData.answers.length <= 3;
     };
 
     const removeAnswer = (index: number) => {
@@ -67,8 +77,64 @@ function AdminFormAddQuestion({ type, onSave }: FormAddQuestionProps) {
     };
 
     const handleSave = () => {
+        if (formData.content === '' && formData.image === '') {
+            toast.error('Vui lòng nhập nội dung câu hỏi hoặc chọn hình ảnh');
+            return;
+        }
+        const answersHasContent = formData.answers.filter((answer) => answer.content !== '');
+        const numberOfCorrectAnswer = answersHasContent.filter((answer) => answer.isCorrect).length;
+        if (type === 1) {
+            if (answersHasContent.length < 2) {
+                toast.error('Vui lòng nhập ít nhất 2 đáp án');
+                return;
+            }
+            if (numberOfCorrectAnswer !== 1) {
+                toast.error('Vui lòng chọn 1 đáp án đúng');
+                return;
+            }
+        }
+        if (type === 2) {
+            if (answersHasContent.length < 3) {
+                toast.error('Vui lòng nhập ít nhất 3 đáp án');
+                return;
+            }
+            if (numberOfCorrectAnswer < 2) {
+                toast.error('Vui lòng chọn ít nhất 2 đáp án đúng');
+                return;
+            }
+            if (numberOfCorrectAnswer === answersHasContent.length) {
+                toast.error('Phải có ít nhất 1 đáp án sai');
+                return;
+            }
+        }
+        if (type === 3) {
+            if (answersHasContent.length === 0) {
+                toast.error('Vui lòng nhập đáp án');
+                return;
+            }
+        }
         onSave(formData);
     };
+
+    useEffect(() => {
+        if (type === 3) {
+            setFormData({
+                ...formData,
+                answers: [answerObj],
+            });
+        } else if (type === 2) {
+            setFormData({
+                ...formData,
+                answers: [answerObj, answerObj, answerObj],
+            });
+        } else {
+            setFormData({
+                ...formData,
+                answers: [answerObj, answerObj],
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [type]);
 
     return (
         <div className="w-full h-full flex flex-col">
@@ -168,12 +234,12 @@ function AdminFormAddQuestion({ type, onSave }: FormAddQuestionProps) {
                                                         <button
                                                             className={`
                                                                     ${
-                                                                        formData.answers.length <= 2
+                                                                        disableRemoveAnswer()
                                                                             ? 'cursor-not-all text-gray-400'
                                                                             : 'cursor-pointer text-primary'
                                                                     }
                                                                     `}
-                                                            disabled={formData.answers.length <= 2}
+                                                            disabled={disableRemoveAnswer()}
                                                             onClick={() => removeAnswer(index)}
                                                         >
                                                             <Close />

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MailOutline, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 
@@ -57,8 +57,13 @@ function AdminLoginPage() {
         const result = await UserService.login(email, password);
         const { data, message } = result.data;
         if (data) {
-            if (data.user.role === 1) {
-                localStorage.setItem('access_token', data.token);
+            if (data.user.role === 0) {
+                sessionStorage.setItem('admin_access_token', data.token);
+                if (remember) {
+                    localStorage.setItem('admin-account', JSON.stringify({ email, password }));
+                } else {
+                    localStorage.removeItem('admin-account');
+                }
                 router.push('/admin/dashboard');
             } else {
                 setError((prev) => ({ ...prev, email: 'Email không phải là tài khoản quản trị' }));
@@ -71,6 +76,19 @@ function AdminLoginPage() {
             }
         }
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const rememberAccount = localStorage.getItem('admin-account');
+            if (rememberAccount) {
+                const { email, password } = JSON.parse(rememberAccount);
+                setEmail(email);
+                setPassword(password);
+                setRemember(true);
+            }
+        };
+        fetchData();
+    }, []);
 
     return (
         <div className="h-screen flex justify-center bg-white">
@@ -149,7 +167,7 @@ function AdminLoginPage() {
                         <div className="flex flex-1 mb-4">
                             <button
                                 type="submit"
-                                className="flex-1 bg-primary text-white rounded-lg py-2"
+                                className="flex-1 bg-primary text-white rounded-lg py-2 hover:bg-red-300"
                             >
                                 Đăng Nhập
                             </button>

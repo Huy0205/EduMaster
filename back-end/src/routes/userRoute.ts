@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { UserController } from '../app/controllers';
-import { authentication } from '../middlewares';
 
 const userRouter = Router();
 
 // GET: localhost:8080/api/v1/user/auth
-userRouter.get('/auth', authentication, UserController.authUser);
+userRouter.get('/auth', UserController.authUser);
 
 // GET: localhost:8080/api/v1/user/:id
 userRouter.get('/:id', UserController.getUserById);

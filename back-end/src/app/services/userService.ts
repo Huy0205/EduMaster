@@ -289,6 +289,7 @@ export class UserService {
                 where: {
                     currentGrade: grade,
                     role: Role.STUDENT,
+                    status: Status.ACTIVE,
                 },
             });
             return {

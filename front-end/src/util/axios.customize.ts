@@ -6,7 +6,10 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem('access_token');
+        let token = localStorage.getItem('access_token');
+        if (window.location.pathname.includes('admin')) {
+            token = sessionStorage.getItem('admin_access_token');
+        }
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -20,7 +23,23 @@ instance.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error?.response) return error?.response;
+        const { response } = error;
+        if (response) {
+            if (response.status === 401) {
+                const currentPath = window.location.pathname;
+                if (currentPath.includes('admin')) {
+                    sessionStorage.removeItem('admin_access_token');
+                    window.location.href = '/admin/login';
+                } else {
+                    if (currentPath === '/') {
+                        return response;
+                    }
+                    localStorage.removeItem('access_token');
+                    window.location.href = '/login';
+                }
+            }
+            return response;
+        }
         return Promise.reject(error);
     },
 );

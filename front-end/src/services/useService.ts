@@ -9,6 +9,10 @@ export class UserService {
         return axios.post('user/login', { email, password });
     }
 
+    public static auth() {
+        return axios.get('user/auth');
+    }
+
     public static getUsersByGrade(grade: number) {
         return axios.get(`user/grade/${grade}`);
     }

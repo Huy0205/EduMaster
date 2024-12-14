@@ -1,18 +1,17 @@
-'use client'
-import React, { createContext, useContext, useState } from 'react'
+'use client';
+import React, { createContext, useContext, useState } from 'react';
 
-export const AuthContext = createContext()
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+    const [auth, setAuth] = useState({
+        isAuth: false,
+        user: null,
+    });
 
-  return (
-    <AuthContext.Provider value={{ loggedIn, setLoggedIn }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
-  return useContext(AuthContext)
-}
+    return useContext(AuthContext);
+};

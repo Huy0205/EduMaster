@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { CourseController } from '../app/controllers';
-import { authentication } from '../middlewares';
 
 const courseRouter = Router();
 
 // GET: localhost:8080/api/v1/course/list
-courseRouter.get('/list', authentication, CourseController.getAllCourses);
+courseRouter.get('/list', CourseController.getAllCourses);
 
 // GET: localhost:8080/api/v1/course/grade-distinct
 courseRouter.get('/grade-distinct', CourseController.getGradeDistinct);
