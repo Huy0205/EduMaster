@@ -5,7 +5,6 @@ import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '~/context/AuthContext';
 import { postApiNoneToken } from '~/api/page';
-import Header from '../../components/Header';
 const LoginPage = () => {
     const { setAuth } = useAuth();
     const [email, setEmail] = useState('');
@@ -17,24 +16,19 @@ const LoginPage = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-        let data = {
-            email: email,
-            password: password,
-        };
-
         try {
             setLoading(true);
-            const res = await postApiNoneToken('/user/login', data);
-            const {data, message} = res.data;
-            if (res.data) {
-                const userId = res.data.data.user.id;
-                localStorage.setItem('userId', userId);
-                console.log(userId);
-                setLoggedIn(true);
-                localStorage.setItem('loggedIn', 'true');
+            const res = await postApiNoneToken('/user/login', {
+                email: email,
+                password: password,
+            });
+            const { data, message } = res.data;
+            if (data) {
+                setAuth({ isAuth: true, user: data.user });
+                localStorage.setItem('access_token', data.token);
                 router.push('/');
             } else {
-                setError('Tên đăng nhập hoặc mật khẩu không đúng.');
+                throw new Error(message);
             }
         } catch (error) {
             console.log(error);
@@ -46,7 +40,7 @@ const LoginPage = () => {
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <Header />
+            {/* <Header /> */}
 
             {/* Form container */}
             <Box

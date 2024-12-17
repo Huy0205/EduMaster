@@ -20,7 +20,6 @@ const Header = () => {
     const router = useRouter();
     const [anchorEl, setAnchorEl] = useState(null);
     const isDropdownOpen = Boolean(anchorEl);
-    const [name, setName] = useState(''); // State để lưu tên người dùng
     const [avatarUrl, setAvatarUrl] = useState(''); // State để lưu URL ảnh đại diện
     const [activeFrameUrl, setActiveFrameUrl] = useState('');
 
@@ -50,7 +49,6 @@ const Header = () => {
                 }
             } catch (error) {
                 console.error('Error fetching user data or active frame:', error);
-                setName('Người dùng không tìm thấy');
                 setAvatarUrl('');
                 setActiveFrameUrl('');
             }
@@ -58,6 +56,24 @@ const Header = () => {
         fetchUser();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        if (auth.avatarFrameId) {
+            const fetchFrame = async () => {
+                try {
+                    const frameDetailsResponse = await getApiNoneToken(
+                        `/avatar-frame/${auth.avatarFrameId}`,
+                    );
+                    const frameUrl = frameDetailsResponse.data.data.url;
+                    setActiveFrameUrl(frameUrl);
+                } catch (error) {
+                    console.error('Error fetching active frame:', error);
+                    setActiveFrameUrl('');
+                }
+            };
+            fetchFrame();
+        }
+    }, [auth.avatarFrameId]);
 
     const handleLoginClick = () => {
         router.push('/login');
@@ -76,9 +92,8 @@ const Header = () => {
     };
 
     const handleLogout = () => {
-        setLoggedIn(false);
-        localStorage.removeItem('loggedIn');
-        localStorage.removeItem('userId'); // Xóa userId khi đăng xuất
+        setAuth({ isAuth: false, user: {} });
+        localStorage.removeItem('access_token');
         setAnchorEl(null);
         router.push('/');
     };
@@ -110,8 +125,8 @@ const Header = () => {
                                 <Typography sx={{ color: 'white' }}>
                                     <span style={{ marginLeft: '8px' }}>
                                         Lớp: {user.currentGrade} |
-                                    </span>{' '}
-                                    {name}
+                                    </span>
+                                    {user.fullName}
                                 </Typography>
                                 <IconButton
                                     onClick={handleAvatarClick}

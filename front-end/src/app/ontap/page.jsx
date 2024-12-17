@@ -2,15 +2,19 @@
 import Header from '~/components/Header';
 import React, { useState, useEffect } from 'react';
 import Navbar from '~/components/Navbar';
-import Topic from '~/components/ontap/topic'
+import Topic from '~/components/ontap/topic';
 import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { getApiNoneToken, postApiNoneToken } from '~/api/page';
 import { useOntapContext } from '~/context/OntapContext';
+import { useAuth } from '~/context/AuthContext';
+
 const OnTap = () => {
-    const [openSnackbar, setOpenSnackbar] = useState(false);
     const router = useRouter();
+
+    const [openSnackbar, setOpenSnackbar] = useState(false);
     const [isClient, setIsClient] = useState(false);
+
     const {
         selectedSubject,
         setSelectedSubject,
@@ -31,21 +35,24 @@ const OnTap = () => {
         selectedTopicId,
         setSelectedTopicId,
     } = useOntapContext();
+    const { auth } = useAuth();
+
     useEffect(() => {
         setIsClient(true);
         console.log(isClient);
     }, []);
 
     const handleGradeChange = (e) => {
-        setSelectedGrade(parseInt(e.target.value))
-        setSelectedSubject(null);
+        setSelectedGrade(parseInt(e.target.value));
+        setSelectedSubject([]);
         setSelectedLectures([]);
         setQuestionPages([]);
         setTopics([]);
         setSelectedReviewId(null);
         setTopicStates({});
         setSelectedTopicId(null);
-      };
+    };
+
     useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -65,7 +72,8 @@ const OnTap = () => {
         const fetchTopics = async () => {
             if (selectedSubject) {
                 try {
-                    const response = await getApiNoneToken(`topic/course/${selectedSubject.id}?page=1&limit=100`,
+                    const response = await getApiNoneToken(
+                        `topic/course/${selectedSubject.id}?page=1&limit=100`,
                         // {
                         //   method: 'GET',
                         // headers: {
@@ -75,13 +83,15 @@ const OnTap = () => {
                         // }
                     );
                     const topicsData = response.data;
-                    console.log(topicsData)
+                    console.log(topicsData);
                     const topicsWithReviews = await Promise.all(
                         topicsData.data.map(async (topic) => {
-                            const reviewResponse = await getApiNoneToken(`lesson/topic/${topic.id}`);
+                            const reviewResponse = await getApiNoneToken(
+                                `lesson/topic/${topic.id}`,
+                            );
                             const reviewData = reviewResponse.data;
                             return { ...topic, reviews: reviewData.data };
-                        })
+                        }),
                     );
 
                     setTopics(topicsWithReviews);
@@ -94,9 +104,9 @@ const OnTap = () => {
     }, [selectedSubject]);
     const setIsTopicOpen = (topicId, isOpen) => {
         setTopicStates((prevState) => {
-            const updatedStates = { ...prevState, [topicId]: isOpen };         
+            const updatedStates = { ...prevState, [topicId]: isOpen };
             if (isOpen) {
-                setSelectedTopicId(topicId);              
+                setSelectedTopicId(topicId);
             }
             return updatedStates;
         });
@@ -115,8 +125,8 @@ const OnTap = () => {
         try {
             const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
             const data = response.data;
-            console.log(data)
-            setQuestionPages(data.data)
+            console.log(data);
+            setQuestionPages(data.data);
         } catch (error) {
             console.error('Error fetching questions:', error);
         }
@@ -127,17 +137,21 @@ const OnTap = () => {
     };
 
     const handlePracticeQuestion = async (reviewId, page, topicId) => {
-        const userId = localStorage.getItem('userId');
+        const userId = auth.user.id;
 
         try {
             // Kiểm tra tiến trình hiện tại của người dùng
-            const response = await getApiNoneToken(`practice-progress/user/${userId}/practice/${page.id}`);
+            const response = await getApiNoneToken(
+                `practice-progress/user/${userId}/practice/${page.id}`,
+            );
             const progress = response.data.data;
 
             if (progress) {
                 // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
                 console.log('Tiến trình đã tồn tại:', progress);
-                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`);
+                router.push(
+                    `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
+                );
             } else {
                 // Nếu chưa có tiến trình, tạo mới
                 console.log('Chưa có tiến trình, tạo mới...');
@@ -148,14 +162,20 @@ const OnTap = () => {
                 });
 
                 // Chuyển hướng tới trang thực hành
-                router.push(`/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`);
+                router.push(
+                    `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
+                );
             }
         } catch (error) {
             console.error('Error handling practice progress:', error);
         }
     };
     const handleViewLecture = (reviewId, lecture, topicId) => {
-        const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${lecture.id}&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(lecture.url)}&topicId=${topicId}`;
+        const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${
+            lecture.id
+        }&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(
+            lecture.url,
+        )}&topicId=${topicId}`;
         router.push(url);
     };
 
@@ -190,8 +210,11 @@ const OnTap = () => {
                                 }}
                             >
                                 <img
-                                    src={`/img/${course.name === 'Toán' ? 'icon_math_on.png' : 'icon_vietnamese_literature_on.png'
-                                        }`}
+                                    src={`/img/${
+                                        course.name === 'Toán'
+                                            ? 'icon_math_on.png'
+                                            : 'icon_vietnamese_literature_on.png'
+                                    }`}
                                     alt={`${course.name} Icon`}
                                     style={{ width: 40, height: 40 }}
                                 />
@@ -221,20 +244,30 @@ const OnTap = () => {
 
             <Box sx={{ display: 'flex', mt: 2 }}>
                 {/* Topics Sidebar */}
-                <Paper sx={{
-                    width: '25%', p: 2, height: 'calc(90vh - 200px)', overflowY: 'auto',
-                    backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
-                    backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
-                    backgroundPosition: 'center', // Căn giữa hình nền
-                    marginLeft: 1
-                }} elevation={3}>
+                <Paper
+                    sx={{
+                        width: '25%',
+                        p: 2,
+                        height: 'calc(90vh - 200px)',
+                        overflowY: 'auto',
+                        backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
+                        backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
+                        backgroundPosition: 'center', // Căn giữa hình nền
+                        marginLeft: 1,
+                    }}
+                    elevation={3}
+                >
                     {topics.map((topic, index) => (
                         <Topic
                             key={index}
                             topicId={topic.id}
                             title={topic.name}
                             reviews={topic.reviews}
-                            onSelectReview={(reviewId, topicId) => { fetchLectures(reviewId); fetchQuestions(reviewId); console.log(`Selected Topic ID: ${topicId}`); }}
+                            onSelectReview={(reviewId, topicId) => {
+                                fetchLectures(reviewId);
+                                fetchQuestions(reviewId);
+                                console.log(`Selected Topic ID: ${topicId}`);
+                            }}
                             selectedReviewId={selectedReviewId}
                             setSelectedReviewId={setSelectedReviewId}
                             isTopicOpen={topicStates[topic.id] || false}
@@ -244,13 +277,28 @@ const OnTap = () => {
                 </Paper>
 
                 {/* Main Content */}
-                <Box component="main" flex={1} marginLeft={4} display="grid" gridTemplateColumns="1fr 1fr" gap={4}>
+                <Box
+                    component="main"
+                    flex={1}
+                    marginLeft={4}
+                    display="grid"
+                    gridTemplateColumns="1fr 1fr"
+                    gap={4}
+                >
                     {/* Theory Video Section */}
-                    <Paper className="p-4" sx={{
-                         overflowY: 'auto',
-                         height: 'calc(90vh - 200px)'
-                    }}>
-                        <Typography variant="h5" className="font-bold mb-4">Lý thuyết</Typography>
+                    <Paper
+                        className="p-4"
+                        sx={{
+                            overflowY: 'auto',
+                            height: 'calc(90vh - 200px)',
+                        }}
+                    >
+                        <Typography
+                            variant="h5"
+                            className="font-bold mb-4"
+                        >
+                            Lý thuyết
+                        </Typography>
                         {selectedLectures.length > 0 ? (
                             <Box
                                 sx={{
@@ -281,7 +329,10 @@ const OnTap = () => {
                                         />
 
                                         {/* Lecture Title */}
-                                        <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{ mt: 2, fontWeight: 'bold' }}
+                                        >
                                             {lecture.title}
                                         </Typography>
 
@@ -289,8 +340,18 @@ const OnTap = () => {
                                         <Button
                                             variant="contained"
                                             color="success"
-                                            sx={{ mt: 1, textTransform: 'none', fontWeight: 'bold' }}
-                                            onClick={() => handleViewLecture(selectedReviewId, lecture, selectedTopicId)}
+                                            sx={{
+                                                mt: 1,
+                                                textTransform: 'none',
+                                                fontWeight: 'bold',
+                                            }}
+                                            onClick={() =>
+                                                handleViewLecture(
+                                                    selectedReviewId,
+                                                    lecture,
+                                                    selectedTopicId,
+                                                )
+                                            }
                                         >
                                             Xem ngay
                                         </Button>
@@ -303,27 +364,57 @@ const OnTap = () => {
                     </Paper>
 
                     {/* Practice Question Section */}
-                    <Paper className="p-4" sx={{ marginRight: 1, overflowY: 'auto',height: 'calc(90vh - 200px)' }}>
-                        <Typography variant="h5" className="font-bold mb-4">Thực hành</Typography>
+                    <Paper
+                        className="p-4"
+                        sx={{ marginRight: 1, overflowY: 'auto', height: 'calc(90vh - 200px)' }}
+                    >
+                        <Typography
+                            variant="h5"
+                            className="font-bold mb-4"
+                        >
+                            Thực hành
+                        </Typography>
 
                         {questionPages.length > 0 ? (
-                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(2, 1fr)',
+                                    gap: 2,
+                                }}
+                            >
                                 {questionPages.map((page) => (
-                                    <Paper key={page.id} sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                                    <Paper
+                                        key={page.id}
+                                        sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}
+                                    >
                                         <Box
                                             component="img"
                                             src="/img/question.jpg"
                                             alt="Question Image"
                                             sx={{ width: '100%', height: '220px', borderRadius: 1 }}
                                         />
-                                        <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold' }}>
+                                        <Typography
+                                            variant="subtitle1"
+                                            sx={{ mt: 2, fontWeight: 'bold' }}
+                                        >
                                             {page.name}
                                         </Typography>
                                         <Button
                                             variant="contained"
                                             color="primary"
-                                            sx={{ mt: 2, textTransform: 'none', fontWeight: 'bold' }}
-                                            onClick={() => handlePracticeQuestion(selectedReviewId, page, selectedTopicId)}
+                                            sx={{
+                                                mt: 2,
+                                                textTransform: 'none',
+                                                fontWeight: 'bold',
+                                            }}
+                                            onClick={() =>
+                                                handlePracticeQuestion(
+                                                    selectedReviewId,
+                                                    page,
+                                                    selectedTopicId,
+                                                )
+                                            }
                                         >
                                             Thực hành ngay
                                         </Button>
@@ -331,8 +422,10 @@ const OnTap = () => {
                                 ))}
                             </Box>
                         ) : (
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'red' }}>
-                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{ fontWeight: 'bold', color: 'red' }}
+                            ></Typography>
                         )}
                     </Paper>
                     <Snackbar
@@ -350,7 +443,11 @@ const OnTap = () => {
                             zIndex: 9999, // Ensure it's on top of other elements
                         }}
                     >
-                        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
+                        <Alert
+                            onClose={handleCloseSnackbar}
+                            severity="error"
+                            sx={{ width: '100%' }}
+                        >
                             Không có câu hỏi để thực hành.
                         </Alert>
                     </Snackbar>
