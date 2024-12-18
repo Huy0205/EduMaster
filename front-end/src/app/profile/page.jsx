@@ -36,7 +36,7 @@ const ProfilePage = () => {
     const [activeFrameUrl, setActiveFrameUrl] = useState('');
     const fileInputRef = useRef(null);
     const { auth, setAuth } = useAuth();
-    const { isAuth, user } = auth;
+    const { user } = auth;
     const router = useRouter();
 
     useEffect(() => {
@@ -158,9 +158,10 @@ const ProfilePage = () => {
                     setConfirmNewPassword('');
                     setPasswordError('');
                     setLoggedIn(false);
-                    localStorage.removeItem('loggedIn');
-                    localStorage.removeItem('userId');
-                    console.log('Đang chuyển hướng về login');
+                    setAuth({
+                        isAuth: false,
+                        user: null,
+                    });
                     router.push('/login');
                 }
             } else {

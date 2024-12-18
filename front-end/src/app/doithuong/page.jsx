@@ -6,8 +6,8 @@ import Header from '~/components/Header';
 import { Snackbar, Alert } from '@mui/material';
 import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
 import { useAuth } from '~/context/AuthContext';
+
 const UserAvatarPage = () => {
-    const [userId, setUserId] = useState(null);
     const [avatar, setAvatar] = useState('');
     const [frames, setFrames] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,15 +20,11 @@ const UserAvatarPage = () => {
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [activeFrameUrl, setActiveFrameUrl] = useState('');
 
-    const { setAuth } = useAuth();
+    const { auth, setAuth } = useAuth();
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
-    useEffect(() => {
-        const storedUserId = localStorage.getItem('userId');
-        setUserId(storedUserId || null);
-    }, []);
 
     useEffect(() => {
         const activeFrame = frameUserMapping.find((f) => f.isActive);
@@ -37,15 +33,16 @@ const UserAvatarPage = () => {
             : ''; // URL mặc định nếu không tìm thấy
         setActiveFrameUrl(frameUrl);
     }, [frameUserMapping, frames]);
+
     useEffect(() => {
-        if (!userId) return;
+        if (!auth.user) return;
 
         const fetchData = async () => {
             try {
                 setLoading(true);
 
                 // Gọi API lấy thông tin người dùng
-                const userResponse = await getApiNoneToken(`user/${userId}`);
+                const userResponse = await getApiNoneToken(`user/${auth.user.id}`);
                 const userData = userResponse.data.data;
                 setAvatar(userData.avatar || '');
                 setName(userData.fullName || '');
@@ -57,7 +54,9 @@ const UserAvatarPage = () => {
                 setFrames(framesData);
 
                 // Gọi API kiểm tra avatar frame đang sử dụng
-                const frameUserResponse = await getApiNoneToken(`avatar-frame-user/user/${userId}`);
+                const frameUserResponse = await getApiNoneToken(
+                    `avatar-frame-user/user/${auth.user.id}`,
+                );
                 const frameUserData = frameUserResponse.data.data;
                 setFrameUserMapping(frameUserData); // Lưu dữ liệu từ API
             } catch (err) {
@@ -69,7 +68,7 @@ const UserAvatarPage = () => {
         };
 
         fetchData();
-    }, [userId]);
+    }, [auth.user]);
 
     const handleUnlock = async (id) => {
         // Tìm frame được mở khóa
@@ -86,7 +85,7 @@ const UserAvatarPage = () => {
         try {
             // Gọi API mở khóa
             const response = await postApiNoneToken('avatar-frame-user/add', {
-                userId: userId,
+                userId: auth.user.id,
                 avatarFrameId: id,
                 isActive: false, // Khi mở khóa, mặc định không active
             });
@@ -97,7 +96,7 @@ const UserAvatarPage = () => {
                 setPoint(updatedPoint);
 
                 // Gọi API để cập nhật điểm của user
-                await putApiNoneToken(`user/update/${userId}`, {
+                await putApiNoneToken(`user/update/${auth.user.id}`, {
                     totalPoint: updatedPoint,
                 });
 
@@ -124,7 +123,7 @@ const UserAvatarPage = () => {
         try {
             // Gọi API cập nhật trạng thái active
             const response = await putApiNoneToken('avatar-frame-user/update-is-active-true', {
-                userId: userId,
+                userId: auth.user.id,
                 avatarFrameId: id,
             });
             console.log(response, 'avatarFrame');
