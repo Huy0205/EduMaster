@@ -1,5 +1,5 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone',
     async redirects() {
         return [
             {
@@ -10,7 +10,7 @@ const nextConfig = {
         ];
     },
     images: {
-        domains: ['github.com', 'localhost','103.172.79.80'], // Thêm github.com vào danh sách domain cho phép
+        domains: ['github.com', 'localhost', '103.172.79.80', 'edumaster-qzld.onrender.com'],
     },
 };
 
