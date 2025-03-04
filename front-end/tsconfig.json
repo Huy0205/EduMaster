@@ -7,10 +7,10 @@
         "noEmit": true,
         "esModuleInterop": true,
         "module": "esnext",
-        "moduleResolution": "bundler",
+        "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "jsx": "preserve",
+        "jsx": "react-jsx",
         "incremental": true,
         "forceConsistentCasingInFileNames": true,
         "allowSyntheticDefaultImports": true,
@@ -19,6 +19,7 @@
                 "name": "next"
             }
         ],
+        "baseUrl": ".",
         "paths": {
             "~/*": ["./src/*"]
         }
@@ -28,7 +29,7 @@
         "**/*.ts",
         "**/*.tsx",
         ".next/types/**/*.ts",
-        "src/app/page.js",
+        "src/app/page.jsx",
         "src/app/layout.jsx"
     ],
     "exclude": ["node_modules"]
