@@ -1,5 +1,4 @@
 const nextConfig = {
-    output: 'standalone',
     trailingSlash: false,
     async redirects() {
         return [
