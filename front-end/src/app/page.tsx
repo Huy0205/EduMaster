@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import Header from '../components/Header';
 import Navbar from '../components/Navbar';
 
@@ -7,13 +6,6 @@ export default function Home() {
         <div className="bg-gray-100 min-h-screen">
             <Header />
             <Navbar />
-            <Head>
-                <title>Hỗ trợ ôn tập Toán và Tiếng Việt</title>
-                <meta
-                    name="description"
-                    content="Hỗ trợ ôn tập kiến thức Toán và Tiếng Việt cho học sinh tiểu học."
-                />
-            </Head>
             <main className="container mx-auto px-4 py-10">
                 <section className="bg-white shadow-sm rounded-lg p-6 mb-8 border border-gray-200">
                     <h2 className="text-2xl font-bold text-center text-blue-500">Giới thiệu</h2>

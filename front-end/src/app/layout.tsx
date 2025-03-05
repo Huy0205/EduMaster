@@ -4,8 +4,9 @@ import { AuthProvider } from '../context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LoadingGlobalProvider } from './admin/contexts/loadingGlobalContext';
 import { metadata } from './metadata';
+import { ReactNode } from 'react';
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
     return (
         <html lang="en">
             <head>
