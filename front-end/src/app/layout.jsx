@@ -1,12 +1,12 @@
 'use client';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
+
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LoadingGlobalProvider } from './admin/contexts/loadingGlobalContext';
 import { metadata } from './metadata';
-import { ReactNode } from 'react';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <head>

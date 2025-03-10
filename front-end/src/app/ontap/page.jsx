@@ -3,7 +3,7 @@ import Header from '~/components/Header';
 import React, { useState, useEffect } from 'react';
 import Navbar from '~/components/Navbar';
 import Topic from '~/components/ontap/topic';
-import { Button, Paper, Typography, Box, Select, MenuItem, Snackbar, Alert } from '@mui/material';
+import { Button, Paper, Typography, Box, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { getApiNoneToken, postApiNoneToken } from '~/api/page';
 import { useOntapContext } from '~/context/OntapContext';
@@ -12,12 +12,13 @@ import { useAuth } from '~/context/AuthContext';
 const OnTap = () => {
     const router = useRouter();
 
+    const { auth, isLoadingAuth } = useAuth();
+
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [isClient, setIsClient] = useState(false);
 
     const {
-        selectedSubject,
-        setSelectedSubject,
+        selectedCourse,
+        setSelectedCourse,
         selectedGrade,
         setSelectedGrade,
         selectedLectures,
@@ -28,19 +29,13 @@ const OnTap = () => {
         setCourses,
         topics,
         setTopics,
-        selectedReviewId,
-        setSelectedReviewId,
+        selectedLessonId,
+        setSelectedLessonId,
         topicStates,
         setTopicStates,
         selectedTopicId,
         setSelectedTopicId,
     } = useOntapContext();
-    const { auth } = useAuth();
-
-    useEffect(() => {
-        setIsClient(true);
-        console.log(isClient);
-    }, []);
 
     const handleGradeChange = (e) => {
         setSelectedGrade(parseInt(e.target.value));
@@ -54,63 +49,48 @@ const OnTap = () => {
     };
 
     useEffect(() => {
+        if (!isLoadingAuth && !auth.user) {
+            router.push('/login');
+            return;
+        }
+
         const fetchCourses = async () => {
-            try {
-                const response = await getApiNoneToken(`course/grade/${selectedGrade}`);
-                setCourses(response.data.data);
-                if (response.data.data.length > 0) {
-                    setSelectedSubject(response.data.data[0]);
+            if (auth.user) {
+                try {
+                    const response = await getApiNoneToken(
+                        `course/grade/${auth.user.currentGrade}`,
+                    );
+                    setCourses(response.data.data);
+                    if (response.data.data.length > 0) {
+                        setSelectedCourse(response.data.data[0]);
+                    }
+                } catch (error) {
+                    console.error('Error fetching courses:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching courses:', error);
             }
         };
         fetchCourses();
-    }, [selectedGrade]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoadingAuth, auth.user]);
 
     useEffect(() => {
         const fetchTopics = async () => {
-            if (selectedSubject) {
+            if (selectedCourse) {
                 try {
                     const response = await getApiNoneToken(
-                        `topic/course/${selectedSubject.id}?page=1&limit=100`,
-                        // {
-                        //   method: 'GET',
-                        // headers: {
-                        //   'Content-Type': 'application/json',
-                        //   role: 1,
-                        // }
-                        // }
+                        `topic/course/${selectedCourse.id}?page=1&limit=100`,
                     );
                     const topicsData = response.data;
-                    console.log(topicsData);
-                    const topicsWithReviews = await Promise.all(
-                        topicsData.data.map(async (topic) => {
-                            const reviewResponse = await getApiNoneToken(
-                                `lesson/topic/${topic.id}`,
-                            );
-                            const reviewData = reviewResponse.data;
-                            return { ...topic, reviews: reviewData.data };
-                        }),
-                    );
-
-                    setTopics(topicsWithReviews);
+                    setTopics(topicsData.data);
                 } catch (error) {
                     console.error('Error fetching topics:', error);
                 }
             }
         };
         fetchTopics();
-    }, [selectedSubject]);
-    const setIsTopicOpen = (topicId, isOpen) => {
-        setTopicStates((prevState) => {
-            const updatedStates = { ...prevState, [topicId]: isOpen };
-            if (isOpen) {
-                setSelectedTopicId(topicId);
-            }
-            return updatedStates;
-        });
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCourse]);
+
     const fetchLectures = async (reviewId) => {
         try {
             const response = await getApiNoneToken(`theory/lesson/${reviewId}`);
@@ -180,118 +160,91 @@ const OnTap = () => {
     };
 
     return (
-        <Box className="min-h-screen bg-gradient-to-r from-amber-50 to-white">
+        <Box className="w-screen h-screen flex flex-col bg-amber-50">
             <Header />
             <Navbar />
-
             {/* Course and Grade Selection Section */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', p: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    p: 2,
+                }}
+            >
                 {/* Các nút "Toán" và "Tiếng Việt" */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    {courses.map((course, index) => (
-                        <Button
-                            key={index}
-                            variant={selectedSubject === course ? 'contained' : 'outlined'}
-                            onClick={() => setSelectedSubject(course)}
-                            sx={{
-                                width: 150,
-                                height: 100,
-                                flexDirection: 'column',
-                                color: selectedSubject === course ? 'white' : 'primary.main',
-                                bgcolor: selectedSubject === course ? 'primary.main' : 'white',
-                            }}
-                        >
-                            <Box
+                    {courses.length > 0 &&
+                        courses.map((course, index) => (
+                            <Button
+                                key={index}
+                                variant={selectedCourse === course ? 'contained' : 'outlined'}
+                                onClick={() => setSelectedCourse(course)}
                                 sx={{
-                                    mb: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    width: 180,
+                                    height: 100,
+                                    flexDirection: 'column',
+                                    color: selectedCourse === course ? 'white' : 'primary.main',
+                                    bgcolor: selectedCourse === course ? 'primary.main' : 'white',
                                 }}
                             >
-                                <img
-                                    src={`/img/${
-                                        course.name === 'Toán'
-                                            ? 'icon_math_on.png'
-                                            : 'icon_vietnamese_literature_on.png'
-                                    }`}
-                                    alt={`${course.name} Icon`}
-                                    style={{ width: 40, height: 40 }}
-                                />
-                            </Box>
-                            <Typography variant="subtitle1">{course.name}</Typography>
-                        </Button>
-                    ))}
-                </Box>
-
-                {/* Select "Lớp" đặt cùng hàng */}
-                <Box>
-                    <Select
-                        value={selectedGrade}
-                        onChange={handleGradeChange}
-                        sx={{
-                            width: 150,
-                            height: 40,
-                            ml: 20, // Tạo khoảng cách giữa các nút và phần chọn lớp
-                        }}
-                    >
-                        <MenuItem value={1}>Lớp 1</MenuItem>
-                        <MenuItem value={2}>Lớp 2</MenuItem>
-                        <MenuItem value={3}>Lớp 3</MenuItem>
-                    </Select>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <img
+                                        src={`/img/${
+                                            course.name === 'Toán'
+                                                ? 'icon_math_on.png'
+                                                : 'icon_vietnamese_literature_on.png'
+                                        }`}
+                                        alt={`${course.name} Icon`}
+                                        style={{ width: 40, height: 40 }}
+                                    />
+                                </Box>
+                                <Typography variant="subtitle1">{course.name}</Typography>
+                            </Button>
+                        ))}
                 </Box>
             </Box>
-
-            <Box sx={{ display: 'flex', mt: 2 }}>
+            <Box className="flex flex-grow min-h-0 overflow-hidden m-4 mt-0">
                 {/* Topics Sidebar */}
                 <Paper
-                    sx={{
-                        width: '25%',
-                        p: 2,
-                        height: 'calc(90vh - 200px)',
-                        overflowY: 'auto',
-                        backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
-                        backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
-                        backgroundPosition: 'center', // Căn giữa hình nền
-                        marginLeft: 1,
-                    }}
+                    className="w-1/5 overflow-y-auto p-3 pr-1 pb-0  bg-[url('/img/bg-topic.jpg')] bg-cover bg-center"
                     elevation={3}
                 >
-                    {topics.map((topic, index) => (
-                        <Topic
-                            key={index}
-                            topicId={topic.id}
-                            title={topic.name}
-                            reviews={topic.reviews}
-                            onSelectReview={(reviewId, topicId) => {
-                                fetchLectures(reviewId);
-                                fetchQuestions(reviewId);
-                                console.log(`Selected Topic ID: ${topicId}`);
-                            }}
-                            selectedReviewId={selectedReviewId}
-                            setSelectedReviewId={setSelectedReviewId}
-                            isTopicOpen={topicStates[topic.id] || false}
-                            setIsTopicOpen={setIsTopicOpen}
-                        />
-                    ))}
+                    {topics.length > 0 &&
+                        topics.map((topic, index) => (
+                            <Topic
+                                key={index}
+                                topicId={topic.id}
+                                title={topic.name}
+                                onSelectLesson={(reviewId, topicId) => {
+                                    fetchLectures(reviewId);
+                                    fetchQuestions(reviewId);
+                                    console.log(`Selected Topic ID: ${topicId}`);
+                                }}
+                                selectedLessonId={selectedLessonId}
+                                setSelectedLessonId={setSelectedLessonId}
+                            />
+                        ))}
                 </Paper>
-
                 {/* Main Content */}
                 <Box
                     component="main"
                     flex={1}
-                    marginLeft={4}
-                    display="grid"
+                    marginLeft={2}
+                    display="flex"
                     gridTemplateColumns="1fr 1fr"
-                    gap={4}
+                    gap={2}
                 >
                     {/* Theory Video Section */}
                     <Paper
-                        className="p-4"
-                        sx={{
-                            overflowY: 'auto',
-                            height: 'calc(90vh - 200px)',
-                        }}
+                        className="flex-1 p-4 flex flex-col overflow-y-auto"
+                        elevation={3}
                     >
                         <Typography
                             variant="h5"
@@ -325,9 +278,12 @@ const OnTap = () => {
                                             component="img"
                                             src="/img/lecture.png" // Đường dẫn đến ảnh trong thư mục public
                                             alt="Lecture Image"
-                                            sx={{ width: '100%', height: '220px', borderRadius: 1 }}
+                                            sx={{
+                                                width: '100%',
+                                                height: '220px',
+                                                borderRadius: 1,
+                                            }}
                                         />
-
                                         {/* Lecture Title */}
                                         <Typography
                                             variant="subtitle1"
@@ -335,7 +291,6 @@ const OnTap = () => {
                                         >
                                             {lecture.title}
                                         </Typography>
-
                                         {/* Action Button */}
                                         <Button
                                             variant="contained"
@@ -362,11 +317,10 @@ const OnTap = () => {
                             <Typography variant="body1"></Typography>
                         )}
                     </Paper>
-
                     {/* Practice Question Section */}
                     <Paper
-                        className="p-4"
-                        sx={{ marginRight: 1, overflowY: 'auto', height: 'calc(90vh - 200px)' }}
+                        className="flex-1 p-4 flex flex-col overflow-y-aut"
+                        elevation={3}
                     >
                         <Typography
                             variant="h5"
@@ -374,7 +328,6 @@ const OnTap = () => {
                         >
                             Thực hành
                         </Typography>
-
                         {questionPages.length > 0 ? (
                             <Box
                                 sx={{
@@ -392,7 +345,11 @@ const OnTap = () => {
                                             component="img"
                                             src="/img/question.jpg"
                                             alt="Question Image"
-                                            sx={{ width: '100%', height: '220px', borderRadius: 1 }}
+                                            sx={{
+                                                width: '100%',
+                                                height: '220px',
+                                                borderRadius: 1,
+                                            }}
                                         />
                                         <Typography
                                             variant="subtitle1"

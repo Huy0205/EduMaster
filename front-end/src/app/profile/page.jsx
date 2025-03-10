@@ -18,13 +18,12 @@ import {
 } from '@mui/material';
 import { useAuth } from '~/context/AuthContext';
 import Navbar from '~/components/Navbar';
-import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
+import { putApiNoneToken, postApiNoneToken } from '~/api/page';
 import { useRouter } from 'next/navigation';
+import Loading from '../admin/components/loading';
 const ProfilePage = () => {
     const [avatar, setAvatar] = useState('');
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [grade, setGrade] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -33,43 +32,27 @@ const ProfilePage = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
     const [passwordError, setPasswordError] = useState('');
-    const [activeFrameUrl, setActiveFrameUrl] = useState('');
+    const [loading, setLoading] = useState(false);
+
     const fileInputRef = useRef(null);
-    const { auth, setAuth } = useAuth();
+
+    const { auth, setAuth, isLoadingAuth } = useAuth();
     const { user } = auth;
+
     const router = useRouter();
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            if (user === null) {
-                return;
-            }
-            console.log('Fetching user info:', user);
-            try {
-                setName(user.fullName);
-                setEmail(user.email);
-                setPhone(user.phoneNumber);
-                setGrade(user.currentGrade);
-                const frameResponse = await getApiNoneToken(`/avatar-frame-user/user/${user.id}`);
-                const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
-
-                if (activeFrame) {
-                    setActiveFrameUrl(activeFrame.url);
-                    const frameDetailsResponse = await getApiNoneToken(
-                        `/avatar-frame/${activeFrame.avatarFrameId}`,
-                    );
-                    const frameUrl = frameDetailsResponse.data.data.url;
-                    console.log(frameUrl);
-                    setActiveFrameUrl(frameUrl);
-                }
-            } catch (error) {
-                console.error('Failed to fetch user data:', error);
-                setActiveFrameUrl('');
-            }
-        };
-
-        fetchUserInfo();
-    }, []);
+        if (!isLoadingAuth && !user) {
+            router.push('/login');
+            return;
+        }
+        if (user) {
+            setAvatar(user.avatar);
+            setName(user.fullName);
+            setGrade(user.currentGrade);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoadingAuth, user]);
 
     const handleAvatarClick = () => {
         if (fileInputRef.current) {
@@ -90,14 +73,6 @@ const ProfilePage = () => {
         }
     };
 
-    const formatPhoneNumber = (input) => {
-        const cleaned = input.replace(/\D/g, '');
-        const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-        if (match) {
-            return '(' + match[1] + ') ' + match[2] + '-' + match[3];
-        }
-        return input;
-    };
     const handleCan = () => {
         setPasswordModalOpen(false);
         setOldPassword('');
@@ -133,6 +108,10 @@ const ProfilePage = () => {
         }
     };
     const handlePasswordChange = async () => {
+        if (!oldPassword || !newPassword || !confirmNewPassword) {
+            setPasswordError('Nhập đầy đủ thông tin');
+            return;
+        }
         if (newPassword !== confirmNewPassword) {
             setPasswordError('Mật khẩu mới và mật khẩu xác nhận không khớp!');
             return;
@@ -141,15 +120,17 @@ const ProfilePage = () => {
         try {
             // Kiểm tra mật khẩu cũ trước khi thay đổi
             const checkPasswordResponse = await postApiNoneToken('user/check-password', {
-                email: email,
+                email: user.email,
                 password: oldPassword, // oldPassword là mật khẩu cũ
             });
 
             if (checkPasswordResponse.status === 200) {
                 // Mật khẩu cũ hợp lệ, tiến hành thay đổi mật khẩu
+                setLoading(true);
                 const response = await putApiNoneToken(`user/update/${user.id}`, {
                     password: newPassword, // mật khẩu mới
                 });
+                console.log(response.status === 200);
                 if (response.status === 200) {
                     setFeedbackMessage('Đổi mật khẩu thành công!');
                     setPasswordModalOpen(false);
@@ -157,12 +138,13 @@ const ProfilePage = () => {
                     setNewPassword('');
                     setConfirmNewPassword('');
                     setPasswordError('');
-                    setLoggedIn(false);
+                    localStorage.removeItem('access_token');
                     setAuth({
                         isAuth: false,
                         user: null,
                     });
                     router.push('/login');
+                    setLoading(false);
                 }
             } else {
                 setPasswordError('Mật khẩu cũ không chính xác!');
@@ -184,154 +166,164 @@ const ProfilePage = () => {
         >
             <Header />
             <Navbar />
-            <Box
-                sx={{
-                    maxWidth: '600px',
-                    mx: 'auto',
-                    bgcolor: 'white',
-                    borderRadius: 2,
-                    boxShadow: 3,
-                    p: 3,
-                    marginTop: 10,
-                }}
-            >
+
+            {isLoadingAuth || loading ? (
+                <div className="w-screen h-screen flex-1 flex justify-center items-center">
+                    <Loading />
+                </div>
+            ) : user ? (
                 <Box
-                    sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'relative' }}
+                    sx={{
+                        maxWidth: '600px',
+                        mx: 'auto',
+                        bgcolor: 'white',
+                        borderRadius: 2,
+                        boxShadow: 3,
+                        p: 3,
+                        marginTop: 10,
+                    }}
                 >
-                    {activeFrameUrl ? (
-                        <img
-                            src={activeFrameUrl}
-                            alt="User frame"
-                            style={{
-                                position: 'absolute',
-                                width: 180,
-                                height: 180,
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                zIndex: 2,
-                                pointerEvents: 'none',
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            mb: 2,
+                            position: 'relative',
+                        }}
+                    >
+                        {user.frame ? (
+                            <img
+                                src={user.frame.url}
+                                alt="User frame"
+                                style={{
+                                    position: 'absolute',
+                                    width: 180,
+                                    height: 180,
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    zIndex: 2,
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                        ) : null}
+                        <IconButton onClick={handleAvatarClick}>
+                            <Avatar
+                                alt="User avatar"
+                                src={avatar}
+                                sx={{ width: 100, height: 100, cursor: 'pointer', zIndex: 1 }}
+                            />
+                        </IconButton>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleAvatarChange}
+                            style={{ display: 'none' }}
+                            accept="image/*"
+                        />
+                    </Box>
+                    <Typography
+                        variant="h6"
+                        align="center"
+                        gutterBottom
+                        className="text-black"
+                    >
+                        Thông tin người dùng
+                    </Typography>
+                    <Box
+                        component="form"
+                        noValidate
+                    >
+                        <TextField
+                            label="Tên"
+                            fullWidth
+                            margin="normal"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            InputProps={{
+                                startAdornment: <FaUser className="mr-2" />,
+                                disabled: !isEditing,
                             }}
                         />
-                    ) : null}
-                    <IconButton onClick={handleAvatarClick}>
-                        <Avatar
-                            alt="User avatar"
-                            src={avatar}
-                            sx={{ width: 100, height: 100, cursor: 'pointer', zIndex: 1 }}
+                        <TextField
+                            label="Email"
+                            fullWidth
+                            margin="normal"
+                            value={user.email}
+                            InputProps={{
+                                startAdornment: <FaEnvelope className="mr-2" />,
+                                disabled: true,
+                            }}
                         />
-                    </IconButton>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleAvatarChange}
-                        style={{ display: 'none' }}
-                        accept="image/*"
-                    />
-                </Box>
-                <Typography
-                    variant="h6"
-                    align="center"
-                    gutterBottom
-                    className="text-black"
-                >
-                    Thông tin người dùng
-                </Typography>
-                <Box
-                    component="form"
-                    noValidate
-                >
-                    <TextField
-                        label="Tên"
-                        fullWidth
-                        margin="normal"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        InputProps={{
-                            startAdornment: <FaUser className="mr-2" />,
-                            readOnly: !isEditing,
-                        }}
-                    />
-                    <TextField
-                        label="Email"
-                        fullWidth
-                        margin="normal"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        InputProps={{
-                            startAdornment: <FaEnvelope className="mr-2" />,
-                            disabled: true,
-                        }}
-                    />
-                    <TextField
-                        label="Số điện thoại"
-                        fullWidth
-                        margin="normal"
-                        value={phone}
-                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
-                        InputProps={{
-                            startAdornment: <FaPhone className="mr-2" />,
-                            disabled: true,
-                        }}
-                    />
-                    <TextField
-                        label="Lớp"
-                        fullWidth
-                        margin="normal"
-                        value={grade}
-                        onChange={(e) => setGrade(e.target.value)}
-                        select
-                        InputProps={{
-                            startAdornment: <FaGraduationCap className="mr-2" />,
-                            disabled: !isEditing,
-                        }}
-                    >
-                        <MenuItem value="">Chọn Lớp</MenuItem>
-                        {[...Array(5)].map((_, i) => (
-                            <MenuItem
-                                key={i}
-                                value={i + 1}
+                        <TextField
+                            label="Số điện thoại"
+                            fullWidth
+                            margin="normal"
+                            value={user.phoneNumber}
+                            InputProps={{
+                                startAdornment: <FaPhone className="mr-2" />,
+                                disabled: true,
+                            }}
+                        />
+                        <TextField
+                            label="Lớp"
+                            fullWidth
+                            margin="normal"
+                            value={grade}
+                            onChange={(e) => setGrade(e.target.value)}
+                            select
+                            InputProps={{
+                                startAdornment: <FaGraduationCap className="mr-2" />,
+                                disabled: !isEditing,
+                            }}
+                        >
+                            <MenuItem value="">Chọn Lớp</MenuItem>
+                            {[...Array(5)].map((_, i) => (
+                                <MenuItem
+                                    key={i}
+                                    value={i + 1}
+                                >
+                                    Lớp {i + 1}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                        {isEditing ? (
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleSave}
                             >
-                                Lớp {i + 1}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                    {isEditing ? (
+                                Lưu
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() => setIsEditing(true)}
+                            >
+                                Chỉnh sửa
+                            </Button>
+                        )}
                         <Button
-                            variant="contained"
+                            variant="outlined"
                             color="primary"
-                            onClick={handleSave}
+                            onClick={() => setPasswordModalOpen(true)}
                         >
-                            Lưu
+                            Đổi mật khẩu
                         </Button>
-                    ) : (
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => setIsEditing(true)}
+                    </Box>
+                    {feedbackMessage && (
+                        <Alert
+                            severity="info"
+                            sx={{ mt: 3 }}
                         >
-                            Chỉnh sửa
-                        </Button>
+                            {feedbackMessage}
+                        </Alert>
                     )}
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => setPasswordModalOpen(true)}
-                    >
-                        Đổi mật khẩu
-                    </Button>
                 </Box>
-                {feedbackMessage && (
-                    <Alert
-                        severity="info"
-                        sx={{ mt: 3 }}
-                    >
-                        {feedbackMessage}
-                    </Alert>
-                )}
-            </Box>
+            ) : null}
             <Dialog
                 open={passwordModalOpen}
                 onClose={() => setPasswordModalOpen(false)}

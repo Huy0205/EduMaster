@@ -1,16 +1,19 @@
-'use client'
-import React, {  useEffect } from 'react';
-import { Box, Paper, Button, Typography, Select, MenuItem } from '@mui/material';
+'use client';
+import React, { useEffect } from 'react';
+import { Box, Paper, Button, Typography } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import { useRouter } from 'next/navigation';
 import { getApiNoneToken } from '~/api/page';
 import Topic from '~/components/kiemtra/topic';
 import { useKiemtraContext } from '~/context/KiemtraContext';
+import { useAuth } from '~/context/AuthContext';
+
 const Kiemtra = () => {
+    const { auth, isLoadingAuth } = useAuth();
     const {
-        selectedSubject,
-        setSelectedSubject,
+        selectedCourse,
+        setSelectedCourse,
         selectedGrade,
         setSelectedGrade,
         courses,
@@ -22,24 +25,31 @@ const Kiemtra = () => {
         quizzes,
         setQuizzes,
     } = useKiemtraContext();
+
     const router = useRouter();
 
     const handleGradeChange = (e) => {
-        setSelectedGrade(parseInt(e.target.value))
-        setSelectedSubject();
+        setSelectedGrade(parseInt(e.target.value));
+        setSelectedCourse();
         setTopics([]);
         setCourses([]);
         setQuizzes([]);
         setSelectedTopicId(null);
-      };
+    };
+
     useEffect(() => {
+        if (!isLoadingAuth && !auth.user) {
+            router.push('/login');
+            return;
+        }
+
         const fetchCourses = async () => {
             try {
-                const response = await getApiNoneToken(`course/grade/${selectedGrade}`);
+                const response = await getApiNoneToken(`course/grade/${auth.user.currentGrade}`);
                 const data = response.data;
                 setCourses(data.data);
                 if (data.data.length > 0) {
-                    setSelectedSubject(data.data[0]);
+                    setSelectedCourse(data.data[0]);
                 }
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -47,13 +57,14 @@ const Kiemtra = () => {
         };
 
         fetchCourses();
-    }, [selectedGrade]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoadingAuth, auth.user]);
 
     useEffect(() => {
         const fetchTopics = async () => {
-            if (selectedSubject) {
+            if (selectedCourse) {
                 try {
-                    const response = await getApiNoneToken(`topic/course/${selectedSubject.id}`);
+                    const response = await getApiNoneToken(`topic/course/${selectedCourse.id}`);
                     const topicsData = response.data;
                     setTopics(topicsData.data);
                 } catch (error) {
@@ -63,7 +74,7 @@ const Kiemtra = () => {
         };
 
         fetchTopics();
-    }, [selectedSubject]);
+    }, [selectedCourse]);
 
     const handleTopicClick = async (topicId) => {
         setSelectedTopicId(topicId);
@@ -79,72 +90,57 @@ const Kiemtra = () => {
         // Truyền thêm quizId vào URL
         router.push(`/kiemtra/lambai?quizId=${quiz.id}&bonusPoint=${quiz.bonusPoint}`);
     };
+
     return (
-        <Box className="bg-gradient-to-r from-amber-50 to-white" sx={{ minHeight: '100vh' }}>
+        <Box className="w-screen h-screen flex flex-col bg-amber-50">
             <Header />
             <Navbar />
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', p: 2 }}>
                 {/* Các nút "Toán" và "Tiếng Việt" */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    {courses.map((course, index) => (
-                        <Button
-                            key={index}
-                            variant={selectedSubject === course ? 'contained' : 'outlined'}
-                            onClick={() => setSelectedSubject(course)}
-                            sx={{
-                                width: 150,
-                                height: 100,
-                                flexDirection: 'column',
-                                color: selectedSubject === course ? 'white' : 'primary.main',
-                                bgcolor: selectedSubject === course ? 'primary.main' : 'white',
-                            }}
-                        >
-                            <Box
+                    {courses.length > 0 &&
+                        courses.map((course, index) => (
+                            <Button
+                                key={index}
+                                variant={selectedCourse === course ? 'contained' : 'outlined'}
+                                onClick={() => setSelectedCourse(course)}
                                 sx={{
-                                    mb: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
+                                    width: 180,
+                                    height: 100,
+                                    flexDirection: 'column',
+                                    color: selectedCourse === course ? 'white' : 'primary.main',
+                                    bgcolor: selectedCourse === course ? 'primary.main' : 'white',
                                 }}
                             >
-                                <img
-                                    src={`/img/${course.name === 'Toán' ? 'icon_math_on.png' : 'icon_vietnamese_literature_on.png'
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <img
+                                        src={`/img/${
+                                            course.name === 'Toán'
+                                                ? 'icon_math_on.png'
+                                                : 'icon_vietnamese_literature_on.png'
                                         }`}
-                                    alt={`${course.name} Icon`}
-                                    style={{ width: 40, height: 40 }}
-                                />
-                            </Box>
-                            <Typography variant="subtitle1">{course.name}</Typography>
-                        </Button>
-                    ))}
-                </Box>
-
-                {/* Select "Lớp" đặt cùng hàng */}
-                <Box>
-                    <Select
-                        value={selectedGrade}
-                        onChange={handleGradeChange}
-                        sx={{
-                            width: 150,
-                            height: 40,
-                            ml: 21, // Tạo khoảng cách giữa các nút và phần chọn lớp
-                        }}
-                    >
-                        <MenuItem value={1}>Lớp 1</MenuItem>
-                        <MenuItem value={2}>Lớp 2</MenuItem>
-                    </Select>
+                                        alt={`${course.name} Icon`}
+                                        style={{ width: 40, height: 40 }}
+                                    />
+                                </Box>
+                                <Typography variant="subtitle1">{course.name}</Typography>
+                            </Button>
+                        ))}
                 </Box>
             </Box>
 
-            <Box sx={{ display: 'flex', mt: 2 }}>
+            <Box className="flex flex-grow min-h-0 overflow-hidden m-4 mt-0">
                 {/* Topics Sidebar */}
-                <Paper sx={{
-                    width: '25%', p: 2, height: 'calc(91vh - 200px)', overflowY: 'auto',
-                    backgroundImage: 'url(/img/bg-topic.jpg)', // Đường dẫn tới hình nền trong thư mục public/img
-                    backgroundSize: 'cover', // Để hình nền bao phủ toàn bộ Box
-                    backgroundPosition: 'center', // Căn giữa hình nền
-                    marginLeft: 1,
-                }} elevation={3}>
+                <Paper
+                    className="w-1/5 overflow-y-auto p-3 pr-1 pb-0  bg-[url('/img/bg-topic.jpg')] bg-cover bg-center"
+                    elevation={3}
+                >
                     {Array.isArray(topics) && topics.length > 0 ? (
                         topics.map((topic) => (
                             <Topic
@@ -159,9 +155,19 @@ const Kiemtra = () => {
                     )}
                 </Paper>
                 {/* Main Content */}
-                <Box component="main" flex={1} marginRight={4} marginLeft={4} display="grid" gridTemplateColumns="1fr" gap={4}>
+                <Box
+                    component="main"
+                    flex={1}
+                    marginLeft={2}
+                    display="flex"
+                    gridTemplateColumns="1fr 1fr"
+                    gap={2}
+                >
                     {/* Quizzes Section */}
-                    <Paper className="p-4" sx={{height: 'calc(91vh - 200px)', overflowY: 'auto'}}>
+                    <Paper
+                        className="flex-1 p-4 flex flex-col overflow-y-auto"
+                        elevation={3}
+                    >
                         {quizzes.length > 0 ? (
                             <Box
                                 sx={{
@@ -189,13 +195,20 @@ const Kiemtra = () => {
                                             alt="Quiz Image"
                                             sx={{ width: '100%', height: '190px', borderRadius: 1 }}
                                         />
-                                        <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 'bold' }}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{ mt: 2, fontWeight: 'bold' }}
+                                        >
                                             {quiz.name}
                                         </Typography>
                                         <Button
                                             variant="contained"
                                             color="success"
-                                            sx={{ mt: 1, textTransform: 'none', fontWeight: 'bold' }}
+                                            sx={{
+                                                mt: 1,
+                                                textTransform: 'none',
+                                                fontWeight: 'bold',
+                                            }}
                                             onClick={() => handleViewQuiz(quiz)}
                                         >
                                             Kiểm tra ngay

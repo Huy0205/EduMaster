@@ -4,7 +4,7 @@ import React, { createContext, useState, useContext } from 'react';
 const KiemtraContext = createContext();
 
 export const KiemtraProvider = ({ children }) => {
-    const [selectedSubject, setSelectedSubject] = useState();
+    const [selectedCourse, setSelectedCourse] = useState();
     const [selectedGrade, setSelectedGrade] = useState(1);
     const [courses, setCourses] = useState([]);
     const [topics, setTopics] = useState([]);
@@ -14,8 +14,8 @@ export const KiemtraProvider = ({ children }) => {
     return (
         <KiemtraContext.Provider
             value={{
-                selectedSubject,
-                setSelectedSubject,
+                selectedCourse,
+                setSelectedCourse,
                 selectedGrade,
                 setSelectedGrade,
                 courses,

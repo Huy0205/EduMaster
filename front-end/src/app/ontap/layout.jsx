@@ -2,11 +2,11 @@
 import { OntapProvider } from '~/context/OntapContext';
 
 export default function OntapLayout({ children }) {
-  return (
-    <OntapProvider>
-    <div>
-      <main>{children}</main>
-    </div>
-  </OntapProvider>
-  );
+    return (
+        <OntapProvider>
+            <div>
+                <main>{children}</main>
+            </div>
+        </OntapProvider>
+    );
 }

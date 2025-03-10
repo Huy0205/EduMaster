@@ -4,20 +4,21 @@ import React, { createContext, useState, useContext } from 'react';
 const OntapContext = createContext();
 
 export const OntapProvider = ({ children }) => {
-    const [selectedSubject, setSelectedSubject] = useState(null);
+    const [selectedCourse, setSelectedCourse] = useState(null);
     const [selectedGrade, setSelectedGrade] = useState(1);
     const [selectedLectures, setSelectedLectures] = useState([]);
     const [questionPages, setQuestionPages] = useState([]);
     const [courses, setCourses] = useState([]);
     const [topics, setTopics] = useState([]);
-    const [selectedReviewId, setSelectedReviewId] = useState();
+    const [selectedLessonId, setSelectedLessonId] = useState();
     const [topicStates, setTopicStates] = useState({});
     const [selectedTopicId, setSelectedTopicId] = useState();
+
     return (
         <OntapContext.Provider
             value={{
-                selectedSubject,
-                setSelectedSubject,
+                selectedCourse,
+                setSelectedCourse,
                 selectedGrade,
                 setSelectedGrade,
                 selectedLectures,
@@ -28,8 +29,8 @@ export const OntapProvider = ({ children }) => {
                 setCourses,
                 topics,
                 setTopics,
-                selectedReviewId,
-                setSelectedReviewId,
+                selectedLessonId,
+                setSelectedLessonId,
                 topicStates,
                 setTopicStates,
                 selectedTopicId,

@@ -5,6 +5,8 @@ import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '~/context/AuthContext';
 import { postApiNoneToken } from '~/api/page';
+import { fetchUserWithFrame } from '~/util/authHelpers';
+
 const LoginPage = () => {
     const { setAuth } = useAuth();
     const [email, setEmail] = useState('');
@@ -24,8 +26,9 @@ const LoginPage = () => {
             });
             const { data, message } = res.data;
             if (data) {
-                setAuth({ isAuth: true, user: data.user });
                 localStorage.setItem('access_token', data.token);
+                const userWithFrame = await fetchUserWithFrame(data.user);
+                setAuth({ isAuth: true, user: userWithFrame });
                 router.push('/');
             } else {
                 throw new Error(message);
@@ -33,16 +36,13 @@ const LoginPage = () => {
         } catch (error) {
             console.log(error);
             setError('Tên đăng nhập hoặc mật khẩu không đúng.');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
         <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
-            {/* <Header /> */}
-
-            {/* Form container */}
             <Box
                 sx={{
                     flex: 1,

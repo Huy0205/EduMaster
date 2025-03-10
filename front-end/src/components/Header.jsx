@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -10,8 +10,6 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Box } from '@mui/material';
-import { getApiNoneToken } from '~/api/page';
-import { UserService } from '~/services';
 import { useAuth } from '~/context/AuthContext';
 
 const Header = () => {
@@ -20,60 +18,6 @@ const Header = () => {
     const router = useRouter();
     const [anchorEl, setAnchorEl] = useState(null);
     const isDropdownOpen = Boolean(anchorEl);
-    const [avatarUrl, setAvatarUrl] = useState(''); // State để lưu URL ảnh đại diện
-    const [activeFrameUrl, setActiveFrameUrl] = useState('');
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const authRes = await UserService.auth();
-                const { data, message } = authRes.data;
-                if (data) {
-                    setAuth({ isAuth: true, user: data });
-                    const frameResponse = await getApiNoneToken(
-                        `/avatar-frame-user/user/${data.id}`,
-                    );
-                    const activeFrame = frameResponse.data.data.find((frame) => frame.isActive);
-
-                    if (activeFrame) {
-                        setActiveFrameUrl(activeFrame.url);
-                        const frameDetailsResponse = await getApiNoneToken(
-                            `/avatar-frame/${activeFrame.avatarFrameId}`,
-                        );
-                        const frameUrl = frameDetailsResponse.data.data.url;
-                        console.log(frameUrl);
-                        setActiveFrameUrl(frameUrl);
-                    }
-                } else {
-                    throw new Error(message);
-                }
-            } catch (error) {
-                console.error('Error fetching user data or active frame:', error);
-                setAvatarUrl('');
-                setActiveFrameUrl('');
-            }
-        };
-        fetchUser();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        if (auth.avatarFrameId) {
-            const fetchFrame = async () => {
-                try {
-                    const frameDetailsResponse = await getApiNoneToken(
-                        `/avatar-frame/${auth.avatarFrameId}`,
-                    );
-                    const frameUrl = frameDetailsResponse.data.data.url;
-                    setActiveFrameUrl(frameUrl);
-                } catch (error) {
-                    console.error('Error fetching active frame:', error);
-                    setActiveFrameUrl('');
-                }
-            };
-            fetchFrame();
-        }
-    }, [auth.avatarFrameId]);
 
     const handleLoginClick = () => {
         router.push('/login');
@@ -92,7 +36,7 @@ const Header = () => {
     };
 
     const handleLogout = () => {
-        setAuth({ isAuth: false, user: {} });
+        setAuth({ isAuth: false, user: null });
         localStorage.removeItem('access_token');
         setAnchorEl(null);
         router.push('/');
@@ -121,12 +65,12 @@ const Header = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {isAuth ? (
                         <>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Typography sx={{ color: 'white' }}>
                                     <span style={{ marginLeft: '8px' }}>
                                         Lớp: {user.currentGrade} |
                                     </span>
-                                    {user.fullName}
+                                    {' ' + user.fullName}
                                 </Typography>
                                 <IconButton
                                     onClick={handleAvatarClick}
@@ -136,17 +80,17 @@ const Header = () => {
                                     <Box
                                         sx={{
                                             position: 'relative',
-                                            width: 48,
-                                            height: 48,
+                                            width: 35,
+                                            height: 35,
                                             display: 'flex',
                                             placeContent: 'center',
                                         }}
                                     >
                                         {/* Ảnh bao quanh Avatar */}
-                                        {activeFrameUrl && (
+                                        {user.frame && (
                                             <Box
                                                 component="img"
-                                                src={activeFrameUrl} // Sử dụng URL frame active
+                                                src={user.frame.url} // Sử dụng URL frame active
                                                 alt="Overlay"
                                                 sx={{
                                                     position: 'absolute',
@@ -161,7 +105,7 @@ const Header = () => {
                                             />
                                         )}
                                         <Avatar
-                                            src={avatarUrl}
+                                            src={user.avatar}
                                             sx={{
                                                 position: 'absolute', // Đảm bảo avatar trùng khớp với overlay
                                                 top: 0,
