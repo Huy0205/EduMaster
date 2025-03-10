@@ -5,6 +5,10 @@ export class QuizService {
         return axios.get('/quiz/list');
     }
 
+    public static countAllQuizzes() {
+        return axios.get('/quiz/count');
+    }
+
     public static getQuizByGrade(grade: number) {
         return axios.get(`/quiz/grade/${grade}`);
     }

@@ -18,14 +18,83 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import { useEffect, useState } from 'react';
+import { PracticeService, QuizService, UserService } from '~/services';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+interface UsersPerMonthType {
+    month: string;
+    total_users: number;
+}
+
 export default function Dashboard() {
+    const [totalStudent, setTotalStudent] = useState(0);
+    const [totalPractices, setTotalPractices] = useState(0);
+    const [totalQuizzes, setTotalQuizzes] = useState(0);
+    const [newUsersPerMonth, setNewUsersPerMonth] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const endMonth = new Date();
+                const startMonth = new Date();
+                startMonth.setMonth(endMonth.getMonth() - 5);
+
+                const [countStudentRes, countPracticesRes, countQuizzesRes, newUsersPerMonthRes] =
+                    await Promise.all([
+                        UserService.countStudent(),
+                        PracticeService.countAllPractices(),
+                        QuizService.countAllQuizzes(),
+                        UserService.getNewUsersPerMonth(
+                            startMonth.toISOString().slice(0, 7),
+                            endMonth.toISOString().slice(0, 7),
+                        ),
+                    ]);
+
+                const { data: countStudentData, message: countStudentMessage } =
+                    countStudentRes.data;
+                if (countStudentData >= 0) {
+                    setTotalStudent(countStudentData);
+                } else {
+                    throw Error(countStudentMessage);
+                }
+
+                const { data: countPracticesData, message: countPracticesMessage } =
+                    countPracticesRes.data;
+                if (countPracticesData >= 0) {
+                    setTotalPractices(countPracticesData);
+                } else {
+                    throw Error(countPracticesMessage);
+                }
+
+                const { data: countQuizzesData, message: countQuizzesMessage } =
+                    countQuizzesRes.data;
+                if (countQuizzesData >= 0) {
+                    setTotalQuizzes(countQuizzesData);
+                } else {
+                    throw Error(countQuizzesMessage);
+                }
+
+                const { data: newUsersPerMonthData, message: newUsersPerMonthMessage } =
+                    newUsersPerMonthRes.data;
+                if (newUsersPerMonthData) {
+                    console.log(newUsersPerMonthData);
+                    setNewUsersPerMonth(newUsersPerMonthData);
+                } else {
+                    throw Error(newUsersPerMonthMessage);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
+    }, []);
+
     const stats = [
-        { icon: '👨‍🎓', label: 'Tổng số học sinh', value: 1200 },
-        { icon: '📝', label: 'Tổng số đề thực hành', value: 50 },
-        { icon: '📖', label: 'Tổng số đề kiểm tra', value: 320 },
+        { icon: '👨‍🎓', label: 'Tổng số học sinh', value: totalStudent },
+        { icon: '📝', label: 'Tổng số đề thực hành', value: totalPractices },
+        { icon: '📖', label: 'Tổng số đề kiểm tra', value: totalQuizzes },
     ];
 
     const managementItems = [
@@ -39,18 +108,33 @@ export default function Dashboard() {
         { icon: <FactCheck />, label: 'Đề kiểm tra', href: '/admin/quizzes' },
     ];
 
-    // Dữ liệu cho biểu đồ
     const chartData = {
-        labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
+        labels: newUsersPerMonth.map((item: UsersPerMonthType) => item.month),
         datasets: [
             {
                 label: 'Số học sinh mới',
-                data: [200, 150, 300, 250, 400, 350],
+                data: newUsersPerMonth.map((item: UsersPerMonthType) => item.total_users),
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
             },
         ],
+    };
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' as const },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    precision: 0,
+                },
+            },
+        },
     };
 
     return (
@@ -62,7 +146,7 @@ export default function Dashboard() {
                 <div className="w-full max-w-4xl h-[460px] bg-white mb-5">
                     <Bar
                         data={chartData}
-                        options={{ maintainAspectRatio: false }}
+                        options={options}
                     />
                 </div>
             </div>

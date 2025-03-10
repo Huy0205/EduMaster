@@ -6,6 +6,9 @@ const practiceRouter = Router();
 // GET: localhost:8080/api/v1/practice/list
 practiceRouter.get('/list', PracticeController.getAllPractices);
 
+// GET: localhost:8080/api/v1/practice/count
+practiceRouter.get('/count', PracticeController.countAllPractices);
+
 // GET: localhost:8080/api/v1/practice/grade/:grade
 practiceRouter.get('/grade/:grade', PracticeController.getPracticesByGrade);
 

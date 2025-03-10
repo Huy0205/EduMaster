@@ -3,7 +3,7 @@ import { Response } from 'express';
 interface ResponseData {
     code: number;
     message: string;
-    data?: object;
+    data?: object | number;
 }
 
 export class ResponseUtil {

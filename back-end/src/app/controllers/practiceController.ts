@@ -15,6 +15,16 @@ export class PracticeController {
         }
     }
 
+    public static async countAllPractices(req: Request, res: Response, next: NextFunction) {
+        try {
+            const result = await PracticeService.countAllPractices();
+            ResponseUtil.sendResponse(res, result);
+        } catch (error) {
+            console.error('Error getting all practices', error);
+            next(error);
+        }
+    }
+
     public static async getPracticesByGrade(req: Request, res: Response, next: NextFunction) {
         const { grade } = req.params;
         if (!grade) {

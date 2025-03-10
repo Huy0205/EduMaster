@@ -31,4 +31,12 @@ export class UserService {
     ) {
         return axios.put(`user/update/${userId}`, data);
     }
+
+    public static countStudent() {
+        return axios.get('user/student/count');
+    }
+
+    public static getNewUsersPerMonth(startMonth: string, endMonth: string) {
+        return axios.get('user/student/new-per-month', { params: { startMonth, endMonth } });
+    }
 }

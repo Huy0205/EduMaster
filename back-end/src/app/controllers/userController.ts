@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { validate as isUUID } from 'uuid';
-import { UserService } from  '../../app/services';
+import { UserService } from '../../app/services';
 import { BcryptUtil, ResponseUtil } from '../../utils';
 import { Status } from '../enums';
 
@@ -210,6 +210,37 @@ export class UserController {
                 ResponseUtil.sendResponse(res, response);
             } catch (error) {
                 next(error);
+            }
+        }
+    }
+
+    public static async countStudent(req: Request, res: Response, next: NextFunction) {
+        try {
+            const response = await UserService.countStudent();
+            ResponseUtil.sendResponse(res, response);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    public static async getNewUsersPerMonth(req: Request, res: Response, next: NextFunction) {
+        const { startMonth, endMonth } = req.query;
+        if (!startMonth || !endMonth) {
+            ResponseUtil.sendMissingData(res);
+        } else {
+            const monthRegex = /^\d{4}-(0[1-9]|1[0-2])$/;
+            if (!monthRegex.test(startMonth as string) || !monthRegex.test(endMonth as string)) {
+                ResponseUtil.sendInvalidData(res);
+            } else {
+                try {
+                    const response = await UserService.getNewUsersPerMonth(
+                        startMonth as string,
+                        endMonth as string,
+                    );
+                    ResponseUtil.sendResponse(res, response);
+                } catch (error) {
+                    next(error);
+                }
             }
         }
     }

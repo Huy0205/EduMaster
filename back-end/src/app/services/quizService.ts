@@ -35,6 +35,24 @@ export class QuizService {
         }
     }
 
+    public static async countAllQuizzes() {
+        try {
+            const count = await quizRepository.count({
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+            });
+            return {
+                code: 200,
+                message: 'Count all quizzes successfully',
+                data: count,
+            };
+        } catch (error) {
+            console.error('Error counting all quizzes', error);
+            throw error;
+        }
+    }
+
     public static async getQuizByGrade(grade: number) {
         try {
             const quizzes = await quizRepository.find({

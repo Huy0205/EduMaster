@@ -15,6 +15,12 @@ userRouter.get('/role/:role', UserController.getUsersByRole);
 // GET: localhost:8080/api/v1/user/grade/:grade
 userRouter.get('/grade/:grade', UserController.getUsersByGrade);
 
+// GET: localhost:8080/api/v1/user/student/count
+userRouter.get('/student/count', UserController.countStudent);
+
+// GET: localhost:8080/api/v1/user/student/new-per-month
+userRouter.get('/student/new-per-month', UserController.getNewUsersPerMonth);
+
 // POST: localhost:8080/api/v1/user/send-otp-by-mail
 userRouter.post('/send-otp-by-mail', UserController.sendOTPByMail);
 

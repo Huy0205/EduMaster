@@ -14,6 +14,16 @@ export class QuizController {
         }
     }
 
+    public static async countAllQuizzes(req: Request, res: Response, next: NextFunction) {
+        try {
+            const result = await QuizService.countAllQuizzes();
+            ResponseUtil.sendResponse(res, result);
+        } catch (error) {
+            console.error('Error getting all practices', error);
+            next(error);
+        }
+    }
+
     public static async getQuizByGrade(req: Request, res: Response, next: NextFunction) {
         const { grade } = req.params;
         if (!grade) {

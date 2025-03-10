@@ -37,6 +37,24 @@ export class PracticeService {
         }
     }
 
+    public static async countAllPractices() {
+        try {
+            const count = await PracticeRepository.count({
+                where: {
+                    status: In([Status.ACTIVE, Status.INACTIVE]),
+                },
+            });
+            return {
+                code: 200,
+                message: 'Count all practices successfully',
+                data: count,
+            };
+        } catch (error) {
+            console.error('Error counting all practices', error);
+            throw error;
+        }
+    }
+
     public static async getPracticesByGrade(grade: number) {
         try {
             const practices = await PracticeRepository.find({
@@ -180,7 +198,7 @@ export class PracticeService {
                 message: 'Get max order in lesson successfully',
                 data: max,
             };
-        }  catch (error) {
+        } catch (error) {
             console.error('Error getting max order in lesson', error);
             throw error;
         }

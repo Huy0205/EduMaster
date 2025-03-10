@@ -393,4 +393,50 @@ export class UserService {
             throw error;
         }
     }
+
+    public static async countStudent() {
+        try {
+            const count = await UserRepository.count({
+                where: {
+                    role: Role.STUDENT,
+                    status: Status.ACTIVE,
+                },
+            });
+            return {
+                code: 200,
+                message: 'Count students successfully',
+                data: count,
+            };
+        } catch (error) {
+            console.error('Error counting all students', error);
+            throw error;
+        }
+    }
+
+    public static async getNewUsersPerMonth(startMonth: string, endMonth: string) {
+        try {
+            const result = await UserRepository.createQueryBuilder('user')
+                .select([
+                    "TO_CHAR(user.createdAt, 'YYYY-MM') AS month",
+                    'COUNT(user.id) AS total_users',
+                ])
+                .where('user.role = :role', { role: Role.STUDENT })
+                .andWhere("TO_CHAR(user.createdAt, 'YYYY-MM') BETWEEN :startMonth AND :endMonth", {
+                    startMonth,
+                    endMonth,
+                })
+                .groupBy('month')
+                .orderBy('month', 'ASC')
+                .getRawMany();
+
+            return {
+                code: 200,
+                message: 'Count students successfully',
+                data: result,
+            };
+        } catch (error) {
+            console.error('Error getting student per month', error);
+            throw error;
+        }
+    }
 }

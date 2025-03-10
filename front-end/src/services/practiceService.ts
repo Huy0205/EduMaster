@@ -5,6 +5,10 @@ export class PracticeService {
         return axios.get('practice/list');
     }
 
+    public static countAllPractices() {
+        return axios.get('practice/count');
+    }
+
     public static getPracticesByGrade(grade: number) {
         return axios.get(`practice/grade/${grade}`);
     }
