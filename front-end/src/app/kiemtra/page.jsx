@@ -14,8 +14,8 @@ const Kiemtra = () => {
     const {
         selectedCourse,
         setSelectedCourse,
-        selectedGrade,
-        setSelectedGrade,
+        // selectedGrade,
+        // setSelectedGrade,
         courses,
         setCourses,
         topics,
@@ -27,15 +27,6 @@ const Kiemtra = () => {
     } = useKiemtraContext();
 
     const router = useRouter();
-
-    const handleGradeChange = (e) => {
-        setSelectedGrade(parseInt(e.target.value));
-        setSelectedCourse();
-        setTopics([]);
-        setCourses([]);
-        setQuizzes([]);
-        setSelectedTopicId(null);
-    };
 
     useEffect(() => {
         if (!isLoadingAuth && !auth.user) {

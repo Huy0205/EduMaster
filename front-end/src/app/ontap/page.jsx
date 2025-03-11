@@ -19,8 +19,8 @@ const OnTap = () => {
     const {
         selectedCourse,
         setSelectedCourse,
-        selectedGrade,
-        setSelectedGrade,
+        // selectedGrade,
+        // setSelectedGrade,
         selectedLectures,
         setSelectedLectures,
         questionPages,
@@ -31,22 +31,11 @@ const OnTap = () => {
         setTopics,
         selectedLessonId,
         setSelectedLessonId,
-        topicStates,
-        setTopicStates,
+        // topicStates,
+        // setTopicStates,
         selectedTopicId,
-        setSelectedTopicId,
+        // setSelectedTopicId,
     } = useOntapContext();
-
-    const handleGradeChange = (e) => {
-        setSelectedGrade(parseInt(e.target.value));
-        setSelectedSubject([]);
-        setSelectedLectures([]);
-        setQuestionPages([]);
-        setTopics([]);
-        setSelectedReviewId(null);
-        setTopicStates({});
-        setSelectedTopicId(null);
-    };
 
     useEffect(() => {
         if (!isLoadingAuth && !auth.user) {
@@ -319,7 +308,7 @@ const OnTap = () => {
                     </Paper>
                     {/* Practice Question Section */}
                     <Paper
-                        className="flex-1 p-4 flex flex-col overflow-y-aut"
+                        className="flex-1 p-4 flex flex-col overflow-y-auto"
                         elevation={3}
                     >
                         <Typography
