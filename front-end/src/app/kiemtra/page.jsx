@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Paper, Button, Typography } from '@mui/material';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
@@ -10,23 +10,15 @@ import { useKiemtraContext } from '~/context/KiemtraContext';
 import { useAuth } from '~/context/AuthContext';
 
 const Kiemtra = () => {
-    const { auth, isLoadingAuth } = useAuth();
-    const {
-        selectedCourse,
-        setSelectedCourse,
-        // selectedGrade,
-        // setSelectedGrade,
-        courses,
-        setCourses,
-        topics,
-        setTopics,
-        selectedTopicId,
-        setSelectedTopicId,
-        quizzes,
-        setQuizzes,
-    } = useKiemtraContext();
-
     const router = useRouter();
+
+    const { auth, isLoadingAuth } = useAuth();
+    const { selectedCourse, setSelectedCourse, selectedTopic, setSelectedQuiz } =
+        useKiemtraContext();
+
+    const [courses, setCourses] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [quizzes, setQuizzes] = useState([]);
 
     useEffect(() => {
         if (!isLoadingAuth && !auth.user) {
@@ -39,7 +31,7 @@ const Kiemtra = () => {
                 const response = await getApiNoneToken(`course/grade/${auth.user.currentGrade}`);
                 const data = response.data;
                 setCourses(data.data);
-                if (data.data.length > 0) {
+                if (data.data.length > 0 && !selectedCourse) {
                     setSelectedCourse(data.data[0]);
                 }
             } catch (error) {
@@ -67,19 +59,28 @@ const Kiemtra = () => {
         fetchTopics();
     }, [selectedCourse]);
 
-    const handleTopicClick = async (topicId) => {
-        setSelectedTopicId(topicId);
-        try {
-            const response = await getApiNoneToken(`quiz/topic/${topicId}`);
-            const quizzesData = response.data;
-            setQuizzes(quizzesData.data);
-        } catch (error) {
-            console.error('Error fetching quizzes:', error);
-        }
-    };
+    useEffect(() => {
+        const fetchQuiz = async () => {
+            if (selectedTopic) {
+                try {
+                    const response = await getApiNoneToken(`quiz/topic/${selectedTopic.id}`);
+                    const { data, message } = response.data;
+                    if (data) {
+                        setQuizzes(data);
+                    } else {
+                        throw new Error(message);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+        fetchQuiz();
+    }, [selectedTopic]);
+
     const handleViewQuiz = (quiz) => {
-        // Truyền thêm quizId vào URL
-        router.push(`/kiemtra/lambai?quizId=${quiz.id}&bonusPoint=${quiz.bonusPoint}`);
+        setSelectedQuiz(quiz);
+        router.push('/kiemtra/lambai');
     };
 
     return (
@@ -136,9 +137,8 @@ const Kiemtra = () => {
                         topics.map((topic) => (
                             <Topic
                                 key={topic.id}
-                                title={topic.name}
-                                isActive={selectedTopicId === topic.id}
-                                onClick={() => handleTopicClick(topic.id)}
+                                data={topic}
+                                selected={selectedTopic?.id === topic.id}
                             />
                         ))
                     ) : (

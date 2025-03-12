@@ -5,7 +5,7 @@ import Navbar from '~/components/Navbar';
 import Topic from '~/components/ontap/topic';
 import { Button, Paper, Typography, Box, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import { getApiNoneToken, postApiNoneToken } from '~/api/page';
+import { getApiNoneToken } from '~/api/page';
 import { useOntapContext } from '~/context/OntapContext';
 import { useAuth } from '~/context/AuthContext';
 
@@ -13,29 +13,21 @@ const OnTap = () => {
     const router = useRouter();
 
     const { auth, isLoadingAuth } = useAuth();
-
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-
     const {
         selectedCourse,
         setSelectedCourse,
-        // selectedGrade,
-        // setSelectedGrade,
-        selectedLectures,
-        setSelectedLectures,
-        questionPages,
-        setQuestionPages,
-        courses,
-        setCourses,
-        topics,
-        setTopics,
-        selectedLessonId,
-        setSelectedLessonId,
-        // topicStates,
-        // setTopicStates,
-        selectedTopicId,
-        // setSelectedTopicId,
+        selectedTopic,
+        selectedLesson,
+        setSelectedTheory,
+        setSelectedPractice,
+        setFirstPracticeInLesson,
     } = useOntapContext();
+
+    const [courses, setCourses] = useState([]);
+    const [topics, setTopics] = useState([]);
+    const [theories, setTheories] = useState([]);
+    const [practices, setPractices] = useState([]);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
     useEffect(() => {
         if (!isLoadingAuth && !auth.user) {
@@ -50,7 +42,7 @@ const OnTap = () => {
                         `course/grade/${auth.user.currentGrade}`,
                     );
                     setCourses(response.data.data);
-                    if (response.data.data.length > 0) {
+                    if (response.data.data.length > 0 && !selectedCourse) {
                         setSelectedCourse(response.data.data[0]);
                     }
                 } catch (error) {
@@ -66,9 +58,7 @@ const OnTap = () => {
         const fetchTopics = async () => {
             if (selectedCourse) {
                 try {
-                    const response = await getApiNoneToken(
-                        `topic/course/${selectedCourse.id}?page=1&limit=100`,
-                    );
+                    const response = await getApiNoneToken(`topic/course/${selectedCourse.id}`);
                     const topicsData = response.data;
                     setTopics(topicsData.data);
                 } catch (error) {
@@ -80,72 +70,82 @@ const OnTap = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCourse]);
 
-    const fetchLectures = async (reviewId) => {
-        try {
-            const response = await getApiNoneToken(`theory/lesson/${reviewId}`);
-            const data = response.data;
-            setSelectedLectures(data.data);
-        } catch (error) {
-            console.error('Error fetching lectures:', error);
-        }
-    };
+    useEffect(() => {
+        const fetchTheoriesAndPractices = async () => {
+            if (selectedLesson) {
+                try {
+                    const [theoriesRes, practicesRes] = await Promise.all([
+                        getApiNoneToken(`theory/lesson/${selectedLesson.id}`),
+                        getApiNoneToken(`practice/lesson/${selectedLesson.id}`),
+                    ]);
 
-    const fetchQuestions = async (reviewId) => {
-        try {
-            const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
-            const data = response.data;
-            console.log(data);
-            setQuestionPages(data.data);
-        } catch (error) {
-            console.error('Error fetching questions:', error);
-        }
-    };
+                    const { data: theoriesData, message: theoriesMessage } = theoriesRes.data;
+                    if (theoriesData) {
+                        setTheories(theoriesData);
+                    } else {
+                        throw new Error(theoriesMessage);
+                    }
+
+                    const { data: practicesData, message: practicesMessage } = practicesRes.data;
+                    if (practicesData) {
+                        setPractices(practicesData);
+                        setFirstPracticeInLesson(practicesData[0]);
+                    } else {
+                        throw new Error(practicesMessage);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+        fetchTheoriesAndPractices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLesson]);
 
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
     };
 
-    const handlePracticeQuestion = async (reviewId, page, topicId) => {
-        const userId = auth.user.id;
+    const handleShowPractice = async (practice) => {
+        setSelectedPractice(practice);
+        router.push('/ontap/thuchanh');
+        // const userId = auth.user.id;
 
-        try {
-            // Kiểm tra tiến trình hiện tại của người dùng
-            const response = await getApiNoneToken(
-                `practice-progress/user/${userId}/practice/${page.id}`,
-            );
-            const progress = response.data.data;
+        // try {
+        //     // Kiểm tra tiến trình hiện tại của người dùng
+        //     const response = await getApiNoneToken(
+        //         `practice-progress/user/${userId}/practice/${page.id}`,
+        //     );
+        //     const progress = response.data.data;
 
-            if (progress) {
-                // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
-                console.log('Tiến trình đã tồn tại:', progress);
-                router.push(
-                    `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
-                );
-            } else {
-                // Nếu chưa có tiến trình, tạo mới
-                console.log('Chưa có tiến trình, tạo mới...');
-                await postApiNoneToken('practice-progress/add', {
-                    userId: userId,
-                    practiceId: page.id,
-                    lastQuestionIndex: 0,
-                });
+        //     if (progress) {
+        //         // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
+        //         console.log('Tiến trình đã tồn tại:', progress);
+        //         router.push(
+        //             `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
+        //         );
+        //     } else {
+        //         // Nếu chưa có tiến trình, tạo mới
+        //         console.log('Chưa có tiến trình, tạo mới...');
+        //         await postApiNoneToken('practice-progress/add', {
+        //             userId: userId,
+        //             practiceId: page.id,
+        //             lastQuestionIndex: 0,
+        //         });
 
-                // Chuyển hướng tới trang thực hành
-                router.push(
-                    `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
-                );
-            }
-        } catch (error) {
-            console.error('Error handling practice progress:', error);
-        }
+        //         // Chuyển hướng tới trang thực hành
+        //         router.push(
+        //             `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
+        //         );
+        //     }
+        // } catch (error) {
+        //     console.error('Error handling practice progress:', error);
+        // }
     };
-    const handleViewLecture = (reviewId, lecture, topicId) => {
-        const url = `/ontap/lythuyet?reviewId=${reviewId}&lectureId=${
-            lecture.id
-        }&lectureTitle=${encodeURIComponent(lecture.title)}&lectureUrl=${encodeURIComponent(
-            lecture.url,
-        )}&topicId=${topicId}`;
-        router.push(url);
+
+    const handleViewTheory = (theory) => {
+        setSelectedTheory(theory);
+        router.push('/ontap/lythuyet');
     };
 
     return (
@@ -209,15 +209,8 @@ const OnTap = () => {
                         topics.map((topic, index) => (
                             <Topic
                                 key={index}
-                                topicId={topic.id}
-                                title={topic.name}
-                                onSelectLesson={(reviewId, topicId) => {
-                                    fetchLectures(reviewId);
-                                    fetchQuestions(reviewId);
-                                    console.log(`Selected Topic ID: ${topicId}`);
-                                }}
-                                selectedLessonId={selectedLessonId}
-                                setSelectedLessonId={setSelectedLessonId}
+                                data={topic}
+                                selected={topic.id === selectedTopic?.id}
                             />
                         ))}
                 </Paper>
@@ -241,17 +234,17 @@ const OnTap = () => {
                         >
                             Lý thuyết
                         </Typography>
-                        {selectedLectures.length > 0 ? (
+                        {theories.length > 0 ? (
                             <Box
                                 sx={{
                                     display: 'grid',
-                                    gridTemplateColumns: 'repeat(2, 1fr)', // 2 cột mỗi hàng
-                                    gap: 2, // khoảng cách giữa các thẻ lecture
+                                    gridTemplateColumns: 'repeat(2, 1fr)',
+                                    gap: 2,
                                 }}
                             >
-                                {selectedLectures.map((lecture) => (
+                                {theories.map((theory) => (
                                     <Paper
-                                        key={lecture.id}
+                                        key={theory.id}
                                         sx={{
                                             p: 2,
                                             display: 'flex',
@@ -265,7 +258,7 @@ const OnTap = () => {
                                         {/* Lecture Image */}
                                         <Box
                                             component="img"
-                                            src="/img/lecture.png" // Đường dẫn đến ảnh trong thư mục public
+                                            src="/img/lecture.png"
                                             alt="Lecture Image"
                                             sx={{
                                                 width: '100%',
@@ -273,14 +266,12 @@ const OnTap = () => {
                                                 borderRadius: 1,
                                             }}
                                         />
-                                        {/* Lecture Title */}
                                         <Typography
                                             variant="subtitle1"
                                             sx={{ mt: 2, fontWeight: 'bold' }}
                                         >
-                                            {lecture.title}
+                                            {theory.title}
                                         </Typography>
-                                        {/* Action Button */}
                                         <Button
                                             variant="contained"
                                             color="success"
@@ -289,13 +280,7 @@ const OnTap = () => {
                                                 textTransform: 'none',
                                                 fontWeight: 'bold',
                                             }}
-                                            onClick={() =>
-                                                handleViewLecture(
-                                                    selectedReviewId,
-                                                    lecture,
-                                                    selectedTopicId,
-                                                )
-                                            }
+                                            onClick={() => handleViewTheory(theory)}
                                         >
                                             Xem ngay
                                         </Button>
@@ -317,7 +302,7 @@ const OnTap = () => {
                         >
                             Thực hành
                         </Typography>
-                        {questionPages.length > 0 ? (
+                        {practices.length > 0 ? (
                             <Box
                                 sx={{
                                     display: 'grid',
@@ -325,9 +310,9 @@ const OnTap = () => {
                                     gap: 2,
                                 }}
                             >
-                                {questionPages.map((page) => (
+                                {practices.map((practice) => (
                                     <Paper
-                                        key={page.id}
+                                        key={practice.id}
                                         sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}
                                     >
                                         <Box
@@ -344,7 +329,7 @@ const OnTap = () => {
                                             variant="subtitle1"
                                             sx={{ mt: 2, fontWeight: 'bold' }}
                                         >
-                                            {page.name}
+                                            {practice.name}
                                         </Typography>
                                         <Button
                                             variant="contained"
@@ -354,13 +339,7 @@ const OnTap = () => {
                                                 textTransform: 'none',
                                                 fontWeight: 'bold',
                                             }}
-                                            onClick={() =>
-                                                handlePracticeQuestion(
-                                                    selectedReviewId,
-                                                    page,
-                                                    selectedTopicId,
-                                                )
-                                            }
+                                            onClick={() => handleShowPractice(practice)}
                                         >
                                             Thực hành ngay
                                         </Button>

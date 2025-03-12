@@ -13,60 +13,52 @@ import {
     DialogActions,
     IconButton,
 } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import HomeIcon from '@mui/icons-material/Home';
 import FlagIcon from '@mui/icons-material/Flag';
 
 import { getApiNoneToken, postApiNoneToken, putApiNoneToken } from '~/api/page';
 import { useAuth } from '~/context/AuthContext';
+import { useKiemtraContext } from '~/context/KiemtraContext';
 
 const Quiz = () => {
+    const router = useRouter();
+
+    const { auth, setAuth } = useAuth();
+    const { user } = auth;
+    const { selectedQuiz, setTimeSpent, setScore } = useKiemtraContext();
+
     const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [questionsData, setQuestionsData] = useState([]);
+    const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
     const [timeLeft, setTimeLeft] = useState();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [confirmExit, setConfirmExit] = useState(false);
-    const searchParams = useSearchParams();
-    const quizId = searchParams.get('quizId');
-    let bonusPoint = Number(searchParams.get('bonusPoint'));
-    const router = useRouter();
     const [totalQuizTime, setTotalQuizTime] = useState(0);
     const [flaggedQuestions, setFlaggedQuestions] = useState([]);
 
-    const { auth } = useAuth();
-
     useEffect(() => {
-        const fetchQuestions = async () => {
-            try {
-                const response = await getApiNoneToken(`/quiz/${quizId}`);
-                setTimeLeft(response.data.data.time * 60);
-                setTotalQuizTime(response.data.data.time * 60);
-            } catch (error) {
-                console.error('Error fetching questions:', error);
+        const fetchTime = async () => {
+            if (selectedQuiz) {
+                setTimeLeft(selectedQuiz.time * 60);
+                setTotalQuizTime(selectedQuiz.time * 60);
+
+                try {
+                    const response = await getApiNoneToken(`question/quiz/${selectedQuiz.id}`);
+                    const { data, message } = response.data;
+                    if (data) {
+                        setQuestions(data);
+                    } else {
+                        throw new Error(message);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
             }
         };
 
-        if (quizId) {
-            fetchQuestions();
-        }
-    }, [quizId]);
-
-    useEffect(() => {
-        const fetchQuestions = async () => {
-            try {
-                const response = await getApiNoneToken(`question/quiz/${quizId}`);
-                setQuestionsData(response.data.data); // Lưu dữ liệu câu hỏi từ API
-            } catch (error) {
-                console.error('Error fetching questions:', error);
-            }
-        };
-
-        if (quizId) {
-            fetchQuestions();
-        }
-    }, [quizId]);
+        fetchTime();
+    }, [selectedQuiz]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -81,6 +73,7 @@ const Quiz = () => {
         }, 1000);
 
         return () => clearInterval(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const formatTime = () => {
@@ -112,7 +105,8 @@ const Quiz = () => {
                 : [...prev, questionId],
         );
     };
-    const updateUserPoints = async (score, userId, bonusPoint) => {
+    const updateUserPoints = async (score) => {
+        let bonusPoint = selectedQuiz.bonusPoint;
         if (score < 5) {
             return;
         }
@@ -120,13 +114,19 @@ const Quiz = () => {
             bonusPoint *= 2;
         }
         try {
-            const res = await getApiNoneToken(`user/${userId}`);
-            const currentPoints = res.data.data.totalPoint || 0;
+            const currentPoints = user.totalPoint;
             const updatedPoints = currentPoints + bonusPoint;
 
-            await putApiNoneToken(`user/update/${userId}`, {
+            await putApiNoneToken(`user/update/${user.id}`, {
                 totalPoint: updatedPoints,
             });
+            setAuth((prevAuth) => ({
+                ...prevAuth,
+                user: {
+                    ...prevAuth.user,
+                    totalPoint: updatedPoints,
+                },
+            }));
         } catch (error) {
             console.error('Lỗi khi cập nhật điểm:', error);
         }
@@ -134,7 +134,7 @@ const Quiz = () => {
 
     const handleSubmitResult = async () => {
         try {
-            const correctCount = questionsData.reduce((count, question) => {
+            const correctCount = questions.reduce((count, question) => {
                 const userAnswer = answers[question.id];
                 if (question.type === 1 || question.type === 2) {
                     const isCorrect = question.answers.every((answer) => {
@@ -151,27 +151,22 @@ const Quiz = () => {
                 }
                 return count;
             }, 0);
-            const totalQuestions = questionsData.length;
+            const totalQuestions = questions.length;
             const maxScore = 10;
             const score = (correctCount / totalQuestions) * maxScore;
-            const userId = auth.user.id;
-            await updateUserPoints(score, userId, bonusPoint);
+            await updateUserPoints(score);
             const payload = {
-                userId,
-                quizId,
+                userId: user.id,
+                quizId: selectedQuiz.id,
                 score,
                 correctCount,
             };
 
-            const timeSpent = totalQuizTime - timeLeft;
             await postApiNoneToken('result/add', payload);
-            const queryParams = new URLSearchParams({
-                quizId,
-                timeLeft: timeSpent.toString(),
-                score: score.toFixed(2),
-            }).toString();
 
-            router.push(`/kiemtra/ketqua?${queryParams}`);
+            setTimeSpent(totalQuizTime - timeLeft);
+            setScore(score.toFixed(2));
+            router.push(`/kiemtra/ketqua`);
         } catch (error) {
             console.error('Error submitting result:', error);
         }
@@ -278,7 +273,7 @@ const Quiz = () => {
                     <Box />
                 </Box>
 
-                {questionsData.length > 0 ? (
+                {questions.length > 0 ? (
                     <>
                         <Box
                             display="flex"
@@ -290,14 +285,12 @@ const Quiz = () => {
                                 variant="h5"
                                 sx={{ color: 'black', fontSize: 32, flex: 1 }}
                             >
-                                Câu {currentQuestion + 1}: {questionsData[currentQuestion].content}
+                                Câu {currentQuestion + 1}: {questions[currentQuestion].content}
                             </Typography>
                             <IconButton
-                                onClick={() => toggleFlag(questionsData[currentQuestion].id)}
+                                onClick={() => toggleFlag(questions[currentQuestion].id)}
                                 sx={{
-                                    color: flaggedQuestions.includes(
-                                        questionsData[currentQuestion].id,
-                                    )
+                                    color: flaggedQuestions.includes(questions[currentQuestion].id)
                                         ? 'red'
                                         : 'black',
                                 }}
@@ -305,14 +298,14 @@ const Quiz = () => {
                                 <FlagIcon sx={{ fontSize: 32 }} />
                             </IconButton>
                         </Box>
-                        {questionsData[currentQuestion].image && (
+                        {questions[currentQuestion].image && (
                             <Box
                                 display="flex"
                                 justifyContent="center"
                             >
-                                {questionsData[currentQuestion].image.startsWith('http') ? (
+                                {questions[currentQuestion].image.startsWith('http') ? (
                                     <img
-                                        src={questionsData[currentQuestion].image}
+                                        src={questions[currentQuestion].image}
                                         alt="Question"
                                         style={{
                                             maxWidth: '100%',
@@ -321,7 +314,7 @@ const Quiz = () => {
                                         }}
                                     />
                                 ) : (
-                                    questionsData[currentQuestion].image
+                                    questions[currentQuestion].image
                                         .toLowerCase()
                                         .startsWith('text_') && (
                                         <Typography
@@ -333,13 +326,13 @@ const Quiz = () => {
                                                 fontSize: 32,
                                             }}
                                         >
-                                            {questionsData[currentQuestion].image.slice(5)}
+                                            {questions[currentQuestion].image.slice(5)}
                                         </Typography>
                                     )
                                 )}
                             </Box>
                         )}
-                        <Box>{renderQuestion(questionsData[currentQuestion])}</Box>
+                        <Box>{renderQuestion(questions[currentQuestion])}</Box>
                         <Box
                             display="flex"
                             justifyContent="space-between"
@@ -354,7 +347,7 @@ const Quiz = () => {
                                     Câu trước
                                 </Button>
                             )}
-                            {currentQuestion < questionsData.length - 1 ? (
+                            {currentQuestion < questions.length - 1 ? (
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -397,7 +390,7 @@ const Quiz = () => {
                     gridTemplateColumns="repeat(5, 1fr)"
                     gap={1}
                 >
-                    {questionsData.map((q, index) => {
+                    {questions.map((q, index) => {
                         const isFlagged = flaggedQuestions.includes(q.id);
                         const isAnswered = !!answers[q.id];
                         const isCurrent = currentQuestion === index;
@@ -447,7 +440,7 @@ const Quiz = () => {
             >
                 <DialogTitle>Trạng thái câu hỏi</DialogTitle>
                 <DialogContent>
-                    {questionsData.map((q, index) => (
+                    {questions.map((q, index) => (
                         <Typography
                             key={q.id}
                             sx={{ color: answers[q.id] ? 'black' : 'red', marginBottom: '8px' }}

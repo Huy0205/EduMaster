@@ -1,25 +1,44 @@
 'use client';
 import { Button, Paper, Typography, Box } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getApiNoneToken } from '~/api/page';
+import { useOntapContext } from '~/context/OntapContext';
 
-const Topic = ({ topicId, title, onSelectLesson, selectedLessonId, setSelectedLessonId }) => {
+const Topic = ({ data, selected }) => {
+    const { selectedTopic, setSelectedTopic, selectedLesson, setSelectedLesson } =
+        useOntapContext();
+
     const [lessons, setLessons] = useState([]);
-    const [isTopicOpen, setIsTopicOpen] = useState(false);
 
-    const toggleTopicOpen = async () => {
-        setIsTopicOpen(topicId, !isTopicOpen);
+    useEffect(() => {
+        const fetchLesson = async () => {
+            if (selected) {
+                try {
+                    const lessonsResponse = await getApiNoneToken(`lesson/topic/${data.id}`);
+                    const { data: lessonsData, message } = lessonsResponse.data;
+                    if (lessonsData) {
+                        setLessons(lessonsData);
+                    } else {
+                        throw new Error(message);
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+        fetchLesson();
+    }, [data.id, selected]);
 
-        if (!isTopicOpen) {
-            const lessonResponse = await getApiNoneToken(`lesson/topic/${topicId}`);
-            const lessonData = lessonResponse.data;
-            setLessons(lessonData.data);
+    const handleSelectTopic = () => {
+        if (selectedTopic && selectedTopic.id === data.id) {
+            setSelectedTopic(null);
+        } else {
+            setSelectedTopic(data);
         }
     };
 
-    const handleSelectLesson = (lessonId) => {
-        setSelectedLessonId(lessonId);
-        onSelectLesson(lessonId, topicId);
+    const handleSelectLesson = (lesson) => {
+        setSelectedLesson(lesson);
     };
 
     return (
@@ -28,33 +47,33 @@ const Topic = ({ topicId, title, onSelectLesson, selectedLessonId, setSelectedLe
             className="mb-3 p-1"
         >
             <Button
-                onClick={toggleTopicOpen}
+                onClick={handleSelectTopic}
                 fullWidth
                 sx={{
                     justifyContent: 'space-between',
                     textAlign: 'left',
-                    backgroundColor: isTopicOpen ? '#e3f2fd' : 'white',
-                    color: isTopicOpen ? '#1e88e5' : 'black',
+                    backgroundColor: selected ? '#e3f2fd' : 'white',
+                    color: selected ? '#1e88e5' : 'black',
                 }}
             >
-                <Typography variant="subtitle1">{title}</Typography>
-                <Typography variant="subtitle1">{isTopicOpen ? '▲' : '▼'}</Typography>
+                <Typography variant="subtitle1">{data.name}</Typography>
+                <Typography variant="subtitle1">{selected ? '▲' : '▼'}</Typography>
             </Button>
 
-            {isTopicOpen && (
+            {selected && (
                 <Box sx={{ pl: 2, mt: 1 }}>
                     {lessons.map((lesson) => (
                         <Button
                             key={lesson.id}
-                            onClick={() => handleSelectLesson(lesson.id)}
+                            onClick={() => handleSelectLesson(lesson)}
                             fullWidth
                             sx={{
                                 justifyContent: 'space-between',
                                 textAlign: 'left',
                                 mt: 1,
-                                color: selectedLessonId === lesson.id ? 'white' : 'black',
+                                color: selectedLesson?.id === lesson.id ? 'white' : 'black',
                                 backgroundColor:
-                                    selectedLessonId === lesson.id ? '#1e88e5' : 'white',
+                                    selectedLesson?.id === lesson.id ? '#1e88e5' : 'white',
                             }}
                         >
                             <Typography

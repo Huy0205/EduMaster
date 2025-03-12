@@ -1,40 +1,31 @@
 'use client';
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
 
 const OntapContext = createContext();
 
 export const OntapProvider = ({ children }) => {
     const [selectedCourse, setSelectedCourse] = useState(null);
-    const [selectedGrade, setSelectedGrade] = useState(1);
-    const [selectedLectures, setSelectedLectures] = useState([]);
-    const [questionPages, setQuestionPages] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [topics, setTopics] = useState([]);
-    const [selectedLessonId, setSelectedLessonId] = useState();
-    const [topicStates, setTopicStates] = useState({});
-    const [selectedTopicId, setSelectedTopicId] = useState();
+    const [selectedTopic, setSelectedTopic] = useState(null);
+    const [selectedLesson, setSelectedLesson] = useState(null);
+    const [selectedTheory, setSelectedTheory] = useState(null);
+    const [selectedPractice, setSelectedPractice] = useState(null);
+    const [firstPracticeInLesson, setFirstPracticeInLesson] = useState(null);
 
     return (
         <OntapContext.Provider
             value={{
                 selectedCourse,
                 setSelectedCourse,
-                selectedGrade,
-                setSelectedGrade,
-                selectedLectures,
-                setSelectedLectures,
-                questionPages,
-                setQuestionPages,
-                courses,
-                setCourses,
-                topics,
-                setTopics,
-                selectedLessonId,
-                setSelectedLessonId,
-                topicStates,
-                setTopicStates,
-                selectedTopicId,
-                setSelectedTopicId,
+                selectedTopic,
+                setSelectedTopic,
+                selectedLesson,
+                setSelectedLesson,
+                selectedTheory,
+                setSelectedTheory,
+                selectedPractice,
+                setSelectedPractice,
+                firstPracticeInLesson,
+                setFirstPracticeInLesson,
             }}
         >
             {children}

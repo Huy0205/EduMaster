@@ -4,28 +4,25 @@ import React, { createContext, useState, useContext } from 'react';
 const KiemtraContext = createContext();
 
 export const KiemtraProvider = ({ children }) => {
-    const [selectedCourse, setSelectedCourse] = useState();
-    const [selectedGrade, setSelectedGrade] = useState(1);
-    const [courses, setCourses] = useState([]);
-    const [topics, setTopics] = useState([]);
-    const [selectedTopicId, setSelectedTopicId] = useState(null);
-    const [quizzes, setQuizzes] = useState([]);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [selectedTopic, setSelectedTopic] = useState(null);
+    const [selectedQuiz, setSelectedQuiz] = useState(null);
+    const [timeSpent, setTimeSpent] = useState(null);
+    const [score, setScore] = useState(null);
 
     return (
         <KiemtraContext.Provider
             value={{
                 selectedCourse,
                 setSelectedCourse,
-                selectedGrade,
-                setSelectedGrade,
-                courses,
-                setCourses,
-                topics,
-                setTopics,
-                selectedTopicId,
-                setSelectedTopicId,
-                quizzes,
-                setQuizzes,
+                selectedTopic,
+                setSelectedTopic,
+                selectedQuiz,
+                setSelectedQuiz,
+                timeSpent,
+                setTimeSpent,
+                score,
+                setScore,
             }}
         >
             {children}
