@@ -74,7 +74,7 @@ const KetQua = () => {
                     variant="h5"
                     sx={{ color: 'black', fontSize: 28, marginTop: 2 }}
                 >
-                    Đề kiểm tra: {selectedQuiz.name}
+                    Đề kiểm tra: {selectedQuiz?.name}
                 </Typography>
                 <Typography
                     variant="h5"
