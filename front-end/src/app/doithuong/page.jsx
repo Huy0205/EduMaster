@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Box, Avatar, Button, Typography, Grid } from '@mui/material';
+import { Box, Avatar, Button, Typography } from '@mui/material';
 import Navbar from '~/components/Navbar';
 import Header from '~/components/Header';
 import { Snackbar, Alert } from '@mui/material';
@@ -8,12 +8,13 @@ import { getApiNoneToken, putApiNoneToken, postApiNoneToken } from '~/api/page';
 import { useAuth } from '~/context/AuthContext';
 import Loading from '../admin/components/loading';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const DoiThuong = () => {
     const router = useRouter();
 
     const { auth, setAuth, isLoadingAuth } = useAuth();
-    const { user, isAuth } = auth;
+    const { user } = auth;
 
     const [frames, setFrames] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -144,13 +145,7 @@ const DoiThuong = () => {
     }
 
     return (
-        <Box
-            className="flex flex-col items-center bg-amber-50"
-            sx={{
-                minHeight: '100vh', // Đảm bảo nền phủ toàn màn hình
-                color: 'black', // Thay đổi màu chữ để phù hợp
-            }}
-        >
+        <Box className="w-screen h-screen flex flex-col text-black bg-amber-50">
             <Header />
             <Navbar />
 
@@ -159,55 +154,62 @@ const DoiThuong = () => {
                     <Loading />
                 </div>
             ) : (
-                <>
+                <div className="relative flex-1 flex flex-col justify-center items-center overflow-hidden">
                     <Box
                         sx={{
                             width: '100%',
-                            height: '50px',
-                            position: 'relative',
+                            height: '100%',
+                            position: 'absolute',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            top: 0,
+                            bottom: 0,
                             zIndex: 1,
                         }}
                     >
-                        {/* Ảnh bên trái */}
-                        <img
-                            src="/img/bg_left.png"
-                            alt="Background left"
-                            style={{
-                                position: 'absolute',
-                                top: '250%',
-                                left: '0',
-                                transform: 'translateY(-50%)', // Canh giữa theo chiều dọc
-                                height: '250px', // Kích thước tùy chỉnh
-                            }}
-                        />
-                        {/* Ảnh bên phải */}
-                        <img
-                            src="/img/bg_right.png"
-                            alt="Background right"
-                            style={{
-                                position: 'absolute',
-                                top: '250%',
-                                right: '0',
-                                transform: 'translateY(-50%)', // Canh giữa theo chiều dọc
-                                height: '250px', // Kích thước tùy chỉnh
-                            }}
-                        />
+                        <div className="w-full flex justify-between">
+                            <Image
+                                src="/img/bg_left.png"
+                                alt="Background left"
+                                width={350}
+                                height={100}
+                            />
+                            <Image
+                                src="/img/bg_right.png"
+                                alt="Background right"
+                                width={350}
+                                height={100}
+                            />
+                        </div>
+                        <div className="w-full flex justify-between">
+                            <Image
+                                src="/img/bg_right.png"
+                                alt="Background right"
+                                width={350}
+                                height={100}
+                            />
+                            <Image
+                                src="/img/bg_left.png"
+                                alt="Background left"
+                                width={350}
+                                height={100}
+                            />
+                        </div>
                     </Box>
                     <Box
                         sx={{
                             display: 'flex',
-                            gap: 4,
-                            minHeight: '755px',
-                            maxWidth: '1200px',
-                            width: '100%',
+                            width: '80%',
+                            height: '80%',
                             background: 'white',
                             borderRadius: '10px',
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                            padding: '20px',
+                            paddingRight: 0,
                             zIndex: 1,
                         }}
                     >
-                        <div className="flex flex-col px-4 py-14 items-center border-r-4">
+                        <div className="px-10 flex flex-col justify-center items-center border-r-4">
                             {/* Phần bên trái */}
                             <Box
                                 sx={{
@@ -218,19 +220,18 @@ const DoiThuong = () => {
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    borderRadius: '50%',
                                     overflow: 'hidden',
                                 }}
                             >
                                 {/* Avatar Frame */}
                                 {user.frame && (
-                                    <img
+                                    <Image
                                         src={user.frame.url}
                                         alt="Avatar frame"
+                                        width={170}
+                                        height={170}
                                         style={{
                                             position: 'absolute',
-                                            width: '100%', // Đảm bảo khung avatar fit với Box
-                                            height: '100%',
                                             zIndex: 2,
                                             pointerEvents: 'none',
                                         }}
@@ -243,8 +244,8 @@ const DoiThuong = () => {
                                     alt="User avatar"
                                     sx={{
                                         position: 'absolute',
-                                        width: 110,
-                                        height: 110,
+                                        width: 150,
+                                        height: 150,
                                         zIndex: 1,
                                     }}
                                 />
@@ -254,144 +255,134 @@ const DoiThuong = () => {
 
                             {/* Điểm */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                                <img
+                                <Image
                                     src="/iframe/img/star.png"
                                     alt="Điểm Icon"
-                                    style={{ width: 30, height: 30 }} // Giảm kích thước icon sao
+                                    width={30}
+                                    height={30}
                                 />
                                 <Typography variant="body1">{user.totalPoint || 0}</Typography>
                             </Box>
                         </div>
 
                         {/* Phần bên phải */}
-                        <Box sx={{ flexGrow: 1 }}>
-                            <Typography
-                                variant="h4"
-                                sx={{ textAlign: 'center' }}
+                        <Box
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                position: 'relative',
+                                overflowY: 'auto',
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    position: 'sticky',
+                                    top: 0,
+                                    zIndex: 10,
+                                    textAlign: 'center',
+                                    backgroundColor: 'white',
+                                    padding: 2,
+                                }}
                             >
-                                Gian hàng đổi thưởng
-                            </Typography>
-                            <Grid
-                                container
-                                spacing={2}
+                                <Typography variant="h4">Gian hàng đổi thưởng</Typography>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: {
+                                        xs: '1fr',
+                                        sm: 'repeat(2, 1fr)',
+                                        md: 'repeat(4, 1fr)',
+                                    },
+                                    gap: 2,
+                                    padding: 2,
+                                }}
                             >
                                 {frames.map((frame) => (
-                                    <Grid
-                                        item
-                                        xs={12}
-                                        sm={6}
-                                        md={3}
+                                    <Box
                                         key={frame.id}
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            padding: 2,
+                                            boxSizing: 'border-box',
+                                            position: 'relative',
+                                        }}
                                     >
-                                        <Box
-                                            sx={{
-                                                position: 'relative',
-                                                width: '100%',
-                                                height: 200,
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                padding: 2,
-                                                boxSizing: 'border-box',
-                                            }}
-                                        >
-                                            <img
-                                                src={frame.url}
-                                                alt={`Frame ${frame.id}`}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'contain',
-                                                    borderRadius: '50%',
-                                                    zIndex: 2,
-                                                }}
-                                            />
-                                            <Box sx={{ marginTop: 'auto', textAlign: 'center' }}>
-                                                {!frame.isBlock ? (
-                                                    frame.id === user.frame?.id ? (
-                                                        <Typography
-                                                            variant="body2"
-                                                            color="textSecondary"
-                                                        >
-                                                            Đang sử dụng
-                                                        </Typography>
-                                                    ) : (
-                                                        <Button
-                                                            variant="contained"
-                                                            color="primary"
-                                                            size="small"
-                                                            onClick={() => handleUse(frame)}
-                                                            sx={{
-                                                                position: 'absolute', // Đặt nút nằm trên ảnh
-                                                                bottom: '5%', // Đặt cách đáy của Box 10%
-                                                                left: '32%',
-                                                                zIndex: 3, // Nút nằm trên cả avatar
-                                                            }}
-                                                        >
-                                                            Sử dụng
-                                                        </Button>
-                                                    )
+                                        <Image
+                                            src={frame.url}
+                                            alt={`Frame ${frame.id}`}
+                                            width={200}
+                                            height={200}
+                                            objectFit="contain"
+                                            style={{ zIndex: 2 }}
+                                        />
+                                        <Box sx={{ marginTop: 'auto', textAlign: 'center' }}>
+                                            {!frame.isBlock ? (
+                                                frame.id === user.frame?.id ? (
+                                                    <Typography
+                                                        variant="body2"
+                                                        color="textSecondary"
+                                                    >
+                                                        Đang sử dụng
+                                                    </Typography>
                                                 ) : (
-                                                    <Box>
-                                                        <Button
-                                                            variant="contained"
-                                                            color="secondary"
-                                                            size="small"
-                                                            onClick={() => handleUnlock(frame)}
-                                                            sx={{
-                                                                position: 'absolute', // Đặt nút nằm trên ảnh
-                                                                bottom: '5%', // Đặt cách đáy của Box 10%
-                                                                left: '32%',
-                                                                zIndex: 3, // Nút nằm trên cả avatar
-                                                            }}
-                                                        >
-                                                            Mở khóa
-                                                        </Button>
-                                                        <Box
-                                                            sx={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                gap: 1,
-                                                                marginTop: 1,
-                                                            }}
-                                                        >
-                                                            <img
-                                                                src="/iframe/img/star.png"
-                                                                alt="Điểm Icon"
-                                                                style={{
-                                                                    width: 30,
-                                                                    height: 30,
-                                                                }}
-                                                            />
-                                                            <Typography variant="body1">
-                                                                {frame.point}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Box>
-                                                )}
-                                            </Box>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="primary"
+                                                        size="small"
+                                                        onClick={() => handleUse(frame)}
+                                                        sx={{ zIndex: 3 }}
+                                                    >
+                                                        Sử dụng
+                                                    </Button>
+                                                )
+                                            ) : (
+                                                <Box>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        size="small"
+                                                        onClick={() => handleUnlock(frame)}
+                                                        sx={{ zIndex: 3 }}
+                                                    >
+                                                        <Image
+                                                            src="/iframe/img/star.png"
+                                                            alt="Điểm Icon"
+                                                            width={30}
+                                                            height={30}
+                                                        />
+                                                        <Typography variant="body1">
+                                                            {frame.point}
+                                                        </Typography>
+                                                    </Button>
+                                                </Box>
+                                            )}
                                         </Box>
-                                    </Grid>
+                                    </Box>
                                 ))}
-                                <Snackbar
-                                    open={snackbarOpen}
-                                    autoHideDuration={3000} // Đóng sau 3 giây
+                            </Box>
+
+                            <Snackbar
+                                open={snackbarOpen}
+                                autoHideDuration={3000}
+                                onClose={handleSnackbarClose}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            >
+                                <Alert
                                     onClose={handleSnackbarClose}
-                                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Vị trí hiển thị
+                                    severity={snackbarSeverity}
+                                    sx={{ width: '100%' }}
                                 >
-                                    <Alert
-                                        onClose={handleSnackbarClose}
-                                        severity={snackbarSeverity}
-                                        sx={{ width: '100%' }}
-                                    >
-                                        {snackbarMessage}
-                                    </Alert>
-                                </Snackbar>
-                            </Grid>
+                                    {snackbarMessage}
+                                </Alert>
+                            </Snackbar>
                         </Box>
                     </Box>
-                </>
+                </div>
             )}
         </Box>
     );

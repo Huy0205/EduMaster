@@ -37,7 +37,7 @@ const Header = () => {
 
     const handleLogout = () => {
         setAuth({ isAuth: false, user: null });
-        localStorage.removeItem('access_token');
+        localStorage.clear();
         setAnchorEl(null);
         router.push('/');
     };
@@ -80,8 +80,8 @@ const Header = () => {
                                     <Box
                                         sx={{
                                             position: 'relative',
-                                            width: 35,
-                                            height: 35,
+                                            width: 40,
+                                            height: 40,
                                             display: 'flex',
                                             placeContent: 'center',
                                         }}
@@ -98,8 +98,7 @@ const Header = () => {
                                                     left: 0,
                                                     width: '100%',
                                                     height: '100%',
-                                                    borderRadius: '50%', // Ảnh overlay hình tròn
-                                                    scale: '160%',
+                                                    scale: '125%',
                                                     zIndex: 2, // Đặt ảnh overlay dưới avatar
                                                 }}
                                             />

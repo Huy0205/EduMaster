@@ -10,7 +10,7 @@ const nextConfig = {
         ];
     },
     images: {
-        domains: ['github.com', 'localhost', '103.172.79.80', 'edumaster-qzld.onrender.com'],
+        domains: ['github.com', 'localhost', 'res.cloudinary.com', 'edumaster-qzld.onrender.com'],
     },
 };
 

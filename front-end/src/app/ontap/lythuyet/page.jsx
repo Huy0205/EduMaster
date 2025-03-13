@@ -9,10 +9,11 @@ import ArrowBack from '@mui/icons-material/ArrowBack';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import { useOntapContext } from '~/context/OntapContext';
+import Loading from '~/app/admin/components/loading';
 
 const LyThuyet = () => {
     const router = useRouter();
-    const [isClient, setIsClient] = useState(false);
+
     const [loading, setLoading] = useState(true);
 
     const {
@@ -25,117 +26,140 @@ const LyThuyet = () => {
     } = useOntapContext();
 
     useEffect(() => {
-        setIsClient(true);
-        console.log(isClient);
-        console.log(loading);
-    }, []);
-
-    // const fetchQuestions = async (reviewId) => {
-    //     try {
-    //         const response = await getApiNoneToken(`practice/lesson/${reviewId}`);
-    //         const data = response.data;
-    //         if (Array.isArray(data.data) && data.data.length > 0) {
-    //             const firstQuestion = data.data[0];
-
-    //             const questionId = firstQuestion.id;
-
-    //             console.log('First question ID:', questionId);
-
-    //             setQuestionPages(data.data);
-    //         } else {
-    //             console.error('No data found or data is not an array');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching questions:', error);
-    //     }
-    // };
+        if (!selectedTheory) {
+            router.replace('/ontap');
+        } else {
+            setLoading(false);
+        }
+    }, [selectedLesson, selectedTheory, router]);
 
     const handleShowPractice = () => {
         setSelectedPractice(firstPracticeInLesson);
         router.push('/ontap/thuchanh');
     };
 
-    // useEffect(() => {
-    //     setIsClient(true);
-    //     if (reviewId) {
-    //         fetchQuestions(reviewId);
-    //     }
-    //     if (selectedTopicId) {
-    //         fetchTopicName(selectedTopicId);
-    //     }
-    // }, [reviewId, topicId]);
-
     const handleGoBackToOnTap = () => {
         router.push('/ontap');
     };
 
     return (
-        <Box
-            sx={{ paddingBottom: 2, minHeight: '100vh' }}
-            className="bg-gradient-to-r from-amber-50 to-white"
-        >
+        <Box className="w-screen h-screen flex flex-col items-center bg-amber-50">
             <Header />
             <Navbar />
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2, mt: 2 }}>
-                <IconButton onClick={handleGoBackToOnTap}>
-                    <ArrowBack fontSize="large" />
-                </IconButton>
-                <Typography
-                    variant="h6"
-                    sx={{ ml: 1 }}
-                    className="text-black"
-                >
-                    {selectedCourse
-                        ? `${selectedCourse.name} ${selectedCourse.grade}`
-                        : 'Chưa chọn môn'}{' '}
-                    {'> '}
-                    {`${selectedTopic?.name || ''}`} &gt; {`${selectedLesson?.name || ''}`}
-                </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
-                <Paper
-                    sx={{ maxWidth: 1200, width: '100%', p: 3 }}
-                    elevation={3}
-                >
-                    {selectedTheory ? (
-                        <Box sx={{ position: 'relative', paddingTop: '52%' }}>
-                            {/* 16:9 Aspect Ratio */}
-                            <ReactPlayer
-                                url={selectedTheory.url}
-                                controls
-                                width="100%"
-                                height="95%"
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    borderRadius: '8px',
-                                }}
-                                onReady={() => setLoading(false)} // Hide spinner when video is ready
-                                onBuffer={() => setLoading(true)} // Show spinner when buffering starts
-                                onBufferEnd={() => setLoading(false)} // Hide spinner when buffering ends
-                            />
-                        </Box>
-                    ) : (
+            {loading ? (
+                <div className="flex-1 flex justify-center items-center">
+                    <Loading />
+                </div>
+            ) : (
+                <>
+                    <Box
+                        sx={{
+                            width: '80%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: 'white',
+                            my: 2,
+                            boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+                            borderRadius: 2,
+                        }}
+                    >
+                        <IconButton onClick={handleGoBackToOnTap}>
+                            <ArrowBack fontSize="large" />
+                        </IconButton>
                         <Typography
-                            variant="body1"
-                            sx={{ mt: 2, textAlign: 'center' }}
+                            variant="h6"
+                            sx={{ ml: 1 }}
+                            className="text-black"
+                            suppressHydrationWarning
                         >
-                            Không tìm thấy video cho bài giảng này.
+                            {`${selectedCourse?.name} ${selectedCourse?.grade} > ${selectedTopic?.name} > ${selectedLesson?.name}`}
                         </Typography>
-                    )}
-
-                    <Box sx={{ textAlign: 'center' }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleShowPractice}
-                        >
-                            Thực hành ngay
-                        </Button>
                     </Box>
-                </Paper>
-            </Box>
+                    {/* Video Container */}
+                    <Box
+                        sx={{
+                            width: '80%',
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            backgroundColor: 'black',
+                            boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+                            borderRadius: 2,
+                            borderEndStartRadius: 0,
+                            borderEndEndRadius: 0,
+                        }}
+                    >
+                        <Paper
+                            sx={{
+                                width: '100%',
+                                maxWidth: '750px',
+                            }}
+                        >
+                            {selectedTheory ? (
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        paddingTop: '56.25%',
+                                    }}
+                                >
+                                    {/* 16:9 Aspect Ratio */}
+                                    <ReactPlayer
+                                        url={`${selectedTheory.url}?rel=0`}
+                                        controls
+                                        width="100%"
+                                        height="100%"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            // objectFit: 'cover',
+                                        }}
+                                        config={{
+                                            youtube: {
+                                                playerVars: {
+                                                    rel: 0,
+                                                    modestbranding: 1,
+                                                    playsinline: 1,
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </Box>
+                            ) : (
+                                <Typography
+                                    variant="body1"
+                                    sx={{ mt: 2, textAlign: 'center' }}
+                                >
+                                    Không tìm thấy video cho bài giảng này.
+                                </Typography>
+                            )}
+                        </Paper>
+                        <Box
+                            sx={{
+                                width: '100%',
+                                flex: 1,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderTop: 1,
+                                borderColor: 'lightgrey',
+                                backgroundColor: 'white',
+                            }}
+                        >
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleShowPractice}
+                            >
+                                Thực hành ngay
+                            </Button>
+                        </Box>
+                    </Box>
+                </>
+            )}
         </Box>
     );
 };

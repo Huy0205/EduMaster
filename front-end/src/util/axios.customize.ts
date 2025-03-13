@@ -1,8 +1,8 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8080/api/v1/',
-    // baseURL: 'https://edumaster-qzld.onrender.com/api/v1/',
+    // baseURL: 'http://localhost:8080/api/v1/',
+    baseURL: 'https://edumaster-qzld.onrender.com/api/v1/',
 });
 
 instance.interceptors.request.use(
@@ -29,13 +29,13 @@ instance.interceptors.response.use(
             if (response.status === 401) {
                 const currentPath = window.location.pathname;
                 if (currentPath.includes('admin')) {
-                    sessionStorage.removeItem('admin_access_token');
+                    sessionStorage.clear();
                     window.location.href = '/admin/login';
                 } else {
                     if (currentPath === '/') {
                         return response;
                     }
-                    localStorage.removeItem('access_token');
+                    localStorage.clear();
                     window.location.href = '/login';
                 }
             }

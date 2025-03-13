@@ -26,7 +26,7 @@ const Home = () => {
 
     useEffect(() => {
         if (!isLoadingAuth && !user) {
-            router.push('/login');
+            router.replace('/login');
             return;
         }
 
@@ -63,6 +63,9 @@ const Home = () => {
                 } catch (error) {
                     console.log(error);
                 }
+            } else {
+                router.replace('/ontap');
+                return;
             }
         };
         fetchData();
@@ -135,14 +138,12 @@ const Home = () => {
                 <Header />
                 <Navbar />
                 <Box
-                    className="p-6 text-center"
+                    className="p-6 m-3 text-center"
                     sx={{
                         bgcolor: 'background.paper',
                         borderRadius: '8px',
                         boxShadow: 3,
-                        maxWidth: 1000,
-                        margin: '8px',
-                        padding: 3,
+                        maxWidth: '30%',
                         textAlign: 'center',
                     }}
                 >
@@ -188,7 +189,7 @@ const Home = () => {
 
     return (
         <Box
-            className="min-h-screen flex flex-col items-center"
+            className="w-screen h-screen flex flex-col items-center"
             sx={{
                 backgroundImage: 'url(/img/bg-question.jpg)',
                 backgroundSize: 'cover',
@@ -198,84 +199,69 @@ const Home = () => {
             <Header />
             <Navbar />
 
-            {/* Box hiển thị thông tin bài học */}
-            <Box sx={{ maxWidth: 800 }}>
-                {' '}
-                {/* Thêm margin-top để tách khỏi Navbar */}
-                <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{ fontWeight: 'bold', color: '#000' }}
-                >
-                    {selectedCourse
-                        ? `${selectedCourse.name} ${selectedCourse.grade}`
-                        : 'Chưa chọn môn'}{' '}
-                    {'> '}
-                    {`${selectedTopic?.name || ''}`} &gt; {`${selectedLesson?.name || ''}`}
-                </Typography>
-            </Box>
-
             {/* Box hiển thị thông tin tổng quan */}
-            <Box
-                className="text-lg font-bold my-4 flex flex-wrap items-center justify-center gap-4 bg-white p-4 rounded-lg shadow-lg"
-                sx={{
-                    maxWidth: 1200,
-                    width: '100%',
-                }}
-            >
-                <Box className="flex items-center space-x-2">
-                    <Image
-                        src="/img/star.svg"
-                        alt="Lesson Icon"
-                        width={24}
-                        height={24}
-                    />
-                    <span className="font-bold text-lg text-black">
-                        {currentQuestion + 1}/{questions.length}
-                    </span>
+            <Box className="w-[80%] text-lg font-bold flex items-center justify-between gap-4 my-3 bg-white px-4 py-2 rounded-lg shadow-lg">
+                <Box>
+                    <Typography
+                        variant="h6"
+                        component="div"
+                        sx={{ fontWeight: 'bold', color: '#000' }}
+                    >
+                        {selectedCourse
+                            ? `${selectedCourse.name} ${selectedCourse.grade}`
+                            : 'Chưa chọn môn'}{' '}
+                        {'> '}
+                        {`${selectedTopic?.name || ''}`} &gt; {`${selectedLesson?.name || ''}`}
+                    </Typography>
                 </Box>
-                <Box className="flex items-center space-x-2 border rounded-lg p-2">
-                    <Image
-                        src="/img/clock.svg"
-                        alt="Clock Icon"
-                        width={24}
-                        height={24}
-                    />
-                    <span className="font-bold text-lg text-black">
-                        {String(Math.floor(elapsedTime / 3600)).padStart(2, '0')} :{' '}
-                        {String(Math.floor((elapsedTime % 3600) / 60)).padStart(2, '0')} :{' '}
-                        {String(elapsedTime % 60).padStart(2, '0')}
-                    </span>
-                </Box>
-                <Box className="flex items-center space-x-1">
-                    <Image
-                        src="/img/correctPractice.png"
-                        alt="Correct Icon"
-                        width={24}
-                        height={24}
-                    />
-                    <span className="text-green-600 font-bold text-lg">{score}</span>
-                </Box>
-                <Box className="flex items-center space-x-1">
-                    <Image
-                        src="/img/wrongPractice.png"
-                        alt="Incorrect Icon"
-                        width={24}
-                        height={24}
-                    />
-                    <span className="text-red-600 font-bold text-lg">{incorrectAnswers}</span>
+                <Box className="flex gap-4">
+                    <Box className="flex items-center space-x-2">
+                        <Image
+                            src="/img/star.svg"
+                            alt="Lesson Icon"
+                            width={24}
+                            height={24}
+                        />
+                        <span className="font-bold text-lg text-black">
+                            {currentQuestion + 1}/{questions.length}
+                        </span>
+                    </Box>
+                    <Box className="flex items-center space-x-2 border rounded-lg p-2">
+                        <Image
+                            src="/img/clock.svg"
+                            alt="Clock Icon"
+                            width={24}
+                            height={24}
+                        />
+                        <span className="font-bold text-lg text-black">
+                            {String(Math.floor(elapsedTime / 3600)).padStart(2, '0')} :{' '}
+                            {String(Math.floor((elapsedTime % 3600) / 60)).padStart(2, '0')} :{' '}
+                            {String(elapsedTime % 60).padStart(2, '0')}
+                        </span>
+                    </Box>
+                    <Box className="flex items-center space-x-1">
+                        <Image
+                            src="/img/correctPractice.png"
+                            alt="Correct Icon"
+                            width={24}
+                            height={24}
+                        />
+                        <span className="text-green-600 font-bold text-lg">{score}</span>
+                    </Box>
+                    <Box className="flex items-center space-x-1">
+                        <Image
+                            src="/img/wrongPractice.png"
+                            alt="Incorrect Icon"
+                            width={24}
+                            height={24}
+                        />
+                        <span className="text-red-600 font-bold text-lg">{incorrectAnswers}</span>
+                    </Box>
                 </Box>
             </Box>
 
             {/* Box hiển thị câu hỏi */}
-            <Box
-                className="flex flex-col items-center justify-center"
-                sx={{
-                    maxWidth: 1000,
-                    width: '100%',
-                    height: 'auto', // Cho phép chiều cao tự động
-                }}
-            >
+            <Box className="w-[80%] flex-1 flex pb-3">
                 {questions.length > 0 ? (
                     <Question
                         question={questions[currentQuestion]}

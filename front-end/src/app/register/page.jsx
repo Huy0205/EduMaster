@@ -183,7 +183,7 @@ const RegistrationPage = () => {
                                             <MenuItem value="">
                                                 <em>Chọn lớp</em>
                                             </MenuItem>
-                                            {[1, 2, 3, 4, 5].map((grade) => (
+                                            {[1, 2].map((grade) => (
                                                 <MenuItem
                                                     key={grade}
                                                     value={grade}
@@ -230,24 +230,6 @@ const RegistrationPage = () => {
                             Đăng ký
                         </Button>
                     </form>
-                    {/* <Box mt={4}>
-            <Divider>
-              <Typography variant="body2" color="textSecondary">
-                Hoặc
-              </Typography>
-            </Divider>
-          </Box> */}
-
-                    {/* Google Signup */}
-                    {/* <Button
-            fullWidth
-            variant="outlined"
-            startIcon={loading ? <FaSpinner className="animate-spin" /> : <FcGoogle />}
-            onClick={handleGoogleSignup}
-            sx={{ mt: 2, py: 1.5 }}
-          >
-            Đăng ký với tài khoản Google
-          </Button> */}
 
                     {/* Đăng nhập */}
                     <Box

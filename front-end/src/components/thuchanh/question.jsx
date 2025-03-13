@@ -117,159 +117,150 @@ function Question({ question, onNext, onSubmitAnswer, questionlist, userId, parg
     };
     return (
         <Box
+            p={3}
+            flex={1}
             display="flex"
             flexDirection="column"
-            alignItems="center"
-            width="100%"
+            // justifyContent="center"
+            border={1}
+            borderColor="grey.300"
+            borderRadius="8px"
+            boxShadow={3}
+            bgcolor="background.paper"
+            textAlign="center"
+            position="relative"
         >
+            <Typography
+                variant="h6"
+                gutterBottom
+                className="text-black font-bold"
+                sx={{ fontSize: 32 }}
+            >
+                Câu {questionlist + 1}: {question.content}
+            </Typography>
+
+            {renderImage(question.image)}
+
             <Box
-                p={3}
-                border={1}
-                borderColor="grey.300"
-                borderRadius="8px"
-                boxShadow={3}
-                width="100%"
-                minWidth="1200px"
-                height="670px"
-                bgcolor="background.paper"
-                textAlign="center"
                 display="flex"
                 flexDirection="column"
-                justifyContent="center"
-                position="relative"
+                width="100%"
+                sx={{ position: 'relative' }}
             >
-                <Typography
-                    variant="h6"
-                    gutterBottom
-                    className="text-black font-bold"
-                    sx={{ fontSize: 32 }}
-                >
-                    Câu {questionlist + 1}: {question.content}
-                </Typography>
-
-                {renderImage(question.image)}
-
-                <Box
-                    display="flex"
-                    flexDirection="column"
-                    width="100%"
-                    sx={{ position: 'relative' }}
-                >
-                    {question.type === '1' ||
-                    question.type === 1 ||
-                    question.type === '2' ||
-                    question.type === 2 ? (
-                        question.answers.map((answer) => (
-                            <Box
-                                key={answer.id}
-                                display="flex"
-                                alignItems="center"
-                                mb={1}
-                            >
-                                {question.type === 1 ? (
-                                    <Radio
-                                        checked={selectedAnswer.includes(answer.id)}
-                                        onChange={() => handleAnswerChange(answer.id)}
-                                    />
-                                ) : (
-                                    <Checkbox
-                                        checked={selectedAnswer.includes(answer.id)}
-                                        onChange={() => handleAnswerChange(answer.id)}
-                                    />
-                                )}
-                                <Typography
-                                    className="text-black"
-                                    sx={{ fontSize: 32 }}
-                                >
-                                    {answer.content}
-                                </Typography>
-                            </Box>
-                        ))
-                    ) : (
-                        <TextField
-                            fullWidth
-                            value={userAnswer}
-                            onChange={(e) => setUserAnswer(e.target.value)}
-                            placeholder="Nhập câu trả lời"
-                            sx={{ mt: 2 }}
-                        />
-                    )}
-
-                    {isAnswered && (
+                {question.type === '1' ||
+                question.type === 1 ||
+                question.type === '2' ||
+                question.type === 2 ? (
+                    question.answers.map((answer) => (
                         <Box
-                            sx={{
-                                position: 'absolute',
-                                top: 60, // Đặt phần chú thích ở phía dưới
-                                width: '100%',
-                                textAlign: 'center',
-                            }}
+                            key={answer.id}
+                            display="flex"
+                            alignItems="center"
+                            mb={1}
                         >
+                            {question.type === 1 ? (
+                                <Radio
+                                    checked={selectedAnswer.includes(answer.id)}
+                                    onChange={() => handleAnswerChange(answer.id)}
+                                />
+                            ) : (
+                                <Checkbox
+                                    checked={selectedAnswer.includes(answer.id)}
+                                    onChange={() => handleAnswerChange(answer.id)}
+                                />
+                            )}
                             <Typography
-                                color={isCorrect ? 'green' : 'red'}
-                                sx={{ mt: 2, fontSize: 26 }}
+                                className="text-black"
+                                sx={{ fontSize: 32 }}
                             >
-                                {isCorrect ? (
-                                    'Câu trả lời chính xác!'
-                                ) : (
-                                    <>
-                                        Câu trả lời đúng là:{' '}
-                                        <Typography
-                                            component="span"
-                                            color="green"
-                                            sx={{ fontSize: 26 }}
-                                        >
-                                            {question.answers
-                                                .filter((answer) => answer.isCorrect)
-                                                .map((answer) => answer.content)
-                                                .join(', ')}
-                                        </Typography>
-                                    </>
-                                )}
+                                {answer.content}
                             </Typography>
                         </Box>
-                    )}
-                </Box>
+                    ))
+                ) : (
+                    <TextField
+                        fullWidth
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        placeholder="Nhập câu trả lời"
+                        sx={{ mt: 2 }}
+                    />
+                )}
 
-                <Box
-                    display="flex"
-                    justifyContent="center"
-                    mt={1}
-                    sx={{
-                        position: 'absolute', // Fix the position of the button container
-                        bottom: 20, // Thêm khoảng cách từ dưới lên
-                        width: '100%',
-                    }}
-                >
-                    {isAnswered ? (
-                        <Button
-                            variant="contained"
-                            onClick={handleNext}
-                            sx={{
-                                width: '1000px', // Tăng độ rộng
-                                height: '50px', // Tăng chiều cao
-                                fontSize: '16px', // Tăng cỡ chữ
-                                fontWeight: 'bold', // Tăng độ đậm
-                                borderRadius: '10px', // Làm nút tròn hơn
-                            }}
+                {isAnswered && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 60, // Đặt phần chú thích ở phía dưới
+                            width: '100%',
+                            textAlign: 'center',
+                        }}
+                    >
+                        <Typography
+                            color={isCorrect ? 'green' : 'red'}
+                            sx={{ mt: 2, fontSize: 26 }}
                         >
-                            Câu Tiếp
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="contained"
-                            onClick={handleSubmit}
-                            sx={{
-                                width: '1000px', // Tăng độ rộng
-                                height: '50px', // Tăng chiều cao
-                                fontSize: '16px', // Tăng cỡ chữ
-                                fontWeight: 'bold', // Tăng độ đậm
-                                borderRadius: '10px', // Làm nút tròn hơn
-                            }}
-                        >
-                            Trả lời
-                        </Button>
-                    )}
-                </Box>
+                            {isCorrect ? (
+                                'Câu trả lời chính xác!'
+                            ) : (
+                                <>
+                                    Câu trả lời đúng là:{' '}
+                                    <Typography
+                                        component="span"
+                                        color="green"
+                                        sx={{ fontSize: 26 }}
+                                    >
+                                        {question.answers
+                                            .filter((answer) => answer.isCorrect)
+                                            .map((answer) => answer.content)
+                                            .join(', ')}
+                                    </Typography>
+                                </>
+                            )}
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+
+            <Box
+                display="flex"
+                justifyContent="center"
+                mt={1}
+                sx={{
+                    position: 'absolute', // Fix the position of the button container
+                    bottom: 20, // Thêm khoảng cách từ dưới lên
+                    width: '100%',
+                }}
+            >
+                {isAnswered ? (
+                    <Button
+                        variant="contained"
+                        onClick={handleNext}
+                        sx={{
+                            width: '1000px', // Tăng độ rộng
+                            height: '50px', // Tăng chiều cao
+                            fontSize: '16px', // Tăng cỡ chữ
+                            fontWeight: 'bold', // Tăng độ đậm
+                            borderRadius: '10px', // Làm nút tròn hơn
+                        }}
+                    >
+                        Câu Tiếp
+                    </Button>
+                ) : (
+                    <Button
+                        variant="contained"
+                        onClick={handleSubmit}
+                        sx={{
+                            width: '1000px', // Tăng độ rộng
+                            height: '50px', // Tăng chiều cao
+                            fontSize: '16px', // Tăng cỡ chữ
+                            fontWeight: 'bold', // Tăng độ đậm
+                            borderRadius: '10px', // Làm nút tròn hơn
+                        }}
+                    >
+                        Trả lời
+                    </Button>
+                )}
             </Box>
         </Box>
     );

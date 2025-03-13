@@ -24,7 +24,7 @@ import { useKiemtraContext } from '~/context/KiemtraContext';
 const Quiz = () => {
     const router = useRouter();
 
-    const { auth, setAuth } = useAuth();
+    const { auth, setAuth, isLoadingAuth } = useAuth();
     const { user } = auth;
     const { selectedQuiz, setTimeSpent, setScore } = useKiemtraContext();
 
@@ -36,6 +36,13 @@ const Quiz = () => {
     const [confirmExit, setConfirmExit] = useState(false);
     const [totalQuizTime, setTotalQuizTime] = useState(0);
     const [flaggedQuestions, setFlaggedQuestions] = useState([]);
+
+    useEffect(() => {
+        if (!isLoadingAuth && !user) {
+            router.replace('/login');
+            return;
+        }
+    }, [isLoadingAuth, user, router]);
 
     useEffect(() => {
         const fetchTime = async () => {
@@ -54,11 +61,14 @@ const Quiz = () => {
                 } catch (error) {
                     console.log(error);
                 }
+            } else {
+                router.replace('/kiemtra');
+                return;
             }
         };
 
         fetchTime();
-    }, [selectedQuiz]);
+    }, [selectedQuiz, router]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -183,7 +193,7 @@ const Quiz = () => {
                         checked={answers[question.id] === answer.id}
                         onChange={() => handleAnswerChange(question.id, answer.id)}
                     />
-                    <Typography sx={{ color: 'black', fontSize: 32 }}>{answer.content}</Typography>
+                    <Typography sx={{ color: 'black', fontSize: 26 }}>{answer.content}</Typography>
                 </label>
             ));
         }
@@ -206,7 +216,7 @@ const Quiz = () => {
                             );
                         }}
                     />
-                    <Typography sx={{ color: 'black', fontSize: 32 }}>{answer.content}</Typography>
+                    <Typography sx={{ color: 'black', fontSize: 26 }}>{answer.content}</Typography>
                 </label>
             ));
         }
@@ -219,7 +229,7 @@ const Quiz = () => {
                     onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                     placeholder="Nhập câu trả lời"
                     fullWidth
-                    sx={{ input: { color: 'black' }, fontSize: 32 }}
+                    sx={{ input: { color: 'black' }, fontSize: 26 }}
                 />
             );
         }
@@ -240,8 +250,9 @@ const Quiz = () => {
 
     return (
         <Box
+            width="100vw"
+            height="100vh"
             display="flex"
-            height="90vh"
             bgcolor="#f5f5f5"
         >
             {/* Main Content */}
@@ -335,7 +346,7 @@ const Quiz = () => {
                         <Box>{renderQuestion(questions[currentQuestion])}</Box>
                         <Box
                             display="flex"
-                            justifyContent="space-between"
+                            justifyContent={currentQuestion > 0 ? 'space-between' : 'end'}
                             marginTop="auto"
                         >
                             {currentQuestion > 0 && (

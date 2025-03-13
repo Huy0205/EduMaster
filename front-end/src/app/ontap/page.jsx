@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { getApiNoneToken } from '~/api/page';
 import { useOntapContext } from '~/context/OntapContext';
 import { useAuth } from '~/context/AuthContext';
+import Image from 'next/image';
 
 const OnTap = () => {
     const router = useRouter();
@@ -109,38 +110,6 @@ const OnTap = () => {
     const handleShowPractice = async (practice) => {
         setSelectedPractice(practice);
         router.push('/ontap/thuchanh');
-        // const userId = auth.user.id;
-
-        // try {
-        //     // Kiểm tra tiến trình hiện tại của người dùng
-        //     const response = await getApiNoneToken(
-        //         `practice-progress/user/${userId}/practice/${page.id}`,
-        //     );
-        //     const progress = response.data.data;
-
-        //     if (progress) {
-        //         // Nếu đã có tiến trình, chuyển hướng tới trang thực hành với `lastQuestionIndex` hiện tại
-        //         console.log('Tiến trình đã tồn tại:', progress);
-        //         router.push(
-        //             `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
-        //         );
-        //     } else {
-        //         // Nếu chưa có tiến trình, tạo mới
-        //         console.log('Chưa có tiến trình, tạo mới...');
-        //         await postApiNoneToken('practice-progress/add', {
-        //             userId: userId,
-        //             practiceId: page.id,
-        //             lastQuestionIndex: 0,
-        //         });
-
-        //         // Chuyển hướng tới trang thực hành
-        //         router.push(
-        //             `/ontap/thuchanh?reviewId=${reviewId}&pargesId=${page.id}&topicId=${topicId}&userId=${userId}&bonusPoint=${page.bonusPoint}`,
-        //         );
-        //     }
-        // } catch (error) {
-        //     console.error('Error handling practice progress:', error);
-        // }
     };
 
     const handleViewTheory = (theory) => {
@@ -184,14 +153,15 @@ const OnTap = () => {
                                         justifyContent: 'center',
                                     }}
                                 >
-                                    <img
+                                    <Image
                                         src={`/img/${
                                             course.name === 'Toán'
                                                 ? 'icon_math_on.png'
                                                 : 'icon_vietnamese_literature_on.png'
                                         }`}
                                         alt={`${course.name} Icon`}
-                                        style={{ width: 40, height: 40 }}
+                                        width={40}
+                                        height={40}
                                     />
                                 </Box>
                                 <Typography variant="subtitle1">{course.name}</Typography>

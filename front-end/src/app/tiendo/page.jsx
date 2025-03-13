@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Grid, MenuItem, TextField, Typography, Paper } from '@mui/material';
+import { Grid, MenuItem, TextField, Typography, Paper, Box } from '@mui/material';
 
 import { getApiNoneToken } from '~/api/page';
 import Chart from '~/components/tiendo/Chart';
@@ -27,7 +27,6 @@ const Statistics = () => {
             try {
                 const response = await getApiNoneToken(`course/grade/${selectedGrade}`);
                 const data = response.data;
-                console.log(data);
                 setCourses(data.data || []);
                 if (data.data.length > 0) {
                     setSelectedSubject(data.data[0]); // Mặc định chọn môn đầu tiên
@@ -111,12 +110,12 @@ const Statistics = () => {
     }, [auth, selectedQuiz]);
 
     return (
-        <div className="w-screen h-screen bg-white">
+        <div className="w-screen h-screen flex flex-col bg-amber-50">
             <Header />
             <Navbar />
-            <div className="flex flex-col">
+            <div className="flex-1 flex flex-col">
                 {/* Dropdown chọn lớp, môn, chương, và bài kiểm tra */}
-                <div style={{ padding: '24px' }}>
+                <div className="m-4 p-5 rounded-md shadow-lg bg-white">
                     <Grid
                         container
                         spacing={2}
@@ -238,19 +237,11 @@ const Statistics = () => {
                 </div>
 
                 {/* Nội dung chính */}
-                <div style={{ flex: 1, padding: '24px' }}>
-                    <Typography
-                        variant="h4"
-                        align="center"
-                        gutterBottom
-                    >
-                        Thống kê điểm
-                    </Typography>
-
+                <div className="flex-1 flex m-4 mt-0">
                     {quizData.length > 0 ? (
                         <Grid
                             container
-                            spacing={4}
+                            spacing={2}
                         >
                             {/* Biểu đồ cột */}
                             <Grid
@@ -263,7 +254,7 @@ const Statistics = () => {
                                     style={{
                                         padding: '16px',
                                         borderRadius: '8px',
-                                        height: '500px',
+                                        height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         justifyContent: 'space-between',
@@ -276,7 +267,7 @@ const Statistics = () => {
                                     >
                                         Thống kê số điểm kiểm tra
                                     </Typography>
-                                    <div style={{ flex: 1 }}>
+                                    <div className="flex-1 flex items-end">
                                         <Chart data={quizData} />
                                     </div>
                                 </Paper>
@@ -293,7 +284,7 @@ const Statistics = () => {
                                     style={{
                                         padding: '16px',
                                         borderRadius: '8px',
-                                        height: '400px',
+                                        height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         justifyContent: 'space-between',
@@ -307,27 +298,22 @@ const Statistics = () => {
                                     >
                                         Thống kê tổng số điểm kiểm tra đạt được
                                     </Typography>
-                                    <div
-                                        style={{
-                                            flex: 1,
-                                            maxHeight: '300px',
-                                            maxWidth: '300px',
-                                            width: '100%',
-                                        }}
-                                    >
+                                    <div className="flex-1 flex items-center pb-3">
                                         <Pie1 data={quizData} />
                                     </div>
                                 </Paper>
                             </Grid>
                         </Grid>
                     ) : (
-                        <Typography
-                            variant="body1"
-                            align="center"
-                            color="textSecondary"
-                        >
-                            Không có dữ liệu.
-                        </Typography>
+                        <Box className="flex-1 flex justify-center items-center rounded-md bg-white shadow-lg">
+                            <Typography
+                                variant="body1"
+                                align="center"
+                                color="textSecondary"
+                            >
+                                Không có dữ liệu.
+                            </Typography>
+                        </Box>
                     )}
                 </div>
             </div>

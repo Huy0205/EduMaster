@@ -4,25 +4,51 @@ import React, { createContext, useState, useContext } from 'react';
 const KiemtraContext = createContext();
 
 export const KiemtraProvider = ({ children }) => {
-    const [selectedCourse, setSelectedCourse] = useState(null);
-    const [selectedTopic, setSelectedTopic] = useState(null);
-    const [selectedQuiz, setSelectedQuiz] = useState(null);
-    const [timeSpent, setTimeSpent] = useState(null);
-    const [score, setScore] = useState(null);
+    const getStoredValue = (key, defaultValue = null) => {
+        if (typeof window !== 'undefined') {
+            const storedValue = localStorage.getItem(key);
+            if (storedValue && storedValue !== 'undefined') {
+                try {
+                    return JSON.parse(storedValue);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    return defaultValue;
+                }
+            }
+        }
+        return defaultValue;
+    };
+
+    const [selectedCourse, setSelectedCourse] = useState(() =>
+        getStoredValue('kiemTra_selectedCourse'),
+    );
+    const [selectedTopic, setSelectedTopic] = useState(() =>
+        getStoredValue('kiemTra_selectedTopic'),
+    );
+    const [selectedQuiz, setSelectedQuiz] = useState(() => getStoredValue('kiemTra_selectedQuiz'));
+    const [timeSpent, setTimeSpent] = useState(() => getStoredValue('kiemTra_timeSpent'));
+    const [score, setScore] = useState(() => getStoredValue('kiemTra_score'));
+
+    const setStateWithStorage = (key, setter) => (value) => {
+        setter(value);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+    };
 
     return (
         <KiemtraContext.Provider
             value={{
                 selectedCourse,
-                setSelectedCourse,
+                setSelectedCourse: setStateWithStorage('kiemTra_selectedCourse', setSelectedCourse),
                 selectedTopic,
-                setSelectedTopic,
+                setSelectedTopic: setStateWithStorage('kiemTra_selectedTopic', setSelectedTopic),
                 selectedQuiz,
-                setSelectedQuiz,
+                setSelectedQuiz: setStateWithStorage('kiemTra_selectedQuiz', setSelectedQuiz),
                 timeSpent,
-                setTimeSpent,
+                setTimeSpent: setStateWithStorage('kiemTra_timeSpent', setTimeSpent),
                 score,
-                setScore,
+                setScore: setStateWithStorage('kiemTra_score', setScore),
             }}
         >
             {children}

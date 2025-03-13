@@ -4,28 +4,66 @@ import { createContext, useState, useContext } from 'react';
 const OntapContext = createContext();
 
 export const OntapProvider = ({ children }) => {
-    const [selectedCourse, setSelectedCourse] = useState(null);
-    const [selectedTopic, setSelectedTopic] = useState(null);
-    const [selectedLesson, setSelectedLesson] = useState(null);
-    const [selectedTheory, setSelectedTheory] = useState(null);
-    const [selectedPractice, setSelectedPractice] = useState(null);
-    const [firstPracticeInLesson, setFirstPracticeInLesson] = useState(null);
+    const getStoredValue = (key, defaultValue = null) => {
+        if (typeof window !== 'undefined') {
+            const storedValue = localStorage.getItem(key);
+            if (storedValue && storedValue !== 'undefined') {
+                try {
+                    return JSON.parse(storedValue);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    return defaultValue;
+                }
+            }
+        }
+        return defaultValue;
+    };
+
+    const [selectedCourse, setSelectedCourse] = useState(() =>
+        getStoredValue('onTap_selectedCourse'),
+    );
+    const [selectedTopic, setSelectedTopic] = useState(() => getStoredValue('onTap_selectedTopic'));
+    const [selectedLesson, setSelectedLesson] = useState(() =>
+        getStoredValue('onTap_selectedLesson'),
+    );
+    const [selectedTheory, setSelectedTheory] = useState(() =>
+        getStoredValue('onTap_selectedTheory'),
+    );
+    const [selectedPractice, setSelectedPractice] = useState(() =>
+        getStoredValue('selectedPractice'),
+    );
+    const [firstPracticeInLesson, setFirstPracticeInLesson] = useState(() =>
+        getStoredValue('firstPracticeInLesson'),
+    );
+
+    const setStateWithStorage = (key, setter) => (value) => {
+        setter(value);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+    };
 
     return (
         <OntapContext.Provider
             value={{
                 selectedCourse,
-                setSelectedCourse,
+                setSelectedCourse: setStateWithStorage('onTap_selectedCourse', setSelectedCourse),
                 selectedTopic,
-                setSelectedTopic,
+                setSelectedTopic: setStateWithStorage('onTap_selectedTopic', setSelectedTopic),
                 selectedLesson,
-                setSelectedLesson,
+                setSelectedLesson: setStateWithStorage('onTap_selectedLesson', setSelectedLesson),
                 selectedTheory,
-                setSelectedTheory,
+                setSelectedTheory: setStateWithStorage('onTap_selectedTheory', setSelectedTheory),
                 selectedPractice,
-                setSelectedPractice,
+                setSelectedPractice: setStateWithStorage(
+                    'onTap_selectedPractice',
+                    setSelectedPractice,
+                ),
                 firstPracticeInLesson,
-                setFirstPracticeInLesson,
+                setFirstPracticeInLesson: setStateWithStorage(
+                    'firstPracticeInLesson',
+                    setFirstPracticeInLesson,
+                ),
             }}
         >
             {children}
