@@ -29,10 +29,13 @@ const Kiemtra = () => {
         const fetchCourses = async () => {
             try {
                 const response = await getApiNoneToken(`course/grade/${auth.user.currentGrade}`);
-                const data = response.data;
-                setCourses(data.data);
-                if (data.data.length > 0 && !selectedCourse) {
-                    setSelectedCourse(data.data[0]);
+                const coursesData = response.data.data;
+                setCourses(coursesData);
+                if (
+                    data.data.length > 0 &&
+                    !coursesData.some((course) => course.id === selectedCourse?.id)
+                ) {
+                    setSelectedCourse(coursesData[0]);
                 }
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -94,14 +97,16 @@ const Kiemtra = () => {
                         courses.map((course, index) => (
                             <Button
                                 key={index}
-                                variant={selectedCourse === course ? 'contained' : 'outlined'}
+                                variant={selectedCourse.id === course.id ? 'contained' : 'outlined'}
                                 onClick={() => setSelectedCourse(course)}
                                 sx={{
                                     width: 180,
                                     height: 100,
                                     flexDirection: 'column',
-                                    color: selectedCourse === course ? 'white' : 'primary.main',
-                                    bgcolor: selectedCourse === course ? 'primary.main' : 'white',
+                                    color:
+                                        selectedCourse.id === course.id ? 'white' : 'primary.main',
+                                    bgcolor:
+                                        selectedCourse.id === course.id ? 'primary.main' : 'white',
                                 }}
                             >
                                 <Box

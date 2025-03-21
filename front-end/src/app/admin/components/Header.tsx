@@ -1,6 +1,14 @@
 import { Logout, Reply, WavingHand } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 
 function AdminHeader() {
+    const router = useRouter();
+
+    const handleLogout = () => {
+        sessionStorage.clear();
+        router.replace('/admin');
+    };
+
     return (
         <header className="w-full h-[50px] flex justify-between items-center px-3 bg-white">
             <div className="flex gap-2">
@@ -21,6 +29,7 @@ function AdminHeader() {
                 <button
                     type="button"
                     className="flex gap-1 text-gray-600"
+                    onClick={handleLogout}
                 >
                     <Logout />
                     <span className="text-base  font-medium">Đăng xuất</span>

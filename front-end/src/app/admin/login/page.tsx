@@ -4,6 +4,7 @@ import { MailOutline, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 
 import { UserService } from '~/services';
+import { CircularProgress } from '@mui/material';
 
 interface ErrorState {
     email: string;
@@ -12,9 +13,10 @@ interface ErrorState {
 
 function AdminLoginPage() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
+    const [email, setEmail] = useState<string>('tanhuy.se@gmail.com');
+    const [password, setPassword] = useState<string>('Admin123');
     const [remember, setRemember] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<ErrorState>({
         email: '',
         password: '',
@@ -49,6 +51,7 @@ function AdminLoginPage() {
     };
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true);
         e.preventDefault();
 
         if (error.email || error.password) {
@@ -75,6 +78,7 @@ function AdminLoginPage() {
                 setError((prev) => ({ ...prev, password: 'Mật khẩu không chính xác' }));
             }
         }
+        setLoading(false);
     };
 
     useEffect(() => {
@@ -169,7 +173,14 @@ function AdminLoginPage() {
                                 type="submit"
                                 className="flex-1 bg-primary text-white rounded-lg py-2 hover:bg-red-300"
                             >
-                                Đăng Nhập
+                                {loading ? (
+                                    <CircularProgress
+                                        size={16}
+                                        color="inherit"
+                                    />
+                                ) : (
+                                    'Đăng nhập'
+                                )}
                             </button>
                         </div>
                     </form>

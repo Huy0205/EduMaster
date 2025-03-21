@@ -42,9 +42,13 @@ const OnTap = () => {
                     const response = await getApiNoneToken(
                         `course/grade/${auth.user.currentGrade}`,
                     );
-                    setCourses(response.data.data);
-                    if (response.data.data.length > 0 && !selectedCourse) {
-                        setSelectedCourse(response.data.data[0]);
+                    const coursesData = response.data.data;
+                    setCourses(coursesData);
+                    if (
+                        response.data.data.length > 0 &&
+                        !coursesData.some((course) => course.id === selectedCourse?.id)
+                    ) {
+                        setSelectedCourse(coursesData[0]);
                     }
                 } catch (error) {
                     console.error('Error fetching courses:', error);
@@ -117,6 +121,8 @@ const OnTap = () => {
         router.push('/ontap/lythuyet');
     };
 
+    console.log('courses', courses);
+
     return (
         <Box className="w-screen h-screen flex flex-col bg-amber-50">
             <Header />
@@ -133,17 +139,19 @@ const OnTap = () => {
                 {/* Các nút "Toán" và "Tiếng Việt" */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     {courses.length > 0 &&
-                        courses.map((course, index) => (
+                        courses.map((course) => (
                             <Button
-                                key={index}
-                                variant={selectedCourse === course ? 'contained' : 'outlined'}
+                                key={course.id}
+                                variant={selectedCourse.id === course.id ? 'contained' : 'outlined'}
                                 onClick={() => setSelectedCourse(course)}
                                 sx={{
                                     width: 180,
                                     height: 100,
                                     flexDirection: 'column',
-                                    color: selectedCourse === course ? 'white' : 'primary.main',
-                                    bgcolor: selectedCourse === course ? 'primary.main' : 'white',
+                                    color:
+                                        selectedCourse.id === course.id ? 'white' : 'primary.main',
+                                    bgcolor:
+                                        selectedCourse.id === course.id ? 'primary.main' : 'white',
                                 }}
                             >
                                 <Box

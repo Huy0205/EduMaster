@@ -14,7 +14,12 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const token = localStorage.getItem('access_token');
+            const currentPath = window.location.pathname;
+            let token = localStorage.getItem('access_token');
+            if (currentPath.includes('admin')) {
+                token = sessionStorage.getItem('admin_access_token');
+            }
+
             if (!token) {
                 setIsLoadingAuth(false);
                 console.log('stop');
@@ -31,7 +36,6 @@ export const AuthProvider = ({ children }) => {
                 console.log('Error fetching user:', error);
                 setAuth({ isAuth: false, user: null });
             } finally {
-                console.log('finally');
                 setIsLoadingAuth(false);
             }
         };
