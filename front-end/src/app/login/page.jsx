@@ -9,7 +9,7 @@ import { fetchUserWithFrame } from '~/util/authHelpers';
 
 const LoginPage = () => {
     const { setAuth } = useAuth();
-    const [email, setEmail] = useState('nguyentanhuy02052000@gmail.com');
+    const [email, setEmail] = useState('huy@gmail.com');
     const [password, setPassword] = useState('Huy@0205');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);

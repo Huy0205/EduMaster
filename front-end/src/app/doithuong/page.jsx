@@ -230,6 +230,7 @@ const DoiThuong = () => {
                                         alt="Avatar frame"
                                         width={170}
                                         height={170}
+                                        unoptimized
                                         style={{
                                             position: 'absolute',
                                             zIndex: 2,
@@ -318,6 +319,7 @@ const DoiThuong = () => {
                                             width={200}
                                             height={200}
                                             objectFit="contain"
+                                            unoptimized
                                             style={{ zIndex: 2 }}
                                         />
                                         <Box sx={{ marginTop: 'auto', textAlign: 'center' }}>

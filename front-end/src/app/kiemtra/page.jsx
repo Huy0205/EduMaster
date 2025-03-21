@@ -27,24 +27,27 @@ const Kiemtra = () => {
         }
 
         const fetchCourses = async () => {
-            try {
-                const response = await getApiNoneToken(`course/grade/${auth.user.currentGrade}`);
-                const coursesData = response.data.data;
-                setCourses(coursesData);
-                if (
-                    data.data.length > 0 &&
-                    !coursesData.some((course) => course.id === selectedCourse?.id)
-                ) {
-                    setSelectedCourse(coursesData[0]);
+            if (auth.user) {
+                try {
+                    const response = await getApiNoneToken(
+                        `course/grade/${auth.user.currentGrade}`,
+                    );
+                    const coursesData = response.data.data;
+                    setCourses(coursesData);
+                    if (
+                        coursesData.length > 0 &&
+                        !coursesData.some((course) => course.id === selectedCourse?.id)
+                    ) {
+                        setSelectedCourse(coursesData[0]);
+                    }
+                } catch (error) {
+                    console.error('Error fetching courses:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching courses:', error);
             }
         };
 
         fetchCourses();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoadingAuth, auth.user]);
+    }, [isLoadingAuth, auth.user, router, selectedCourse?.id, setSelectedCourse]);
 
     useEffect(() => {
         const fetchTopics = async () => {

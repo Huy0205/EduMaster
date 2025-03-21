@@ -45,7 +45,7 @@ const OnTap = () => {
                     const coursesData = response.data.data;
                     setCourses(coursesData);
                     if (
-                        response.data.data.length > 0 &&
+                        coursesData.length > 0 &&
                         !coursesData.some((course) => course.id === selectedCourse?.id)
                     ) {
                         setSelectedCourse(coursesData[0]);

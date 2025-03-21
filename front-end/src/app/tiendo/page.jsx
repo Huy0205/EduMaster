@@ -8,8 +8,11 @@ import Pie1 from '~/components/tiendo/Pie';
 import Header from '~/components/Header';
 import Navbar from '~/components/Navbar';
 import { useAuth } from '~/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 const Statistics = () => {
+    const router = useRouter();
+
     const [quizData, setQuizData] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [selectedGrade, setSelectedGrade] = useState(1);
@@ -19,7 +22,17 @@ const Statistics = () => {
     const [selectedQuiz, setSelectedQuiz] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
 
-    const { auth } = useAuth();
+    const { auth, isLoadingAuth } = useAuth();
+
+    useEffect(() => {
+        if (!isLoadingAuth && !auth.user) {
+            router.replace('/login');
+            return;
+        }
+        if (auth.user) {
+            setSelectedGrade(auth.user.currentGrade);
+        }
+    }, [isLoadingAuth, auth.user, router]);
 
     // Lấy danh sách môn học dựa vào lớp
     useEffect(() => {
@@ -51,7 +64,7 @@ const Statistics = () => {
                 try {
                     const response = await getApiNoneToken(`topic/course/${selectedSubject.id}`);
                     const topicsData = response.data;
-                    setTopics(topicsData.data || []);
+                    setTopics(topicsData.data);
                     if (topicsData.data.length > 0) {
                         setSelectedTopic(topicsData.data[0]); // Mặc định chọn chương đầu tiên
                     } else {
@@ -74,7 +87,7 @@ const Statistics = () => {
                 try {
                     const response = await getApiNoneToken(`quiz/topic/${selectedTopic.id}`);
                     const quizzesData = response.data;
-                    setQuizzes(quizzesData.data || []);
+                    setQuizzes(quizzesData.data);
                     if (quizzesData.data.length > 0) {
                         setSelectedQuiz(quizzesData.data[0]); // Mặc định chọn bài kiểm tra đầu tiên
                     } else {
@@ -97,7 +110,7 @@ const Statistics = () => {
                         `/result/user/${auth.user.id}/quiz/${selectedQuiz.id}`,
                     );
                     console.log('quizz', response);
-                    setQuizData(response.data.data || []);
+                    setQuizData(response.data.data);
                 } catch (error) {
                     console.error('Lỗi khi lấy dữ liệu:', error);
                 }
@@ -107,7 +120,7 @@ const Statistics = () => {
             // Reset dữ liệu khi chưa chọn bài kiểm tra
             setQuizData([]);
         }
-    }, [auth, selectedQuiz]);
+    }, [auth.user, selectedQuiz]);
 
     return (
         <div className="w-screen h-screen flex flex-col bg-amber-50">
