@@ -13,14 +13,14 @@ import { Box } from '@mui/material';
 import { useAuth } from '~/context/AuthContext';
 
 const Header = () => {
-    const { auth, setAuth } = useAuth();
+    const { auth, isLoadingAuth } = useAuth();
     const { isAuth, user } = auth;
     const router = useRouter();
     const [anchorEl, setAnchorEl] = useState(null);
     const isDropdownOpen = Boolean(anchorEl);
 
     const handleLoginClick = () => {
-        router.push('/login');
+        if (!isLoadingAuth) router.push('/login');
     };
 
     const handleProfileClick = () => {
@@ -36,10 +36,9 @@ const Header = () => {
     };
 
     const handleLogout = () => {
-        setAuth({ isAuth: false, user: null });
         localStorage.clear();
         setAnchorEl(null);
-        router.push('/');
+        window.location.href = '/'
     };
 
     const handleMenuClose = () => {
@@ -87,7 +86,7 @@ const Header = () => {
                                         }}
                                     >
                                         {/* Ảnh bao quanh Avatar */}
-                                        {user.frame && (
+                                        {user?.frame && (
                                             <Box
                                                 component="img"
                                                 src={user.frame.url} // Sử dụng URL frame active

@@ -211,59 +211,70 @@ const DoiThuong = () => {
                     >
                         <div className="px-10 flex flex-col justify-center items-center border-r-4">
                             {/* Phần bên trái */}
-                            <Box
-                                sx={{
-                                    position: 'relative',
-                                    width: 170,
-                                    height: 170,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    overflow: 'hidden',
-                                }}
-                            >
-                                {/* Avatar Frame */}
-                                {user.frame && (
-                                    <Image
-                                        src={user.frame.url}
-                                        alt="Avatar frame"
-                                        width={170}
-                                        height={170}
-                                        unoptimized
-                                        style={{
-                                            position: 'absolute',
-                                            zIndex: 2,
-                                            pointerEvents: 'none',
+                            {user && (
+                                <>
+                                    <Box
+                                        sx={{
+                                            position: 'relative',
+                                            width: 170,
+                                            height: 170,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            overflow: 'hidden',
                                         }}
-                                    />
-                                )}
-
-                                {/* Avatar */}
-                                <Avatar
-                                    src={user.avatar}
-                                    alt="User avatar"
-                                    sx={{
-                                        position: 'absolute',
-                                        width: 150,
-                                        height: 150,
-                                        zIndex: 1,
-                                    }}
-                                />
-                            </Box>
-                            {/* Tên người dùng */}
-                            <Typography variant="h6">{user.fullName}</Typography>
-
-                            {/* Điểm */}
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                                <Image
-                                    src="/iframe/img/star.png"
-                                    alt="Điểm Icon"
-                                    width={30}
-                                    height={30}
-                                />
-                                <Typography variant="body1">{user.totalPoint || 0}</Typography>
-                            </Box>
+                                    >
+                                        {/* Avatar Frame */}
+                                        {user?.frame && (
+                                            <Image
+                                                src={user.frame.url}
+                                                alt="Avatar frame"
+                                                width={170}
+                                                height={170}
+                                                unoptimized
+                                                style={{
+                                                    position: 'absolute',
+                                                    zIndex: 2,
+                                                    pointerEvents: 'none',
+                                                }}
+                                            />
+                                        )}
+                                        {/* Avatar */}
+                                        <Avatar
+                                            src={user.avatar}
+                                            alt="User avatar"
+                                            sx={{
+                                                position: 'absolute',
+                                                width: 150,
+                                                height: 150,
+                                                zIndex: 1,
+                                            }}
+                                        />
+                                    </Box>
+                                    {/* Tên người dùng */}
+                                    <Typography variant="h6">{user.fullName}</Typography>
+                                    {/* Điểm */}
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            mt: 1,
+                                        }}
+                                    >
+                                        <Image
+                                            src="/iframe/img/star.png"
+                                            alt="Điểm Icon"
+                                            width={30}
+                                            height={30}
+                                        />
+                                        <Typography variant="body1">
+                                            {user.totalPoint || 0}
+                                        </Typography>
+                                    </Box>
+                                </>
+                            )}
                         </div>
 
                         {/* Phần bên phải */}
@@ -324,7 +335,7 @@ const DoiThuong = () => {
                                         />
                                         <Box sx={{ marginTop: 'auto', textAlign: 'center' }}>
                                             {!frame.isBlock ? (
-                                                frame.id === user.frame?.id ? (
+                                                frame.id === user?.frame?.id ? (
                                                     <Typography
                                                         variant="body2"
                                                         color="textSecondary"

@@ -19,10 +19,11 @@ export const AuthProvider = ({ children }) => {
             if (currentPath.includes('admin')) {
                 token = sessionStorage.getItem('admin_access_token');
             }
+            console.log('token:', token);
 
             if (!token) {
+                setAuth({ isAuth: false, user: null });
                 setIsLoadingAuth(false);
-                console.log('stop');
                 return;
             }
             try {
@@ -30,7 +31,6 @@ export const AuthProvider = ({ children }) => {
                 const { data, message } = authRes.data;
                 if (!data) throw new Error(message);
                 const userWithFrame = await fetchUserWithFrame(data);
-                console.log('userWithFrame', userWithFrame);
                 setAuth({ isAuth: true, user: userWithFrame });
             } catch (error) {
                 console.log('Error fetching user:', error);

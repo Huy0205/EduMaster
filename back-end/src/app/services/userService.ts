@@ -8,6 +8,12 @@ import { BcryptUtil, TokenUtil } from '../../utils';
 const UserRepository = db.AppDataSource.getRepository(User);
 
 export class UserService {
+    private static removeField(obj: User, field: keyof User): Partial<User> {
+        const { [field]: _ignored, ...rest } = obj;
+        console.log(_ignored);
+        return rest;
+    }
+
     /*
      * Login by email and password
      */
@@ -38,15 +44,7 @@ export class UserService {
                 message: 'Login success',
                 data: {
                     token,
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        fullName: user.fullName,
-                        phoneNumber: user.phoneNumber,
-                        avatar: user.avatar,
-                        currentGrade: user.currentGrade,
-                        role: user.role,
-                    },
+                    user: this.removeField(user, 'password'),
                 },
             };
         } catch (error) {
@@ -106,7 +104,7 @@ export class UserService {
             return {
                 code: 201,
                 message: 'Register success',
-                data: user,
+                data: this.removeField(user, 'password'),
             };
         } catch (error) {
             console.log('Error registering', error);
@@ -216,7 +214,7 @@ export class UserService {
             return {
                 code: 200,
                 message: 'Get users by role success',
-                data: users,
+                data: users.map((user) => this.removeField(user, 'password')),
             };
         } catch (error) {
             console.log('Error getting users by role', error);
@@ -243,7 +241,7 @@ export class UserService {
             return {
                 code: 200,
                 message: 'Get user by id success',
-                data: user,
+                data: this.removeField(user, 'password'),
             };
         } catch (error) {
             console.log('Error getting user by id', error);
@@ -270,7 +268,7 @@ export class UserService {
             return {
                 code: 200,
                 message: 'Get user by email success',
-                data: user,
+                data: this.removeField(user, 'password'),
             };
         } catch (error) {
             console.log('Error getting user by email', error);
@@ -295,7 +293,7 @@ export class UserService {
             return {
                 code: 200,
                 message: 'Get users by grade success',
-                data: users,
+                data: users.map((user) => this.removeField(user, 'password')),
             };
         } catch (error) {
             console.log('Error getting users by grade', error);
@@ -314,7 +312,7 @@ export class UserService {
             return {
                 code: 200,
                 message: 'Save user success',
-                data: newUser,
+                data: this.removeField(newUser, 'password'),
             };
         } catch (error) {
             console.log('Error saving user', error);

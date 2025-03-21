@@ -26,7 +26,7 @@ const Statistics = () => {
 
     useEffect(() => {
         if (!isLoadingAuth && !auth.user) {
-            router.replace('/login');
+            router.push('/login');
             return;
         }
         if (auth.user) {
