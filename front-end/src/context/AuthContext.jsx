@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }) => {
             if (currentPath.includes('admin')) {
                 token = sessionStorage.getItem('admin_access_token');
             }
-            console.log('token:', token);
 
             if (!token) {
                 setAuth({ isAuth: false, user: null });

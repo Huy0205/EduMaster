@@ -9,7 +9,7 @@ import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '~/context/AuthContext';
 
 const Header = () => {
@@ -38,7 +38,7 @@ const Header = () => {
     const handleLogout = () => {
         localStorage.clear();
         setAnchorEl(null);
-        window.location.href = '/'
+        window.location.href = '/';
     };
 
     const handleMenuClose = () => {
@@ -181,9 +181,16 @@ const Header = () => {
                             onClick={handleLoginClick}
                             variant="contained"
                             color="primary"
-                            sx={{ bgcolor: 'blue.600' }}
+                            sx={{ bgcolor: 'blue.600', width: '140px' }}
                         >
-                            Đăng nhập
+                            {isLoadingAuth ? (
+                                <CircularProgress
+                                    size={24}
+                                    color="inherit"
+                                />
+                            ) : (
+                                'Đăng nhập'
+                            )}
                         </Button>
                     )}
                 </Box>
